@@ -43,11 +43,17 @@ struct app_stuff : vinyl::base_app_stuff {
   cube::buffer cube {};
   inst::buffer insts {};
 
-  voo::single_frag_dset dset { 1 };
+  vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
+    vee::dsl_fragment_sampler()
+  });
+  vee::descriptor_pool dpool = vee::create_descriptor_pool(1, {
+    vee::combined_image_sampler(1)
+  });
+  vee::descriptor_set dset = vee::allocate_descriptor_set(*dpool, *dsl);
 
   vee::render_pass rp = voo::single_att_depth_render_pass(dq);
   vee::pipeline_layout pl = vee::create_pipeline_layout(
-      dset.descriptor_set_layout(),
+      *dsl,
       vee::vertex_push_constant_range<upc>());
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
@@ -74,7 +80,7 @@ struct app_stuff : vinyl::base_app_stuff {
 
   app_stuff() : base_app_stuff { "poc-mcish" } {
     voo::load_image("Tiles040_1K-JPG_Color.jpg", &t040, [this](auto sz) {
-      vee::update_descriptor_set(dset.descriptor_set(), 0, *t040.iv, *smp);
+      vee::update_descriptor_set(dset, 0, *t040.iv, *smp);
     });
   }
 };
@@ -96,7 +102,7 @@ extern "C" void casein_init() {
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset.descriptor_set());
+      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset);
       vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 
       static struct count {
