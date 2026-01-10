@@ -8,6 +8,7 @@ import cube;
 import dotz;
 import silog;
 import sitime;
+import texmap;
 import traits;
 import vinyl;
 import voo;
@@ -42,16 +43,13 @@ namespace inst {
 struct app_stuff : vinyl::base_app_stuff {
   cube::buffer cube {};
   inst::buffer insts {};
+  texmap::cache tmap {};
+  vee::descriptor_set dset = tmap.load("Tiles040_1K-JPG_Color.jpg");
 
+  vee::render_pass rp = voo::single_att_depth_render_pass(dq);
   vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
     vee::dsl_fragment_sampler()
   });
-  vee::descriptor_pool dpool = vee::create_descriptor_pool(1, {
-    vee::combined_image_sampler(1)
-  });
-  vee::descriptor_set dset = vee::allocate_descriptor_set(*dpool, *dsl);
-
-  vee::render_pass rp = voo::single_att_depth_render_pass(dq);
   vee::pipeline_layout pl = vee::create_pipeline_layout(
       *dsl,
       vee::vertex_push_constant_range<upc>());
@@ -75,14 +73,7 @@ struct app_stuff : vinyl::base_app_stuff {
     },
   });
 
-  vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
-  voo::bound_image t040 {};
-
-  app_stuff() : base_app_stuff { "poc-mcish" } {
-    voo::load_image("Tiles040_1K-JPG_Color.jpg", &t040, [this](auto sz) {
-      vee::update_descriptor_set(dset, 0, *t040.iv, *smp);
-    });
-  }
+  app_stuff() : base_app_stuff { "poc-mcish" } {}
 };
 struct ext_stuff : vinyl::base_extent_stuff {
   ext_stuff() : base_extent_stuff { vv::as() } {}
