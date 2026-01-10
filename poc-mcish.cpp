@@ -53,12 +53,12 @@ struct app_stuff : vinyl::base_app_stuff {
   cube::buffer cube {};
   inst::buffer insts {};
 
+  texmap::cache tmap {};
+  hai::array<unsigned> txt_ids { 3 };
+
   vee::render_pass rp = voo::single_att_depth_render_pass(dq);
-  vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
-    vee::dsl_fragment_sampler()
-  });
   vee::pipeline_layout pl = vee::create_pipeline_layout(
-      *dsl,
+      tmap.dsl(),
       vee::vertex_push_constant_range<upc>());
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
@@ -80,13 +80,10 @@ struct app_stuff : vinyl::base_app_stuff {
     },
   });
 
-  texmap::cache tmap {};
-  hai::array<vee::descriptor_set> dsets { 3 };
-
   app_stuff() : base_app_stuff { "poc-mcish" } {
-    dsets[0] = tmap.load(t040);
-    dsets[1] = tmap.load(t101);
-    dsets[2] = tmap.load(t131);
+    txt_ids[0] = tmap.load(t040);
+    txt_ids[1] = tmap.load(t101);
+    txt_ids[2] = tmap.load(t131);
   }
 };
 struct ext_stuff : vinyl::base_extent_stuff {
@@ -107,7 +104,7 @@ extern "C" void casein_init() {
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dsets[1]);
+      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->tmap.dset());
       vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 
       static struct count {
