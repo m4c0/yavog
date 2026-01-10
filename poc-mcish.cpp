@@ -6,8 +6,10 @@
 import clay;
 import cube;
 import dotz;
+import hai;
 import silog;
 import sitime;
+import sv;
 import texmap;
 import traits;
 import vinyl;
@@ -17,6 +19,10 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
+static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
+static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
+static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
+
 struct upc {
   float aspect;
   float fov = 90;
@@ -25,7 +31,7 @@ struct upc {
 namespace inst {
   struct t {
     dotz::vec3 pos;
-    float _pad;
+    unsigned txt;
   };
 
   struct buffer : clay::buffer<t> {
@@ -33,7 +39,10 @@ namespace inst {
       auto m = map();
       for (auto x = 0; x < 128; x++) {
         for (auto y = 0; y < 128; y++) {
-          m += t { .pos { x - 64, -1, y - 64 } };
+          unsigned n = (x + y) % 4;
+          if (n == 3) continue;
+
+          m += t { .pos { x - 64, -1, y - 64 }, .txt = n };
         }
       }
     }
@@ -43,8 +52,6 @@ namespace inst {
 struct app_stuff : vinyl::base_app_stuff {
   cube::buffer cube {};
   inst::buffer insts {};
-  texmap::cache tmap {};
-  vee::descriptor_set dset = tmap.load("Tiles040_1K-JPG_Color.jpg");
 
   vee::render_pass rp = voo::single_att_depth_render_pass(dq);
   vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
@@ -73,7 +80,14 @@ struct app_stuff : vinyl::base_app_stuff {
     },
   });
 
-  app_stuff() : base_app_stuff { "poc-mcish" } {}
+  texmap::cache tmap {};
+  hai::array<vee::descriptor_set> dsets { 3 };
+
+  app_stuff() : base_app_stuff { "poc-mcish" } {
+    dsets[0] = tmap.load(t040);
+    dsets[1] = tmap.load(t101);
+    dsets[2] = tmap.load(t131);
+  }
 };
 struct ext_stuff : vinyl::base_extent_stuff {
   ext_stuff() : base_extent_stuff { vv::as() } {}
@@ -93,7 +107,7 @@ extern "C" void casein_init() {
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset);
+      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dsets[1]);
       vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 
       static struct count {
