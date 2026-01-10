@@ -24,6 +24,8 @@ namespace texmap {
 
   public:
     auto load(sv name) {
+      if (m_ids.has(name)) return m_dsets[m_ids[name]];
+
       auto id = m_count++;
       m_ids[name] = id;
       voo::load_image(name, &m_imgs[id], [this,id](auto sz) {
