@@ -10,6 +10,7 @@ layout(location = 1) in vec2 uv;
 layout(location = 2) in vec3 i_pos;
 
 layout(location = 0) out vec2 f_uv;
+layout(location = 1) out uint f_txtid;
 
 const float near =  0.01;
 const float far  = 10.0;
@@ -27,4 +28,5 @@ void main() {
   );
 
   f_uv = uv;
+  f_txtid = 0;
 }
