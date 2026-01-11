@@ -8,7 +8,7 @@ namespace texmap {
   export class cache {
     static constexpr const auto max_sets = 128;
 
-    vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
+    vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
       vee::dsl_fragment_sampler(max_sets)
