@@ -7,7 +7,8 @@ layout(push_constant) uniform upc {
 
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec2 uv;
-layout(location = 2) in vec3 i_pos;
+layout(location = 2, component = 0) in vec3 i_pos;
+layout(location = 2, component = 3) in float txtid;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
@@ -28,5 +29,5 @@ void main() {
   );
 
   f_uv = uv;
-  f_txtid = 0;
+  f_txtid = int(txtid);
 }

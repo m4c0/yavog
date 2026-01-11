@@ -31,7 +31,7 @@ struct upc {
 namespace inst {
   struct t {
     dotz::vec3 pos;
-    unsigned txt;
+    float txtid;
   };
 
   struct buffer : clay::buffer<t> {
@@ -42,7 +42,10 @@ namespace inst {
           unsigned n = (x + y) % 4;
           if (n == 3) continue;
 
-          m += t { .pos { x - 64, -1, y - 64 }, .txt = n };
+          m += t {
+            .pos { x - 64, -1, y - 64 },
+            .txtid = static_cast<float>(n),
+          };
         }
       }
     }
@@ -76,7 +79,7 @@ struct app_stuff : vinyl::base_app_stuff {
     .attributes { 
       vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
       vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
-      vee::vertex_attribute_vec3(1, traits::offset_of(&inst::t::pos)),
+      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::t::pos)),
     },
   });
 
