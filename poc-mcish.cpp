@@ -2,14 +2,13 @@
 #pragma leco add_resource_dir assets
 #pragma leco add_shader "poc-mcish.frag"
 #pragma leco add_shader "poc-mcish.vert"
-#pragma leco add_shader "ofs.frag"
-#pragma leco add_shader "ofs.vert"
 
 import clay;
 import cube;
 import dotz;
 import hai;
 import ofs;
+import post;
 import silog;
 import sitime;
 import sv;
@@ -62,6 +61,8 @@ struct app_stuff : vinyl::base_app_stuff {
   texmap::cache tmap {};
   hai::array<unsigned> txt_ids { 3 };
 
+  post::pipeline post { dq };
+
   vee::pipeline_layout ofs_pl = vee::create_pipeline_layout(
       tmap.dsl(),
       vee::vertex_push_constant_range<upc>());
@@ -85,21 +86,6 @@ struct app_stuff : vinyl::base_app_stuff {
     },
   });
 
-  voo::single_frag_dset dset { 1 };
-  vee::pipeline_layout pl = vee::create_pipeline_layout(dset.descriptor_set_layout());
-  vee::gr_pipeline ppl = vee::create_graphics_pipeline({
-    .pipeline_layout = *pl,
-    .render_pass = *voo::single_att_render_pass(dq),
-    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    .back_face_cull = false,
-    .shaders {
-      *clay::vert_shader("ofs", [] {}),
-      *clay::frag_shader("ofs", [] {}),
-    },
-    .bindings {},
-    .attributes {},
-  });
-
   app_stuff() : base_app_stuff { "poc-mcish" } {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
@@ -108,10 +94,9 @@ struct app_stuff : vinyl::base_app_stuff {
 };
 struct ext_stuff : vinyl::base_extent_stuff {
   ofs::framebuffer ofs_fb { sw.extent() };
-  vee::sampler smp = vee::create_sampler(vee::linear_sampler);
 
   ext_stuff() : base_extent_stuff { vv::as() } {
-    vee::update_descriptor_set(vv::as()->dset.descriptor_set(), 0, *ofs_fb.colour.iv, *smp);
+    vv::as()->post.update_descriptor_set(*ofs_fb.colour.iv);
   }
 };
 
@@ -148,18 +133,8 @@ extern "C" void casein_init() {
     vv::ss()->frame([] {
       render_to_offscreen();
 
-      auto rp = vv::ss()->sw.cmd_render_pass({
-        .clear_colours { 
-          vee::clear_colour({}), 
-          vee::clear_depth(1.0),
-        },
-      });
-
       auto cb = vv::ss()->sw.command_buffer();
-      vee::cmd_set_viewport(cb, vv::ss()->sw.extent());
-      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset.descriptor_set());
-      vee::cmd_draw(cb, 4);
+      vv::as()->post.render(cb, vv::ss()->sw);
 
       static struct count {
         sitime::stopwatch w {};
