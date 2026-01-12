@@ -7,6 +7,7 @@ import clay;
 import cube;
 import dotz;
 import hai;
+import ofs;
 import silog;
 import sitime;
 import sv;
@@ -59,13 +60,33 @@ struct app_stuff : vinyl::base_app_stuff {
   texmap::cache tmap {};
   hai::array<unsigned> txt_ids { 3 };
 
-  vee::render_pass rp = voo::single_att_depth_render_pass(dq);
   vee::pipeline_layout pl = vee::create_pipeline_layout(
       tmap.dsl(),
       vee::vertex_push_constant_range<upc>());
+
+  vee::gr_pipeline ofs_ppl = vee::create_graphics_pipeline({
+    .pipeline_layout = *pl,
+    .render_pass = *ofs::render_pass(),
+    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    .depth = vee::depth::op_less(),
+    .shaders {
+      *clay::vert_shader("poc-mcish", [] {}),
+      *clay::frag_shader("poc-mcish", [] {}),
+    },
+    .bindings {
+      cube::buffer::vertex_input_bind(),
+      inst::buffer::vertex_input_bind_per_instance(),
+    },
+    .attributes { 
+      vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
+      vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
+      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::t::pos)),
+    },
+  });
+
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
-    .render_pass = *rp,
+    .render_pass = *voo::single_att_depth_render_pass(dq),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     .depth = vee::depth::op_less(),
     .shaders {
@@ -90,12 +111,44 @@ struct app_stuff : vinyl::base_app_stuff {
   }
 };
 struct ext_stuff : vinyl::base_extent_stuff {
+  ofs::framebuffer ofs_fb { sw.extent() };
+
   ext_stuff() : base_extent_stuff { vv::as() } {}
 };
+
+static void render_to_offscreen() {
+  auto cb = vv::ss()->sw.command_buffer();
+  auto ext = vv::ss()->sw.extent();
+
+  upc pc {
+    .aspect = vv::ss()->aspect(),
+  };
+
+  voo::cmd_render_pass rp { vee::render_pass_begin {
+    .command_buffer = cb,
+    .render_pass = *vv::ss()->ofs_fb.rp,
+    .framebuffer = *vv::ss()->ofs_fb.fb,
+    .extent = vv::ss()->sw.extent(),
+    .clear_colours { 
+      vee::clear_colour({ 0, 0, 0, 1 }), 
+      vee::clear_depth(1.0),
+    },
+  }, true };
+  vee::cmd_set_viewport_flipped(cb, ext);
+  vee::cmd_set_scissor(cb, ext);
+  vee::cmd_bind_gr_pipeline(cb, *vv::as()->ofs_ppl);
+  vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
+  vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
+  vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
+  vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->tmap.dset());
+  vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
+}
 
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->frame([] {
+      render_to_offscreen();
+
       [[maybe_unused]] auto rp = vv::ss()->clear({ 0, 0, 0, 1 });
 
       upc pc {
