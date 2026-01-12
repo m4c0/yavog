@@ -13,6 +13,7 @@ layout(location = 2, component = 3) in float txtid;
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec4 f_pos;
+layout(location = 3) out vec4 f_normal;
 
 const float near =  0.01;
 const float far  = 10.0;
@@ -29,6 +30,7 @@ void main() {
     p.z
   );
 
+  f_normal = vec4(1);
   f_uv = uv;
   f_txtid = int(txtid);
 }

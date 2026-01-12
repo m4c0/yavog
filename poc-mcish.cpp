@@ -78,6 +78,7 @@ struct app_stuff : vinyl::base_app_stuff {
     .blends {
       vee::colour_blend_classic(),
       vee::colour_blend_none(),
+      vee::colour_blend_none(),
     },
     .shaders {
       *clay::vert_shader("poc-mcish", [] {}),
@@ -126,6 +127,7 @@ static void render_to_offscreen() {
     .extent = vv::ss()->swc.extent(),
     .clear_colours { 
       vee::clear_colour({ 0, 0, 0, 1 }), 
+      vee::clear_colour({ 0, 0, 0, 0 }), 
       vee::clear_colour({ 0, 0, 0, 0 }), 
       vee::clear_depth(1.0),
     },
