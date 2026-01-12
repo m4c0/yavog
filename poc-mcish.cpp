@@ -148,9 +148,15 @@ extern "C" void casein_init() {
     vv::ss()->frame([] {
       render_to_offscreen();
 
-      [[maybe_unused]] auto rp = vv::ss()->clear({ 0, 0, 0, 0 });
+      auto rp = vv::ss()->sw.cmd_render_pass({
+        .clear_colours { 
+          vee::clear_colour({}), 
+          vee::clear_depth(1.0),
+        },
+      });
 
       auto cb = vv::ss()->sw.command_buffer();
+      vee::cmd_set_viewport(cb, vv::ss()->sw.extent());
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset.descriptor_set());
       vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
