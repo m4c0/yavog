@@ -91,6 +91,7 @@ struct app_stuff : vinyl::base_app_stuff {
     .attributes { 
       vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
       vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
+      vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
       vee::vertex_attribute_vec4(1, traits::offset_of(&inst::t::pos)),
     },
   });

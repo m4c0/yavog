@@ -7,6 +7,7 @@ export namespace cube {
     dotz::vec3 pos;
     float _pad;
     dotz::vec2 uv;
+    dotz::vec3 normal;
   };
 
   struct buffer : public clay::buffer<vtx> {
