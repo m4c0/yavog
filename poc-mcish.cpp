@@ -2,6 +2,8 @@
 #pragma leco add_resource_dir assets
 #pragma leco add_shader "poc-mcish.frag"
 #pragma leco add_shader "poc-mcish.vert"
+#pragma leco add_shader "ofs.frag"
+#pragma leco add_shader "ofs.vert"
 
 import clay;
 import cube;
@@ -60,12 +62,11 @@ struct app_stuff : vinyl::base_app_stuff {
   texmap::cache tmap {};
   hai::array<unsigned> txt_ids { 3 };
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout(
+  vee::pipeline_layout ofs_pl = vee::create_pipeline_layout(
       tmap.dsl(),
       vee::vertex_push_constant_range<upc>());
-
   vee::gr_pipeline ofs_ppl = vee::create_graphics_pipeline({
-    .pipeline_layout = *pl,
+    .pipeline_layout = *ofs_pl,
     .render_pass = *ofs::render_pass(),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     .depth = vee::depth::op_less(),
@@ -84,24 +85,19 @@ struct app_stuff : vinyl::base_app_stuff {
     },
   });
 
+  voo::single_frag_dset dset { 1 };
+  vee::pipeline_layout pl = vee::create_pipeline_layout(dset.descriptor_set_layout());
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *voo::single_att_depth_render_pass(dq),
-    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
     .depth = vee::depth::op_less(),
     .shaders {
-      *clay::vert_shader("poc-mcish", [] {}),
-      *clay::frag_shader("poc-mcish", [] {}),
+      *clay::vert_shader("ofs", [] {}),
+      *clay::frag_shader("ofs", [] {}),
     },
-    .bindings {
-      cube::buffer::vertex_input_bind(),
-      inst::buffer::vertex_input_bind_per_instance(),
-    },
-    .attributes { 
-      vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
-      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::t::pos)),
-    },
+    .bindings {},
+    .attributes {},
   });
 
   app_stuff() : base_app_stuff { "poc-mcish" } {
@@ -112,8 +108,11 @@ struct app_stuff : vinyl::base_app_stuff {
 };
 struct ext_stuff : vinyl::base_extent_stuff {
   ofs::framebuffer ofs_fb { sw.extent() };
+  vee::sampler smp = vee::create_sampler(vee::linear_sampler);
 
-  ext_stuff() : base_extent_stuff { vv::as() } {}
+  ext_stuff() : base_extent_stuff { vv::as() } {
+    vee::update_descriptor_set(vv::as()->dset.descriptor_set(), 0, *ofs_fb.colour.iv, *smp);
+  }
 };
 
 static void render_to_offscreen() {
@@ -137,10 +136,10 @@ static void render_to_offscreen() {
   vee::cmd_set_viewport_flipped(cb, ext);
   vee::cmd_set_scissor(cb, ext);
   vee::cmd_bind_gr_pipeline(cb, *vv::as()->ofs_ppl);
-  vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
+  vee::cmd_push_vertex_constants(cb, *vv::as()->ofs_pl, &pc);
   vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
   vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-  vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->tmap.dset());
+  vee::cmd_bind_descriptor_set(cb, *vv::as()->ofs_pl, 0, vv::as()->tmap.dset());
   vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 }
 
@@ -149,18 +148,11 @@ extern "C" void casein_init() {
     vv::ss()->frame([] {
       render_to_offscreen();
 
-      [[maybe_unused]] auto rp = vv::ss()->clear({ 0, 0, 0, 1 });
-
-      upc pc {
-        .aspect = vv::ss()->aspect(),
-      };
+      [[maybe_unused]] auto rp = vv::ss()->clear({ 0, 0, 0, 0 });
 
       auto cb = vv::ss()->sw.command_buffer();
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
-      vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->tmap.dset());
+      vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset.descriptor_set());
       vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 
       static struct count {
