@@ -1,5 +1,6 @@
 export module post;
 import clay;
+import hai;
 import voo;
 
 namespace post {
@@ -7,13 +8,17 @@ namespace post {
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
     voo::single_frag_dset m_dset { 1 };
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(m_dset.descriptor_set_layout());
+    vee::render_pass m_rp;
     vee::gr_pipeline m_ppl;
+
+    hai::array<vee::framebuffer> m_fbs {};
 
   public:
     pipeline(voo::device_and_queue & dq) :
-      m_ppl { vee::create_graphics_pipeline({
+      m_rp { voo::single_att_render_pass(dq) }
+    , m_ppl { vee::create_graphics_pipeline({
         .pipeline_layout = *m_pl,
-        .render_pass = *voo::single_att_render_pass(dq),
+        .render_pass = *m_rp,
         .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
         .back_face_cull = false,
         .shaders {
@@ -25,19 +30,23 @@ namespace post {
       }) }
     {}
 
+    void setup(voo::swapchain & swc) {
+      m_fbs = swc.create_framebuffers(*m_rp);
+    }
     void update_descriptor_set(vee::image_view::type input) {
       vee::update_descriptor_set(m_dset.descriptor_set(), 0, input, *m_smp);
     }
 
-    void render(vee::command_buffer cb, voo::swapchain_and_stuff & sw) {
-      auto rp = sw.cmd_render_pass({
-        .clear_colours { 
-          vee::clear_colour({}), 
-          vee::clear_depth(1.0),
-        },
-      });
+    void render(vee::command_buffer cb, voo::swapchain & swc) {
+      voo::cmd_render_pass rpg {vee::render_pass_begin{
+        .command_buffer = cb,
+        .render_pass = *m_rp,
+        .framebuffer = *m_fbs[swc.index()],
+        .extent = swc.extent(),
+        .clear_colours { vee::clear_colour({}) },
+      }, true};
 
-      vee::cmd_set_viewport(cb, sw.extent());
+      vee::cmd_set_viewport(cb, swc.extent());
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset.descriptor_set());
       vee::cmd_draw(cb, 4);

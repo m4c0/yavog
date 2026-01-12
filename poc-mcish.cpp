@@ -92,27 +92,30 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[2] = tmap.load(t131);
   }
 };
-struct ext_stuff : vinyl::base_extent_stuff {
-  ofs::framebuffer ofs_fb { sw.extent() };
+struct ext_stuff {
+  voo::single_cb cb {};
+  voo::swapchain swc { vv::as()->dq };
+  ofs::framebuffer ofs_fb { swc.extent() };
 
-  ext_stuff() : base_extent_stuff { vv::as() } {
+  ext_stuff() {
     vv::as()->post.update_descriptor_set(*ofs_fb.colour.iv);
+    vv::as()->post.setup(swc);
   }
 };
 
 static void render_to_offscreen() {
-  auto cb = vv::ss()->sw.command_buffer();
-  auto ext = vv::ss()->sw.extent();
+  auto cb = vv::ss()->cb.cb();
+  auto ext = vv::ss()->swc.extent();
 
   upc pc {
-    .aspect = vv::ss()->aspect(),
+    .aspect = vv::ss()->swc.aspect(),
   };
 
   voo::cmd_render_pass rp { vee::render_pass_begin {
     .command_buffer = cb,
     .render_pass = *vv::ss()->ofs_fb.rp,
     .framebuffer = *vv::ss()->ofs_fb.fb,
-    .extent = vv::ss()->sw.extent(),
+    .extent = vv::ss()->swc.extent(),
     .clear_colours { 
       vee::clear_colour({ 0, 0, 0, 1 }), 
       vee::clear_depth(1.0),
@@ -130,22 +133,26 @@ static void render_to_offscreen() {
 
 extern "C" void casein_init() {
   vv::setup([] {
-    vv::ss()->frame([] {
+    vv::ss()->swc.acquire_next_image();
+    auto cb = vv::ss()->cb.cb();
+    {
+      voo::cmd_buf_one_time_submit ots { cb };
+
       render_to_offscreen();
+      vv::as()->post.render(cb, vv::ss()->swc);
+    }
+    vv::ss()->swc.queue_submit(cb);
+    vv::ss()->swc.queue_present();
 
-      auto cb = vv::ss()->sw.command_buffer();
-      vv::as()->post.render(cb, vv::ss()->sw);
-
-      static struct count {
-        sitime::stopwatch w {};
-        int i = 0;
-        ~count() { silog::infof(">>>> %.3f", i / w.secs()); }
-      } * cnt = new count {};
-      cnt->i++;
-      if (cnt->w.secs() > 3) {
-        delete cnt;
-        cnt = new count {};
-      }
-    });
+    static struct count {
+      sitime::stopwatch w {};
+      int i = 0;
+      ~count() { silog::infof(">>>> %.3f", i / w.secs()); }
+    } * cnt = new count {};
+    cnt->i++;
+    if (cnt->w.secs() > 3) {
+      delete cnt;
+      cnt = new count {};
+    }
   });
 }
