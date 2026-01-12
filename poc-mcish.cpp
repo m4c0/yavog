@@ -89,9 +89,8 @@ struct app_stuff : vinyl::base_app_stuff {
   vee::pipeline_layout pl = vee::create_pipeline_layout(dset.descriptor_set_layout());
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
-    .render_pass = *voo::single_att_depth_render_pass(dq),
+    .render_pass = *voo::single_att_render_pass(dq),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    .depth = vee::depth::op_less(),
     .shaders {
       *clay::vert_shader("ofs", [] {}),
       *clay::frag_shader("ofs", [] {}),
@@ -159,7 +158,7 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, vv::ss()->sw.extent());
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vee::cmd_bind_descriptor_set(cb, *vv::as()->pl, 0, vv::as()->dset.descriptor_set());
-      vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
+      vee::cmd_draw(cb, 6); // TODO: remove extra two vertices
 
       static struct count {
         sitime::stopwatch w {};
