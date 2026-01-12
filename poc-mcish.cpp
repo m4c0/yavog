@@ -37,19 +37,22 @@ namespace inst {
   };
 
   struct buffer : clay::buffer<t> {
-    buffer() : clay::buffer<t> { 128 * 128 } {
+    buffer() : clay::buffer<t> { 128 * 128 * 2} {
       auto m = map();
       for (auto x = 0; x < 128; x++) {
         for (auto y = 0; y < 128; y++) {
-          unsigned n = (x + y) % 4;
-          if (n == 3) continue;
+          unsigned n = (x + y) % 2;
 
           m += t {
             .pos { x - 64, -1, y - 64 },
-            .txtid = static_cast<float>(n),
+            .txtid = static_cast<float>(n + 1),
           };
         }
       }
+      m += t {
+        .pos { 3, 0, 5 },
+        .txtid = static_cast<float>(0),
+      };
     }
   };
 }
