@@ -1,6 +1,7 @@
 export module post;
 import clay;
 import hai;
+import ofs;
 import voo;
 
 namespace post {
@@ -8,6 +9,7 @@ namespace post {
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
+      vee::dsl_fragment_sampler(),
       vee::dsl_fragment_sampler(),
       vee::dsl_fragment_sampler(),
     });
@@ -42,9 +44,10 @@ namespace post {
     void setup(voo::swapchain & swc) {
       m_fbs = swc.create_framebuffers(*m_rp);
     }
-    void update_descriptor_sets(vee::image_view::type c, vee::image_view::type d) {
-      vee::update_descriptor_set(m_dset, 0, c, *m_smp);
-      vee::update_descriptor_set(m_dset, 1, d, *m_smp);
+    void update_descriptor_sets(const ofs::framebuffer & ofs) {
+      vee::update_descriptor_set(m_dset, 0, *ofs.colour.iv,   *m_smp);
+      vee::update_descriptor_set(m_dset, 1, *ofs.position.iv, *m_smp);
+      vee::update_descriptor_set(m_dset, 2, *ofs.depth.iv,    *m_smp);
     }
 
     void render(vee::command_buffer cb, voo::swapchain & swc) {

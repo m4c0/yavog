@@ -75,6 +75,10 @@ struct app_stuff : vinyl::base_app_stuff {
     .render_pass = *ofs::render_pass(),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     .depth = vee::depth::op_less(),
+    .blends {
+      vee::colour_blend_classic(),
+      vee::colour_blend_none(),
+    },
     .shaders {
       *clay::vert_shader("poc-mcish", [] {}),
       *clay::frag_shader("poc-mcish", [] {}),
@@ -102,9 +106,7 @@ struct ext_stuff {
   ofs::framebuffer ofs_fb { swc.extent() };
 
   ext_stuff() {
-    vv::as()->post.update_descriptor_sets(
-        *ofs_fb.colour.iv,
-        *ofs_fb.depth.iv);
+    vv::as()->post.update_descriptor_sets(ofs_fb);
     vv::as()->post.setup(swc);
   }
 };
@@ -124,6 +126,7 @@ static void render_to_offscreen() {
     .extent = vv::ss()->swc.extent(),
     .clear_colours { 
       vee::clear_colour({ 0, 0, 0, 1 }), 
+      vee::clear_colour({ 0, 0, 0, 0 }), 
       vee::clear_depth(1.0),
     },
   }, true };
