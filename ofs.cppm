@@ -1,5 +1,19 @@
 export module ofs;
 import voo;
+import wagen;
+
+inline constexpr auto create_depth_attachment() {
+  wagen::VkAttachmentDescription res{};
+  res.format = VK_FORMAT_D32_SFLOAT;
+  res.samples = VK_SAMPLE_COUNT_1_BIT;
+  res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  res.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  res.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  res.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  res.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  return res;
+}
 
 export namespace ofs {
   auto render_pass() {
@@ -8,7 +22,7 @@ export namespace ofs {
         vee::create_colour_attachment(
             VK_FORMAT_R8G8B8A8_SRGB,
             vee::image_layout_shader_read_only_optimal),
-        vee::create_depth_attachment(),
+        create_depth_attachment(),
       }},
       .subpasses {{
         vee::create_subpass({
@@ -33,7 +47,7 @@ export namespace ofs {
       colour { voo::bound_image::create(
           ext, VK_FORMAT_R8G8B8A8_SRGB,
           vee::image_usage_colour_attachment, vee::image_usage_sampled) }
-    , depth { voo::bound_image::create_depth(ext) }
+    , depth { voo::bound_image::create_depth(ext, vee::image_usage_sampled) }
     , rp { render_pass() }
     , fb { vee::create_framebuffer({
       .render_pass = *rp,

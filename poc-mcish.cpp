@@ -41,11 +41,12 @@ namespace inst {
       auto m = map();
       for (auto x = 0; x < 128; x++) {
         for (auto y = 0; y < 128; y++) {
-          unsigned n = (x + y) % 2;
+          unsigned n = (x + y) % 4;
+          if (n == 3) continue;
 
           m += t {
             .pos { x - 64, -1, y - 64 },
-            .txtid = static_cast<float>(n + 1),
+            .txtid = static_cast<float>(n),
           };
         }
       }
@@ -101,7 +102,9 @@ struct ext_stuff {
   ofs::framebuffer ofs_fb { swc.extent() };
 
   ext_stuff() {
-    vv::as()->post.update_descriptor_set(*ofs_fb.colour.iv);
+    vv::as()->post.update_descriptor_sets(
+        *ofs_fb.colour.iv,
+        *ofs_fb.depth.iv);
     vv::as()->post.setup(swc);
   }
 };
