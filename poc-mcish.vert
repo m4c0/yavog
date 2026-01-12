@@ -20,7 +20,7 @@ void main() {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
 
   vec3 p = pos.xyz + i_pos; // Vertex + Model
-  p.x *= -1; // Left-hand to right-hand
+  p.xy *= -1; // Left-hand to right-hand
   gl_Position = vec4( // Projection
     p.x * f / pc.aspect,
     p.y * f,

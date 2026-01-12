@@ -121,7 +121,7 @@ static void render_to_offscreen() {
       vee::clear_depth(1.0),
     },
   }, true };
-  vee::cmd_set_viewport_flipped(cb, ext);
+  vee::cmd_set_viewport(cb, ext);
   vee::cmd_set_scissor(cb, ext);
   vee::cmd_bind_gr_pipeline(cb, *vv::as()->ofs_ppl);
   vee::cmd_push_vertex_constants(cb, *vv::as()->ofs_pl, &pc);
