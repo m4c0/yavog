@@ -24,7 +24,7 @@ void main() {
   gl_Position = vec4( // Projection
     p.x * f / pc.aspect,
     p.y * f,
-    far * (p.z - near) / (far - near),
+    p.z * (p.z - near) / (far - near),
     p.z
   );
 
