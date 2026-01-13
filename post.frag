@@ -13,5 +13,5 @@ void main() {
   vec4 normal = texture(u_normal, f_pos);
   float depth = texture(u_depth, f_pos).r;
   vec4 colour = texture(u_colour, f_pos);
-  o_colour = vec4(colour.rgb * (1.0 - depth), colour.a);
+  o_colour = colour;
 }
