@@ -17,6 +17,7 @@ layout(set = 0, binding = 3) uniform sampler2D u_depth;
 layout(location = 0) in vec2 f_pos;
 layout(location = 0) out vec4 o_colour;
 
+#define DEPTH_READ(p) (texture(u_position, (p)).z / 10.0)
 vec3 unsharp_mask_depth_buffer(vec3 c) {
   // https://dl.acm.org/doi/epdf/10.1145/1141911.1142016
   // https://en.wikipedia.org/wiki/Convolution#Discrete_convolution
@@ -25,7 +26,7 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
   for (int my = -SMP_SZ; my < SMP_SZ; my++) {
     for (int mx = -SMP_SZ; mx < SMP_SZ; mx++) {
       vec2 m = vec2(mx, my) / scr_sz;
-      float fnm = texture(u_position, f_pos - m).z;
+      float fnm = DEPTH_READ(f_pos - m);
 
       float e_exp = -(mx * mx + my * my) / (2 * GAUSS_STDVAR);
       float gm = exp(e_exp) / (2 * PI * GAUSS_STDVAR);
@@ -34,7 +35,7 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
     }
   }
 
-  float d = texture(u_position, f_pos).z;
+  float d = DEPTH_READ(f_pos);
   float dd = fgn - d;
   
   return c + dd;
