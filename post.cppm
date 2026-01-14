@@ -19,7 +19,9 @@ namespace post {
     });
     vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(
+        *m_dsl,
+        vee::fragment_push_constant_range<vee::extent>());
     vee::render_pass m_rp;
     vee::gr_pipeline m_ppl;
 
@@ -53,15 +55,18 @@ namespace post {
     }
 
     void render(vee::command_buffer cb, voo::swapchain & swc) {
+      auto ext = swc.extent();
+
       voo::cmd_render_pass rpg {vee::render_pass_begin{
         .command_buffer = cb,
         .render_pass = *m_rp,
         .framebuffer = *m_fbs[swc.index()],
-        .extent = swc.extent(),
+        .extent = ext,
         .clear_colours { vee::clear_colour({}) },
       }, true};
 
-      vee::cmd_set_viewport(cb, swc.extent());
+      vee::cmd_set_viewport(cb, ext);
+      vee::cmd_push_fragment_constants(cb, *m_pl, &ext);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
       vee::cmd_draw(cb, 4);

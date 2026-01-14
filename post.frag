@@ -5,7 +5,9 @@
 #define GAUSS_STDDEV 3
 #define GAUSS_STDVAR (GAUSS_STDDEV * GAUSS_STDDEV)
 
-const vec2 scr_sz = vec2(800, 600);
+layout(push_constant) uniform upc {
+  vec2 scr_sz;
+};
 
 layout(set = 0, binding = 0) uniform sampler2D u_colour;
 layout(set = 0, binding = 1) uniform sampler2D u_position;
