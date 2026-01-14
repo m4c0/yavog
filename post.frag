@@ -19,10 +19,13 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
   // https://en.wikipedia.org/wiki/Gaussian_filter#Definition
   // https://en.wikipedia.org/wiki/Kernel_(image_processing)
 
+  float d = DEPTH_READ(f_pos);
+  float dist = 200 + 2000 * pow(smoothstep(0.01, 10, d), 1);
+
   float fgn = 0;
   for (int my = -2; my <= 2; my++) {
     for (int mx = -2; mx <= 2; mx++) {
-      vec2 m = vec2(mx, my) / 200;
+      vec2 m = vec2(mx, my) / dist;
       float fnm = DEPTH_READ(f_pos - m);
 
       float gm = mat3(
@@ -36,7 +39,6 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
   }
   fgn /= 256;
 
-  float d = DEPTH_READ(f_pos);
   float dd = fgn - d;
   
   return (1 - dd * -2) * c;
