@@ -13,7 +13,7 @@ layout(location = 3, component = 3) in float txtid;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
-layout(location = 2) out vec4 f_pos;
+layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
 const float near =  0.01;
@@ -23,8 +23,10 @@ void main() {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
 
   vec3 p = pos.xyz + i_pos; // Vertex + Model
+  f_pos = p;
+
   p.xy *= -1; // Left-hand to right-hand
-  gl_Position = f_pos = vec4( // Projection
+  gl_Position = vec4( // Projection
     p.x * f / pc.aspect,
     p.y * f,
     far * (p.z - near) / (far - near),
