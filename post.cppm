@@ -6,8 +6,14 @@ import voo;
 
 namespace post {
   export class pipeline {
-    // TODO: change sampler to remove edge-wrapping
-    vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
+    vee::sampler m_smp = vee::create_sampler({
+      .magFilter = VK_FILTER_LINEAR,
+      .minFilter = VK_FILTER_LINEAR,
+      .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+      .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+      .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+      .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+    });
 
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
       vee::dsl_fragment_sampler(),
