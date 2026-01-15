@@ -39,6 +39,19 @@ export namespace ofs {
           .samples = samples,
         }),
         create_depth_attachment(samples),
+
+        vee::create_colour_attachment({
+          .format = VK_FORMAT_R8G8B8A8_UNORM,
+          .final_layout = vee::image_layout_shader_read_only_optimal,
+        }),
+        vee::create_colour_attachment({
+          .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+          .final_layout = vee::image_layout_shader_read_only_optimal,
+        }),
+        vee::create_colour_attachment({
+          .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+          .final_layout = vee::image_layout_shader_read_only_optimal,
+        }),
       }},
       .subpasses {{
         vee::create_subpass({
@@ -48,6 +61,11 @@ export namespace ofs {
             vee::create_attachment_ref(2, vee::image_layout_color_attachment_optimal),
           }},
           .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
+          .resolves {{
+            vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
+          }},
         }),
       }},
       .dependencies {{
