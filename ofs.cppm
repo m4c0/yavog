@@ -52,6 +52,7 @@ export namespace ofs {
           .format = VK_FORMAT_R32G32B32A32_SFLOAT,
           .final_layout = vee::image_layout_shader_read_only_optimal,
         }),
+        create_depth_attachment(VK_SAMPLE_COUNT_1_BIT),
       }},
       .subpasses {{
         vee::create_subpass({
@@ -62,10 +63,10 @@ export namespace ofs {
           }},
           .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
           .resolves {{
-            vee::create_attachment_ref(4, vee::image_layout_shader_read_only_optimal),
-            vee::create_attachment_ref(5, vee::image_layout_shader_read_only_optimal),
-            vee::create_attachment_ref(6, vee::image_layout_shader_read_only_optimal),
-            vee::create_attachment_ref(7, vee::image_layout_shader_read_only_optimal),
+            vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(7, vee::image_layout_color_attachment_optimal),
           }},
         }),
       }},
@@ -77,10 +78,17 @@ export namespace ofs {
   }
 
   struct framebuffer {
+    voo::bound_image msaa_colour;
+    voo::bound_image msaa_position;
+    voo::bound_image msaa_normal;
+
     voo::bound_image colour;
     voo::bound_image position;
     voo::bound_image normal;
+
+    voo::bound_image msaa_depth;
     voo::bound_image depth;
+
     vee::render_pass rp;
     vee::framebuffer fb;
 
@@ -98,14 +106,25 @@ export namespace ofs {
     }
 
     explicit framebuffer(vee::extent ext, VkSampleCountFlagBits max_samples) :
-      colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
-    , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
-    , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
-    , depth { dpth(ext, max_samples) }
+      msaa_colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
+    , msaa_position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+    , msaa_normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+
+    , colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      VK_SAMPLE_COUNT_1_BIT) }
+    , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
+    , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
+
+    , msaa_depth { dpth(ext, max_samples) }
+    , depth { dpth(ext, VK_SAMPLE_COUNT_1_BIT) }
+
     , rp { render_pass(max_samples) }
     , fb { vee::create_framebuffer({
       .render_pass = *rp,
       .attachments {{
+        *msaa_colour.iv,
+        *msaa_position.iv,
+        *msaa_normal.iv,
+        *msaa_depth.iv,
         *colour.iv,
         *position.iv,
         *normal.iv,
