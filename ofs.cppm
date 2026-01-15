@@ -74,14 +74,14 @@ export namespace ofs {
     explicit framebuffer(vee::extent ext) :
       colour { voo::bound_image::create(
           ext, VK_FORMAT_R8G8B8A8_SRGB,
-          vee::image_usage_colour_attachment, vee::image_usage_sampled) }
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
     , position { voo::bound_image::create(
           ext, VK_FORMAT_R32G32B32A32_SFLOAT,
-          vee::image_usage_colour_attachment, vee::image_usage_sampled) }
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
     , normal { voo::bound_image::create(
           ext, VK_FORMAT_R32G32B32A32_SFLOAT,
-          vee::image_usage_colour_attachment, vee::image_usage_sampled) }
-    , depth { voo::bound_image::create_depth(ext, vee::image_usage_sampled) }
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
+    , depth { voo::bound_image::create_depth(ext, VK_IMAGE_USAGE_SAMPLED_BIT) }
     , rp { render_pass() }
     , fb { vee::create_framebuffer({
       .render_pass = *rp,
