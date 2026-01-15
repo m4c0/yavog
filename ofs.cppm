@@ -62,9 +62,10 @@ export namespace ofs {
           }},
           .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
           .resolves {{
-            vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
-            vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
-            vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
+            vee::create_attachment_ref(4, vee::image_layout_shader_read_only_optimal),
+            vee::create_attachment_ref(5, vee::image_layout_shader_read_only_optimal),
+            vee::create_attachment_ref(6, vee::image_layout_shader_read_only_optimal),
+            vee::create_attachment_ref(7, vee::image_layout_shader_read_only_optimal),
           }},
         }),
       }},
