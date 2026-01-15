@@ -44,8 +44,36 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
   return (1 - dd * -2) * c;
 }
 
+// https://en.wikipedia.org/wiki/Sobel_operator
+vec3 sobel(vec3 c) {
+  float dist = 200;
+
+  float gx_n = length(
+    -1 * texture(u_normal, f_pos + vec2(-1, -1) / dist).xyz +
+    -2 * texture(u_normal, f_pos + vec2(-1,  0) / dist).xyz +
+    -1 * texture(u_normal, f_pos + vec2(-1, +1) / dist).xyz +
+    +1 * texture(u_normal, f_pos + vec2(+1, -1) / dist).xyz +
+    +2 * texture(u_normal, f_pos + vec2(+1,  0) / dist).xyz +
+    +1 * texture(u_normal, f_pos + vec2(+1, +1) / dist).xyz
+  );
+
+  float gy_n = length(
+    -1 * texture(u_normal, f_pos + vec2(-1, -1) / dist).xyz +
+    -2 * texture(u_normal, f_pos + vec2( 0, -1) / dist).xyz +
+    -1 * texture(u_normal, f_pos + vec2(+1, -1) / dist).xyz +
+    +1 * texture(u_normal, f_pos + vec2(-1, +1) / dist).xyz +
+    +2 * texture(u_normal, f_pos + vec2( 0, +1) / dist).xyz +
+    +1 * texture(u_normal, f_pos + vec2(+1, +1) / dist).xyz
+  );
+
+  float g = sqrt(gx_n * gx_n + gy_n * gy_n);
+    
+  return (1 - g) * c;
+}
+
 void main() {
   vec4 colour = texture(u_colour, f_pos);
-  colour.rgb = unsharp_mask_depth_buffer(colour.rgb);
+  // colour.rgb = unsharp_mask_depth_buffer(colour.rgb);
+  colour.rgb = sobel(colour.rgb);
   o_colour = colour;
 }

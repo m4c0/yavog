@@ -6,6 +6,7 @@ import voo;
 
 namespace post {
   export class pipeline {
+    // TODO: change sampler to remove edge-wrapping
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
