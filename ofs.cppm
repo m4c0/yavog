@@ -71,16 +71,17 @@ export namespace ofs {
     vee::render_pass rp;
     vee::framebuffer fb;
 
+    static auto img(vee::extent ext, VkFormat fmt) {
+      auto ci = vee::image_create_info(
+          ext, fmt, 
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+      return voo::bound_image::create(ci, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+
     explicit framebuffer(vee::extent ext) :
-      colour { voo::bound_image::create(
-          ext, VK_FORMAT_R8G8B8A8_UNORM,
-          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
-    , position { voo::bound_image::create(
-          ext, VK_FORMAT_R32G32B32A32_SFLOAT,
-          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
-    , normal { voo::bound_image::create(
-          ext, VK_FORMAT_R32G32B32A32_SFLOAT,
-          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
+      colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM)      }
+    , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT) }
+    , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT) }
     , depth { voo::bound_image::create_depth(ext, VK_IMAGE_USAGE_SAMPLED_BIT) }
     , rp { render_pass() }
     , fb { vee::create_framebuffer({
