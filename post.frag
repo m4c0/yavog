@@ -20,7 +20,7 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
   // https://en.wikipedia.org/wiki/Kernel_(image_processing)
 
   float d = DEPTH_READ(f_pos);
-  float dist = 200 + 2000 * pow(smoothstep(0.01, 10, d), 1);
+  float dist = 1 + 2000 * pow(smoothstep(0.01, 10, d), 1);
 
   float fgn = 0;
   for (int my = -2; my <= 2; my++) {
@@ -74,7 +74,7 @@ vec3 sobel(vec3 c) {
 
 void main() {
   vec4 colour = texture(u_colour, f_pos);
-  // colour.rgb = unsharp_mask_depth_buffer(colour.rgb);
+  colour.rgb = unsharp_mask_depth_buffer(colour.rgb);
   colour.rgb = sobel(colour.rgb);
   o_colour = colour;
 }
