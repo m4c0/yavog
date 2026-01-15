@@ -16,6 +16,9 @@ import texmap;
 import traits;
 import vinyl;
 import voo;
+import wagen;
+
+using namespace wagen;
 
 struct app_stuff;
 struct ext_stuff;
@@ -58,6 +61,19 @@ namespace inst {
   };
 }
 
+inline VkSampleCountFlagBits max_sampling() {
+  auto lim = vee::get_physical_device_properties().limits;
+  auto max = lim.framebufferColorSampleCounts & lim.framebufferDepthSampleCounts;
+  // if (max & VK_SAMPLE_COUNT_64_BIT) return VK_SAMPLE_COUNT_64_BIT;
+  // if (max & VK_SAMPLE_COUNT_32_BIT) return VK_SAMPLE_COUNT_32_BIT;
+  // if (max & VK_SAMPLE_COUNT_16_BIT) return VK_SAMPLE_COUNT_16_BIT;
+  // if (max & VK_SAMPLE_COUNT_8_BIT) return VK_SAMPLE_COUNT_8_BIT;
+  if (max & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
+  if (max & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
+  return VK_SAMPLE_COUNT_1_BIT;
+}
+
+
 struct app_stuff : vinyl::base_app_stuff {
   cube::buffer cube {};
   inst::buffer insts {};
@@ -72,9 +88,10 @@ struct app_stuff : vinyl::base_app_stuff {
       vee::vertex_push_constant_range<upc>());
   vee::gr_pipeline ofs_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *ofs_pl,
-    .render_pass = *ofs::render_pass(),
+    .render_pass = *ofs::render_pass(max_sampling()),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     .depth = vee::depth::op_less(),
+    .multisampling = max_sampling(),
     .blends {
       vee::colour_blend_classic(),
       vee::colour_blend_none(),
@@ -105,7 +122,7 @@ struct app_stuff : vinyl::base_app_stuff {
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq };
-  ofs::framebuffer ofs_fb { swc.extent() };
+  ofs::framebuffer ofs_fb { swc.extent(), max_sampling() };
 
   ext_stuff() {
     vv::as()->post.update_descriptor_sets(ofs_fb);
