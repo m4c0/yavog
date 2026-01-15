@@ -90,8 +90,8 @@ struct app_stuff : vinyl::base_app_stuff {
     .pipeline_layout = *ofs_pl,
     .render_pass = *ofs::render_pass(max_sampling()),
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-    .depth = vee::depth::op_less(),
     .multisampling = max_sampling(),
+    .depth = vee::depth::op_less(),
     .blends {
       vee::colour_blend_classic(),
       vee::colour_blend_none(),
