@@ -46,7 +46,7 @@ vec3 unsharp_mask_depth_buffer(vec3 c) {
 
 // https://en.wikipedia.org/wiki/Sobel_operator
 vec3 sobel(vec3 c) {
-  float dist = 200;
+  float dist = 10000;
 
   float gx_n = length(
     -1 * texture(u_normal, f_pos + vec2(-1, -1) / dist).xyz +
@@ -67,8 +67,9 @@ vec3 sobel(vec3 c) {
   );
 
   float g = sqrt(gx_n * gx_n + gy_n * gy_n);
+  g = 1 - g * 0.7;
     
-  return (1 - g) * c;
+  return g * c;
 }
 
 void main() {
