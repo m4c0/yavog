@@ -1,9 +1,12 @@
 export module ofs;
+import silog;
 import voo;
 import wagen;
 
+using namespace wagen;
+
 inline constexpr auto create_depth_attachment() {
-  wagen::VkAttachmentDescription res{};
+  VkAttachmentDescription res{};
   res.format = VK_FORMAT_D32_SFLOAT;
   res.samples = VK_SAMPLE_COUNT_1_BIT;
   res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -13,6 +16,18 @@ inline constexpr auto create_depth_attachment() {
   res.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   res.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
   return res;
+}
+
+inline VkSampleCountFlagBits max_sampling() {
+  auto lim = vee::get_physical_device_properties().limits;
+  auto max = lim.framebufferColorSampleCounts & lim.framebufferDepthSampleCounts;
+  // if (max & VK_SAMPLE_COUNT_64_BIT) return VK_SAMPLE_COUNT_64_BIT;
+  // if (max & VK_SAMPLE_COUNT_32_BIT) return VK_SAMPLE_COUNT_32_BIT;
+  // if (max & VK_SAMPLE_COUNT_16_BIT) return VK_SAMPLE_COUNT_16_BIT;
+  // if (max & VK_SAMPLE_COUNT_8_BIT) return VK_SAMPLE_COUNT_8_BIT;
+  if (max & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
+  if (max & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
+  return VK_SAMPLE_COUNT_1_BIT;
 }
 
 export namespace ofs {
@@ -48,6 +63,7 @@ export namespace ofs {
   }
 
   struct framebuffer {
+    VkSampleCountFlagBits max_samples = max_sampling();
     voo::bound_image colour;
     voo::bound_image position;
     voo::bound_image normal;
@@ -77,6 +93,8 @@ export namespace ofs {
       }},
       .extent = ext,
     }) }
-    {}
+    {
+      silog::infof("Using MSAA %dx", max_samples);
+    }
   };
 }
