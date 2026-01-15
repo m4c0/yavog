@@ -35,7 +35,7 @@ export namespace ofs {
     return vee::create_render_pass({
       .attachments {{
         vee::create_colour_attachment(
-            VK_FORMAT_R8G8B8A8_SRGB,
+            VK_FORMAT_R8G8B8A8_UNORM,
             vee::image_layout_shader_read_only_optimal),
         vee::create_colour_attachment(
             VK_FORMAT_R32G32B32A32_SFLOAT,
