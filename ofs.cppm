@@ -73,7 +73,7 @@ export namespace ofs {
 
     explicit framebuffer(vee::extent ext) :
       colour { voo::bound_image::create(
-          ext, VK_FORMAT_R8G8B8A8_SRGB,
+          ext, VK_FORMAT_R8G8B8A8_UNORM,
           VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) }
     , position { voo::bound_image::create(
           ext, VK_FORMAT_R32G32B32A32_SFLOAT,
