@@ -12,14 +12,16 @@ layout(set = 0, binding = 3) uniform sampler2D u_depth;
 layout(location = 0) in vec2 f_pos;
 layout(location = 0) out vec4 o_colour;
 
+const vec3 fog_colour = vec3(0.7, 0.75, 0.8);
+
 #define DEPTH_READ(p) texture(u_position, (p)).z
-vec3 unsharp_mask_depth_buffer(vec3 c) {
+vec3 unsharp_mask_depth_buffer(vec3 c, float depth) {
   // https://dl.acm.org/doi/epdf/10.1145/1141911.1142016
   // https://en.wikipedia.org/wiki/Convolution#Discrete_convolution
   // https://en.wikipedia.org/wiki/Gaussian_filter#Definition
   // https://en.wikipedia.org/wiki/Kernel_(image_processing)
 
-  float d = DEPTH_READ(f_pos);
+  float d = depth;
   float dist = 1 + 2000 * pow(smoothstep(0.01, 10, d), 1);
 
   float fgn = 0;
@@ -72,9 +74,17 @@ vec3 sobel(vec3 c) {
   return g * c;
 }
 
+vec3 fog(vec3 c, float depth) {
+  float f = smoothstep(0.0, 9.0, depth);
+  return mix(c, fog_colour, f);
+}
+
 void main() {
+  float depth = DEPTH_READ(f_pos);
+
   vec4 colour = texture(u_colour, f_pos);
-  colour.rgb = unsharp_mask_depth_buffer(colour.rgb);
+  colour.rgb = unsharp_mask_depth_buffer(colour.rgb, depth);
   colour.rgb = sobel(colour.rgb);
+  colour.rgb = fog(colour.rgb, depth);
   o_colour = colour;
 }
