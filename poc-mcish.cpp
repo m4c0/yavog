@@ -121,7 +121,7 @@ struct app_stuff : vinyl::base_app_stuff {
 };
 struct ext_stuff {
   voo::single_cb cb {};
-  voo::swapchain swc { vv::as()->dq };
+  voo::swapchain swc { vv::as()->dq, false };
   ofs::framebuffer ofs_fb { swc.extent(), max_sampling() };
 
   ext_stuff() {
