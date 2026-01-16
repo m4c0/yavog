@@ -13,6 +13,7 @@ import silog;
 import sitime;
 import sv;
 import texmap;
+import timing;
 import traits;
 import vinyl;
 import voo;
@@ -124,6 +125,8 @@ struct ext_stuff {
   voo::swapchain swc { vv::as()->dq, false };
   ofs::framebuffer ofs_fb { swc.extent(), max_sampling() };
 
+  hai::array<timing::query> tq { swc.count() };
+
   ext_stuff() {
     vv::as()->post.update_descriptor_sets(ofs_fb);
     vv::as()->post.setup(swc);
@@ -168,11 +171,17 @@ extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
     auto cb = vv::ss()->cb.cb();
+    auto & qp = vv::ss()->tq[vv::ss()->swc.index()];
+
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
+      qp.write_begin(cb);
+
       render_to_offscreen();
       vv::as()->post.render(cb, vv::ss()->swc);
+
+      qp.write_end(cb);
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
