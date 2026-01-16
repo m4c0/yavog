@@ -96,14 +96,20 @@ export namespace ofs {
     vee::framebuffer fb;
 
     auto img(vee::extent ext, VkFormat fmt, VkSampleCountFlagBits max_samples) {
+      auto flg = max_samples == VK_SAMPLE_COUNT_1_BIT
+        ? VK_IMAGE_USAGE_SAMPLED_BIT
+        : VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
       auto ci = vee::image_create_info(
           ext, fmt, 
-          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | flg);
       ci.samples = max_samples;
       return voo::bound_image::create(ci, VK_IMAGE_ASPECT_COLOR_BIT);
     }
     auto dpth(vee::extent ext, VkSampleCountFlagBits max_samples) {
-      auto ci = vee::depth_image_create_info(ext, VK_IMAGE_USAGE_SAMPLED_BIT);
+      auto flg = max_samples == VK_SAMPLE_COUNT_1_BIT
+        ? VK_IMAGE_USAGE_SAMPLED_BIT
+        : VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+      auto ci = vee::depth_image_create_info(ext, flg);
       ci.samples = max_samples;
       return voo::bound_image::create(ci, VK_IMAGE_ASPECT_DEPTH_BIT);
     }
