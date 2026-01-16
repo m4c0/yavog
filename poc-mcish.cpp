@@ -179,6 +179,9 @@ extern "C" void casein_init() {
       qp.write_begin(cb);
 
       render_to_offscreen();
+
+      qp.write_prepost(cb);
+
       vv::as()->post.render(cb, vv::ss()->swc);
 
       qp.write_end(cb);
