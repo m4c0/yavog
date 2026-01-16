@@ -1,4 +1,5 @@
 export module timing;
+import no;
 import silog;
 import traits;
 import voo;
@@ -11,7 +12,10 @@ namespace timing {
     uint64_t end;
   };
 
-  export class query {
+  static uint64_t g_frames = 0;
+  static uint64_t g_total = 0;
+
+  export class query : no::no {
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), vee::buffer_usage::transfer_dst_buffer);
     vee::query_pool m_qp = vee::create_timestamp_query_pool(sizeof(q));
     float m_tp = vee::get_physical_device_properties().limits.timestampPeriod;
@@ -20,11 +24,20 @@ namespace timing {
       voo::memiter<q> m { *m_buf.memory };
       auto q = m[0];
 
-      auto total = (q.end - q.begin) * m_tp;
-      silog::infof("%fms", total / 1000'000);
+      g_frames++;
+      g_total += q.end - q.begin;
     }
 
   public:
+    ~query() {
+      if (g_frames == 0) return;
+
+      silog::info("Average timings per frame");
+      silog::infof("-- All: %fms", g_total * m_tp / (g_frames * 1000'000));
+
+      g_frames = 0;
+    };
+
     void write_begin(vee::command_buffer cb) {
       read();
 
