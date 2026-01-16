@@ -8,7 +8,6 @@ using namespace wagen;
 inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   VkAttachmentDescription res{};
   res.format = VK_FORMAT_D32_SFLOAT;
-  res.samples = VK_SAMPLE_COUNT_1_BIT;
   res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   res.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -18,27 +17,30 @@ inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   res.samples = samples;
   return res;
 }
+inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits samples) {
+  auto final_layout = fmt == VK_FORMAT_D32_SFLOAT
+    ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  return VkAttachmentDescription {
+    .format         = fmt,
+    .samples        = samples,
+    .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+    .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+    .finalLayout    = final_layout,
+  };
+}
 
 export namespace ofs {
   auto render_pass(VkSampleCountFlagBits samples) {
     return vee::create_render_pass({
       .attachments {{
-        vee::create_colour_attachment({
-          .format = VK_FORMAT_R8G8B8A8_UNORM,
-          .final_layout = vee::image_layout_shader_read_only_optimal,
-          .samples = samples,
-        }),
-        vee::create_colour_attachment({
-          .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-          .final_layout = vee::image_layout_shader_read_only_optimal,
-          .samples = samples,
-        }),
-        vee::create_colour_attachment({
-          .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-          .final_layout = vee::image_layout_shader_read_only_optimal,
-          .samples = samples,
-        }),
-        create_depth_attachment(samples),
+        create_msaa_attachment(VK_FORMAT_R8G8B8A8_UNORM,      samples),
+        create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
+        create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
+        create_msaa_attachment(VK_FORMAT_D32_SFLOAT,          samples),
 
         vee::create_colour_attachment({
           .format = VK_FORMAT_R8G8B8A8_UNORM,
@@ -86,6 +88,7 @@ export namespace ofs {
     voo::bound_image position;
     voo::bound_image normal;
 
+    // TODO: remove depth resolve if we keep using pos.z
     voo::bound_image msaa_depth;
     voo::bound_image depth;
 
