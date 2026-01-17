@@ -19,7 +19,10 @@ void main() {
   float lsz = texture(shadowmap, lspos.xy).r;
   float shadow = step(lsz, f_pos.z);
 
-  colour = shadow * texture(nonuniformEXT(txts[f_txtid]), f_uv);
+  vec4 c = texture(nonuniformEXT(txts[f_txtid]), f_uv);
+  c.rgb *= shadow;
+
+  colour = c;
   position = vec4(f_pos, 1);
   normal = vec4(f_normal, 1);
 }
