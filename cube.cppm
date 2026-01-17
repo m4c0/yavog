@@ -1,6 +1,7 @@
 export module cube;
 import dotz;
 import clay;
+import no;
 
 export namespace cube {
   struct vtx {
@@ -14,7 +15,7 @@ export namespace cube {
     float txtid;
   };
 
-  struct v_buffer : public clay::buffer<vtx> {
+  struct v_buffer : public clay::buffer<vtx>, no::no {
     v_buffer() : clay::buffer<vtx> { 36 } {
       auto m = map();
 
@@ -68,7 +69,7 @@ export namespace cube {
     }
   };
 
-  struct i_buffer : clay::buffer<inst> {
+  struct i_buffer : clay::buffer<inst>, no::no {
     i_buffer() : clay::buffer<inst> { 128 * 128 * 2} {
       auto m = map();
       for (auto x = 0; x < 128; x++) {

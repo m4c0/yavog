@@ -3,6 +3,7 @@
 export module shadowmap;
 import clay;
 import cube;
+import no;
 import traits;
 import voo;
 import wagen;
@@ -25,7 +26,7 @@ inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
 namespace shadowmap {
   static constexpr const vee::extent ext { 1024, 1024 };
 
-  export class pipeline {
+  export class pipeline : no::no {
     voo::bound_image m_depth = voo::bound_image::create_depth(
         ext,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);

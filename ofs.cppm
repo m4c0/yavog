@@ -2,6 +2,7 @@ export module ofs;
 import clay;
 import cube;
 import hai;
+import no;
 import texmap;
 import traits;
 import silog;
@@ -124,7 +125,7 @@ namespace ofs {
     });
   }
 
-  struct framebuffer {
+  struct framebuffer : no::no {
     voo::bound_image msaa_colour;
     voo::bound_image msaa_position;
     voo::bound_image msaa_normal;
@@ -195,7 +196,7 @@ namespace ofs {
     float aspect;
     float fov = 90;
   };
-  export class pipeline {
+  export class pipeline : no::no {
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(
         *texmap::descriptor_set_layout(),
         vee::vertex_push_constant_range<upc>());
@@ -231,7 +232,7 @@ namespace ofs {
     hai::uptr<framebuffer> m_fb {};
 
   public:
-    [[nodiscard]] constexpr const auto * fb() const { return &*m_fb; }
+    [[nodiscard]] constexpr const auto & fb() const { return *m_fb; }
 
     void setup(const voo::swapchain & swc) {
       m_pc.aspect = swc.aspect();

@@ -1,6 +1,7 @@
 export module texmap;
 import hai;
 import hashley;
+import no;
 import sv;
 import voo;
 
@@ -13,7 +14,7 @@ namespace texmap {
     });
   }
 
-  export class cache {
+  export class cache : no::no {
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
     vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
