@@ -2,8 +2,8 @@
 
 const float range = 20.0f; // About 2*far plane
 
-vec3 to_light_space(vec3 p) {
-  float a = radians(30);
+vec3 to_light_space(vec3 p, float angle) {
+  float a = radians(angle);
   const mat3 rot = mat3(
     cos(a), 0, sin(a),
     0, 1, 0,

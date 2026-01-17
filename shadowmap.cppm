@@ -50,7 +50,7 @@ namespace shadowmap {
       .extent = ext,
     });
 
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout();
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<float>());
     vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
@@ -74,7 +74,7 @@ namespace shadowmap {
     });
 
   public:
-    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb) {
+    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, float sun_angle) {
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_rp,
@@ -85,6 +85,7 @@ namespace shadowmap {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb,  ext);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+      vee::cmd_push_vertex_constants(cb, *m_pl, &sun_angle);
       return rp;
     }
 

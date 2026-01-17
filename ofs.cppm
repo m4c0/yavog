@@ -205,6 +205,7 @@ namespace ofs {
   struct upc {
     float aspect;
     float fov = 90;
+    float sun_angle;
   };
   export class pipeline : no::no {
     vee::sampler m_light_smp = create_shadowmap_sampler();
@@ -260,7 +261,8 @@ namespace ofs {
       m_fb.reset(new framebuffer { swc.extent() });
     }
 
-    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, vee::descriptor_set tmap) {
+    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, vee::descriptor_set tmap, float sun_angle) {
+      m_pc.sun_angle = sun_angle;
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,

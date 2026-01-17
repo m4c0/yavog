@@ -4,6 +4,7 @@
 layout(push_constant) uniform upc {
   float aspect;
   float fov_deg;
+  float sun_angle;
 } pc;
 
 layout(location = 0) in vec3 pos;
@@ -21,7 +22,7 @@ layout(location = 4) out vec3 f_lspos;
 const float near =  0.01;
 const float far  = 10.0;
 
-vec3 to_light_space(vec3 p);
+vec3 to_light_space(vec3 p, float angle);
 
 void main() {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
@@ -30,7 +31,7 @@ void main() {
   p.xy *= -1; // Left-hand to right-hand
 
   f_pos = p;
-  f_lspos = to_light_space(p);
+  f_lspos = to_light_space(p, pc.sun_angle);
 
   // TODO: adjust to camera
   gl_Position = vec4( // Projection

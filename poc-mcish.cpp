@@ -64,17 +64,18 @@ struct ext_stuff {
   }
 };
 
+static float g_sun_angle = 30;
 static void render_scene(vee::command_buffer cb) {
   vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
   vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
   vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
 }
 static void render_to_shadowmap(vee::command_buffer cb) {
-  auto rpg = vv::as()->shadow.cmd_render_pass(cb);
+  auto rpg = vv::as()->shadow.cmd_render_pass(cb, g_sun_angle);
   render_scene(cb);
 }
 static void render_to_offscreen(vee::command_buffer cb) {
-  auto rpg = vv::as()->ofs.cmd_render_pass(cb, vv::as()->tmap.dset());
+  auto rpg = vv::as()->ofs.cmd_render_pass(cb, vv::as()->tmap.dset(), g_sun_angle);
   render_scene(cb);
 }
 
