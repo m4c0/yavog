@@ -10,7 +10,7 @@ import wagen;
 
 using namespace wagen;
 
-inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
+inline constexpr auto create_depth_attachment() {
   return VkAttachmentDescription {
     .format         = VK_FORMAT_D32_SFLOAT,
     .samples        = VK_SAMPLE_COUNT_1_BIT,
@@ -33,7 +33,7 @@ namespace shadowmap {
 
     vee::render_pass m_rp = vee::create_render_pass({
       .attachments {{
-        create_depth_attachment(VK_SAMPLE_COUNT_1_BIT),
+        create_depth_attachment(),
       }},
       .subpasses {{
         vee::create_subpass({
