@@ -46,6 +46,8 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
     txt_ids[2] = tmap.load(t131);
+
+    ofs.update_descriptor_sets(shadow.iv());
   }
 };
 struct ext_stuff {

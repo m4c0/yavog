@@ -87,5 +87,7 @@ namespace shadowmap {
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       return rp;
     }
+
+    [[nodiscard]] constexpr const auto iv() const { return *m_depth.iv; }
   };
 }
