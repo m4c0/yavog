@@ -1,9 +1,26 @@
 export module ofs;
+import clay;
+import cube;
+import hai;
+import texmap;
+import traits;
 import silog;
 import voo;
 import wagen;
 
 using namespace wagen;
+
+inline VkSampleCountFlagBits max_sampling() {
+  auto lim = vee::get_physical_device_properties().limits;
+  auto max = lim.framebufferColorSampleCounts & lim.framebufferDepthSampleCounts;
+  // if (max & VK_SAMPLE_COUNT_64_BIT) return VK_SAMPLE_COUNT_64_BIT;
+  // if (max & VK_SAMPLE_COUNT_32_BIT) return VK_SAMPLE_COUNT_32_BIT;
+  // if (max & VK_SAMPLE_COUNT_16_BIT) return VK_SAMPLE_COUNT_16_BIT;
+  // if (max & VK_SAMPLE_COUNT_8_BIT) return VK_SAMPLE_COUNT_8_BIT;
+  if (max & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
+  if (max & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
+  return VK_SAMPLE_COUNT_1_BIT;
+}
 
 inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   VkAttachmentDescription res{};
@@ -61,7 +78,7 @@ static voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   return res;
 }
 
-export namespace ofs {
+namespace ofs {
   auto render_pass(VkSampleCountFlagBits samples) {
     return vee::create_render_pass({
       .attachments {{
@@ -142,7 +159,7 @@ export namespace ofs {
       return voo::bound_image::create(ci, VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
-    explicit framebuffer(vee::extent ext, VkSampleCountFlagBits max_samples) :
+    explicit framebuffer(vee::extent ext, VkSampleCountFlagBits max_samples = max_sampling()) :
       msaa_colour   { create_msaa_image(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
     , msaa_position { create_msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
     , msaa_normal   { create_msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
@@ -171,6 +188,80 @@ export namespace ofs {
     }) }
     {
       silog::infof("Using MSAA %dx", max_samples);
+    }
+  };
+
+  struct upc {
+    float aspect;
+    float fov = 90;
+  };
+  export class pipeline {
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(
+        *texmap::descriptor_set_layout(),
+        vee::vertex_push_constant_range<upc>());
+    vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
+      .pipeline_layout = *m_pl,
+      .render_pass = *render_pass(max_sampling()),
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+      .multisampling = max_sampling(),
+      .depth = vee::depth::op_less(),
+      .blends {
+        vee::colour_blend_classic(),
+        vee::colour_blend_none(),
+        vee::colour_blend_none(),
+      },
+      .shaders {
+        *clay::vert_shader("poc-mcish", [] {}),
+        *clay::frag_shader("poc-mcish", [] {}),
+      },
+      .bindings {
+        cube::v_buffer::vertex_input_bind(),
+        cube::i_buffer::vertex_input_bind_per_instance(),
+      },
+      .attributes { 
+        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+      },
+    });
+
+    upc m_pc {};
+    vee::extent m_ext {};
+    hai::uptr<framebuffer> m_fb {};
+
+  public:
+    [[nodiscard]] constexpr const auto * fb() const { return &*m_fb; }
+
+    void setup(const voo::swapchain & swc) {
+      m_pc.aspect = swc.aspect();
+      m_ext = swc.extent();
+      m_fb.reset(new framebuffer { swc.extent() });
+    }
+
+    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, vee::descriptor_set tmap) {
+      voo::cmd_render_pass rp { vee::render_pass_begin {
+        .command_buffer = cb,
+        .render_pass = *m_fb->rp,
+        .framebuffer = *m_fb->fb,
+        .extent = m_ext,
+        .clear_colours { 
+          vee::clear_colour({ 0, 0, 0, 1 }), 
+          vee::clear_colour({ 0, 0, 10, 0 }), 
+          vee::clear_colour({ 0, 0, 0, 0 }), 
+          vee::clear_depth(1.0),
+          vee::clear_colour({ 0, 0, 0, 1 }), 
+          vee::clear_colour({ 0, 0, 10, 0 }), 
+          vee::clear_colour({ 0, 0, 0, 0 }), 
+          vee::clear_depth(1.0),
+        },
+      }, true };
+      vee::cmd_set_viewport(cb, m_ext);
+      vee::cmd_set_scissor(cb, m_ext);
+      vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+      vee::cmd_push_vertex_constants(cb, *m_pl, &m_pc);
+      vee::cmd_bind_descriptor_set(cb, *m_pl, 0, tmap);
+      return rp;
     }
   };
 }

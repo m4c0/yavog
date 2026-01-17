@@ -73,7 +73,7 @@ namespace shadowmap {
     });
 
   public:
-    void render(vee::command_buffer cb, cube::v_buffer & vb, cube::i_buffer & ib) {
+    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb) {
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_rp,
@@ -84,9 +84,7 @@ namespace shadowmap {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb,  ext);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
-      vee::cmd_bind_vertex_buffers(cb, 0, *vb, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *ib, 0);
-      vee::cmd_draw(cb, vb.count(), ib.count());
+      return rp;
     }
   };
 }

@@ -54,11 +54,11 @@ namespace post {
     void setup(voo::swapchain & swc) {
       m_fbs = swc.create_framebuffers(*m_rp);
     }
-    void update_descriptor_sets(const ofs::framebuffer & ofs) {
-      vee::update_descriptor_set(m_dset, 0, *ofs.colour.iv,   *m_smp);
-      vee::update_descriptor_set(m_dset, 1, *ofs.position.iv, *m_smp);
-      vee::update_descriptor_set(m_dset, 2, *ofs.normal.iv,   *m_smp);
-      vee::update_descriptor_set(m_dset, 3, *ofs.depth.iv,    *m_smp);
+    void update_descriptor_sets(const ofs::pipeline & ofs) {
+      vee::update_descriptor_set(m_dset, 0, *ofs.fb()->colour.iv,   *m_smp);
+      vee::update_descriptor_set(m_dset, 1, *ofs.fb()->position.iv, *m_smp);
+      vee::update_descriptor_set(m_dset, 2, *ofs.fb()->normal.iv,   *m_smp);
+      vee::update_descriptor_set(m_dset, 3, *ofs.fb()->depth.iv,    *m_smp);
     }
 
     void render(vee::command_buffer cb, voo::swapchain & swc) {
