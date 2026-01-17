@@ -34,34 +34,6 @@ struct upc {
   float fov = 90;
 };
 
-namespace inst {
-  struct t {
-    dotz::vec3 pos;
-    float txtid;
-  };
-
-  struct buffer : clay::buffer<t> {
-    buffer() : clay::buffer<t> { 128 * 128 * 2} {
-      auto m = map();
-      for (auto x = 0; x < 128; x++) {
-        for (auto y = 0; y < 128; y++) {
-          unsigned n = (x + y) % 4;
-          if (n == 3) continue;
-
-          m += t {
-            .pos { x - 64, -1, y - 64 },
-            .txtid = static_cast<float>(n),
-          };
-        }
-      }
-      m += t {
-        .pos { 3, 0, 5 },
-        .txtid = static_cast<float>(0),
-      };
-    }
-  };
-}
-
 inline VkSampleCountFlagBits max_sampling() {
   auto lim = vee::get_physical_device_properties().limits;
   auto max = lim.framebufferColorSampleCounts & lim.framebufferDepthSampleCounts;
@@ -76,8 +48,8 @@ inline VkSampleCountFlagBits max_sampling() {
 
 
 struct app_stuff : vinyl::base_app_stuff {
-  cube::buffer cube {};
-  inst::buffer insts {};
+  cube::v_buffer cube {};
+  cube::i_buffer insts {};
 
   texmap::cache tmap {};
   hai::array<unsigned> txt_ids { 3 };
@@ -103,14 +75,14 @@ struct app_stuff : vinyl::base_app_stuff {
       *clay::frag_shader("poc-mcish", [] {}),
     },
     .bindings {
-      cube::buffer::vertex_input_bind(),
-      inst::buffer::vertex_input_bind_per_instance(),
+      cube::v_buffer::vertex_input_bind(),
+      cube::i_buffer::vertex_input_bind_per_instance(),
     },
     .attributes { 
       vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
       vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
       vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
-      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::t::pos)),
+      vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
     },
   });
 
