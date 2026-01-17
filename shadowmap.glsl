@@ -1,0 +1,21 @@
+#version 450
+
+const float range = 20.0f; // About 2*far plane
+
+vec3 to_light_space(vec3 p) {
+  float a = radians(30);
+  const mat3 rot = mat3(
+    cos(a), 0, sin(a),
+    0, 1, 0,
+    -sin(a), 0, cos(a)
+  );
+
+  // TODO: adjust to camera
+  p = vec3(p.x, -p.z, p.y);
+  p = rot * p;
+
+  return vec3( // Projection
+    p.x / range,
+    p.y / range,
+    (p.z / range) * 0.5 + 0.5);
+}

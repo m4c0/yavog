@@ -1,4 +1,5 @@
 #version 450
+#pragma leco include "shadowmap.glsl"
 
 layout(push_constant) uniform upc {
   float aspect;
