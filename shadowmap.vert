@@ -7,8 +7,6 @@ layout(location = 2) in vec3 normal;
 layout(location = 3, component = 0) in vec3 i_pos;
 layout(location = 3, component = 3) in float txtid;
 
-const float range = 20.0f; // About 2*far plane
-
 vec3 to_light_space(vec3 p);
 
 void main() {
