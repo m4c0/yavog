@@ -24,7 +24,7 @@ inline constexpr auto create_depth_attachment() {
 }
 
 namespace shadowmap {
-  static constexpr const vee::extent ext { 1024, 1024 };
+  static constexpr const vee::extent ext { 2048, 2048 };
 
   export class pipeline : no::no {
     voo::bound_image m_depth = voo::bound_image::create_depth(
