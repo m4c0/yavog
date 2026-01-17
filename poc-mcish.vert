@@ -26,6 +26,8 @@ void main() {
   f_pos = p;
 
   p.xy *= -1; // Left-hand to right-hand
+
+  // TODO: adjust to camera
   gl_Position = vec4( // Projection
     p.x * f / pc.aspect,
     p.y * f,
