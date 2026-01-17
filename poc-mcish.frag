@@ -17,7 +17,7 @@ layout(location = 2) out vec4 normal;
 void main() {
   float lsz = texture(shadowmap, f_lspos.xy * 0.5 + 0.5).r;
   float bias = 0.005;
-  float shadow = f_lspos.z - bias < lsz ? 1 : 0;
+  float shadow = f_lspos.z - bias >= lsz ? 1 : 0;
 
   vec4 c = texture(nonuniformEXT(txts[f_txtid]), f_uv);
   c.rgb *= shadow;

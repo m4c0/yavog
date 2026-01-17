@@ -11,7 +11,7 @@ vec3 to_light_space(vec3 p, float angle) {
   );
 
   // TODO: adjust to camera
-  p = vec3(p.x, -p.z, p.y);
+  p = vec3(p.x, p.z, -p.y);
   p = rot * p;
 
   return vec3( // Projection
