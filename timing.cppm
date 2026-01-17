@@ -1,4 +1,6 @@
 export module timing;
+import casein;
+import dotz;
 import no;
 import silog;
 import traits;
@@ -14,36 +16,46 @@ namespace timing {
     uint64_t end;
   };
 
-  static uint64_t g_frames = 0;
-  static uint64_t g_total = 0;
-  static uint64_t g_post = 0;
-  static uint64_t g_shadow = 0;
+  class counters {
+    dotz::vec2 m_wnd_size = casein::window_size;
+    uint64_t m_frames = 0;
+    uint64_t m_total = 0;
+    uint64_t m_post = 0;
+    uint64_t m_shadow = 0;
+
+  public:
+    void print() {
+      if (m_frames == 0) return;
+
+      float tp = vee::get_physical_device_properties().limits.timestampPeriod;
+      silog::infof("Average timings per frame after %d frames (resolution: %.0fx%.0f)",
+          m_frames, m_wnd_size.x, m_wnd_size.y);
+      silog::infof("-- Shadow:  %7.3fms", m_shadow * tp / (m_frames * 1000'000));
+      silog::infof("-- Post-FX: %7.3fms", m_post   * tp / (m_frames * 1000'000));
+      silog::infof("-- All:     %7.3fms", m_total  * tp / (m_frames * 1000'000));
+    }
+
+    void add(q q) {
+      m_frames++;
+      m_total  += q.end - q.begin;
+      m_post   += q.end - q.prepost;
+      m_shadow += q.postshadow - q.begin;
+    }
+  } g_counter {};
 
   export class query : no::no {
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), vee::buffer_usage::transfer_dst_buffer);
     vee::query_pool m_qp = vee::create_timestamp_query_pool(4);
-    float m_tp = vee::get_physical_device_properties().limits.timestampPeriod;
 
     void read() {
       voo::memiter<q> m { *m_buf.memory };
-      auto q = m[0];
-
-      g_frames++;
-      g_total += q.end - q.begin;
-      g_post += q.end - q.prepost;
-      g_shadow += q.postshadow - q.begin;
+      g_counter.add(m[0]);
     }
 
   public:
     ~query() {
-      if (g_frames == 0) return;
-
-      silog::info("Average timings per frame");
-      silog::infof("-- Shadow:  %7.3fms", g_shadow * m_tp / (g_frames * 1000'000));
-      silog::infof("-- Post-FX: %7.3fms", g_post * m_tp / (g_frames * 1000'000));
-      silog::infof("-- All:     %7.3fms", g_total * m_tp / (g_frames * 1000'000));
-
-      g_frames = 0;
+      g_counter.print();
+      g_counter = {};
     };
 
     void write_begin(vee::command_buffer cb) {
