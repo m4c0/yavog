@@ -79,6 +79,16 @@ static voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   return res;
 }
 
+inline vee::sampler create_shadowmap_sampler() {
+  return vee::create_sampler({
+    .magFilter = VK_FILTER_LINEAR,
+    .minFilter = VK_FILTER_LINEAR,
+    .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+    .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+    .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+  });
+}
+
 namespace ofs {
   auto render_pass(VkSampleCountFlagBits samples) {
     return vee::create_render_pass({
@@ -197,7 +207,7 @@ namespace ofs {
     float fov = 90;
   };
   export class pipeline : no::no {
-    vee::sampler m_light_smp = vee::create_sampler(vee::linear_sampler);
+    vee::sampler m_light_smp = create_shadowmap_sampler();
     voo::single_frag_dset m_light_dset { 1 };
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout({
