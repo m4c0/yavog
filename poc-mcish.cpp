@@ -9,6 +9,7 @@ import dotz;
 import hai;
 import ofs;
 import post;
+import shadowmap;
 import silog;
 import sitime;
 import sv;
@@ -55,6 +56,7 @@ struct app_stuff : vinyl::base_app_stuff {
   hai::array<unsigned> txt_ids { 3 };
 
   post::pipeline post { dq };
+  shadowmap::pipeline shadow {};
 
   vee::pipeline_layout ofs_pl = vee::create_pipeline_layout(
       tmap.dsl(),
@@ -149,6 +151,10 @@ extern "C" void casein_init() {
       voo::cmd_buf_one_time_submit ots { cb };
 
       qp.write_begin(cb);
+
+      vv::as()->shadow.render(cb, vv::as()->cube, vv::as()->insts);
+
+      qp.write_postshadow(cb);
 
       render_to_offscreen();
 

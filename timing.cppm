@@ -9,6 +9,7 @@ using namespace traits::ints;
 namespace timing {
   struct q {
     uint64_t begin;
+    uint64_t postshadow;
     uint64_t prepost;
     uint64_t end;
   };
@@ -16,10 +17,11 @@ namespace timing {
   static uint64_t g_frames = 0;
   static uint64_t g_total = 0;
   static uint64_t g_post = 0;
+  static uint64_t g_shadow = 0;
 
   export class query : no::no {
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), vee::buffer_usage::transfer_dst_buffer);
-    vee::query_pool m_qp = vee::create_timestamp_query_pool(3);
+    vee::query_pool m_qp = vee::create_timestamp_query_pool(4);
     float m_tp = vee::get_physical_device_properties().limits.timestampPeriod;
 
     void read() {
@@ -29,6 +31,7 @@ namespace timing {
       g_frames++;
       g_total += q.end - q.begin;
       g_post += q.end - q.prepost;
+      g_shadow += q.postshadow - q.begin;
     }
 
   public:
@@ -36,6 +39,7 @@ namespace timing {
       if (g_frames == 0) return;
 
       silog::info("Average timings per frame");
+      silog::infof("-- Shadow:  %7.3fms", g_shadow * m_tp / (g_frames * 1000'000));
       silog::infof("-- Post-FX: %7.3fms", g_post * m_tp / (g_frames * 1000'000));
       silog::infof("-- All:     %7.3fms", g_total * m_tp / (g_frames * 1000'000));
 
@@ -45,15 +49,18 @@ namespace timing {
     void write_begin(vee::command_buffer cb) {
       read();
 
-      vee::cmd_reset_query_pool(cb, *m_qp, 0, 3);
+      vee::cmd_reset_query_pool(cb, *m_qp, 0, 4);
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, 0);
     }
-    void write_prepost(vee::command_buffer cb) {
+    void write_postshadow(vee::command_buffer cb) {
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 1);
     }
-    void write_end(vee::command_buffer cb) {
+    void write_prepost(vee::command_buffer cb) {
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 2);
-      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, 3, *m_buf.buffer);
+    }
+    void write_end(vee::command_buffer cb) {
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 3);
+      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, 4, *m_buf.buffer);
     }
   };
 }
