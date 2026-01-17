@@ -3,6 +3,7 @@
 #pragma leco add_shader "poc-mcish.frag"
 #pragma leco add_shader "poc-mcish.vert"
 
+import casein;
 import clay;
 import cube;
 import dotz;
@@ -111,5 +112,10 @@ extern "C" void casein_init() {
       delete cnt;
       cnt = new count {};
     }
+  });
+
+  casein::handle(casein::KEY_DOWN, casein::K_F, [] {
+    casein::fullscreen = !casein::fullscreen;
+    casein::interrupt(casein::IRQ_FULLSCREEN);
   });
 }
