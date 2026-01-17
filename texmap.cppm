@@ -17,10 +17,11 @@ namespace texmap {
   export class cache : no::no {
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
+    vee::descriptor_set_layout m_dsl = descriptor_set_layout();
     vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
       vee::combined_image_sampler(max_sets)
     });
-    vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *descriptor_set_layout());
+    vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
     hai::array<voo::bound_image> m_imgs { max_sets };
 
     hashley::niamh m_ids { 127 };
