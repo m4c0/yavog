@@ -1,6 +1,7 @@
 #version 450
 
 const float range = 20.0f; // About 2*far plane
+const float z_range = 10.0f;
 
 vec3 to_light_space(vec3 p, float angle) {
   float a = radians(angle);
@@ -22,5 +23,5 @@ vec3 to_light_space(vec3 p, float angle) {
   return vec3( // Projection
     p.x / range,
     p.y / range,
-    (p.z / range) * 0.5 + 0.5);
+    (p.z / z_range) * 0.5 + 0.5);
 }
