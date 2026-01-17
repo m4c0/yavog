@@ -64,7 +64,7 @@ struct ext_stuff {
   }
 };
 
-static float g_sun = 30;
+static float g_sun = 180;
 static float sun_angle() { return g_sun; }
 static void render_scene(vee::command_buffer cb) {
   vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
