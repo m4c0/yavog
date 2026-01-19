@@ -238,7 +238,7 @@ namespace ofs {
         cube::i_buffer::vertex_input_bind_per_instance(),
       },
       .attributes { 
-        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
         vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
         vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
