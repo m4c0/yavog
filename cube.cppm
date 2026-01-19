@@ -19,64 +19,61 @@ export namespace cube {
   };
 
   struct v_buffer : public clay::buffer<vtx>, no::no {
-    v_buffer() : clay::buffer<vtx> { 36 } {
+    v_buffer() : clay::buffer<vtx> { 37 } {
       auto m = map();
+
+      m += vtx {};
 
       // Front
       m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, 1 } };
       m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 0, 1 } };
       m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 0, 1 } };
       m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 0, 1 } };
-      m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 0, 1 } };
-      m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 0, 1 } };
 
       // Back
       m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 0, -1 } };
       m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 0, -1 } };
       m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, -1 } };
       m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 0, -1 } };
-      m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, -1 } };
-      m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 0, -1 } };
 
       // Bottom
       m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, -1, 0 } };
       m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, -1, 0 } };
       m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, -1, 0 } };
       m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, -1, 0 } };
-      m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, -1, 0 } };
-      m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, -1, 0 } };
 
       // Top
       m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 1, 0 } };
       m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 1, 0 } };
       m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 1, 0 } };
       m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 1, 0 } };
-      m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 1, 0 } };
-      m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 1, 0 } };
 
       // Left
       m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 0, 0 }, .normal { -1, 0, 0 } };
       m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { -1, 0, 0 } };
       m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { -1, 0, 0 } };
       m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 1 }, .normal { -1, 0, 0 } };
-      m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { -1, 0, 0 } };
-      m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { -1, 0, 0 } };
 
       // Right
       m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 1, 0 }, .normal { 1, 0, 0 } };
       m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 1, 0, 0 } };
       m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 1, 0, 0 } };
       m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 1 }, .normal { 1, 0, 0 } };
-      m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 1, 0, 0 } };
-      m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 1, 0, 0 } };
     }
   };
 
   auto ix_buffer() {
     auto bb = voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
-    voo::memiter<uint16_t> m { *bb.memory };
-    for (auto i = 0; i < 36; i++) m += i;
+    struct tri { uint16_t x[3]; };
+    voo::memiter<tri> m { *bb.memory };
+    
+    m += {{  1,  2,  3 }}; m += {{  4,  3,  2 }}; // Front
+    m += {{  5,  6,  7 }}; m += {{  8,  7,  6 }}; // Back
+    m += {{  9, 10, 11 }}; m += {{ 12, 11, 10 }}; // Bottom
+    m += {{ 13, 14, 15 }}; m += {{ 16, 15, 14 }}; // Top
+    m += {{ 17, 18, 19 }}; m += {{ 20, 19, 18 }}; // Left
+    m += {{ 21, 22, 23 }}; m += {{ 24, 23, 22 }}; // Right
 
     return bb;
   }
