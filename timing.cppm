@@ -44,7 +44,7 @@ namespace timing {
   } g_counter {};
 
   export class query : no::no {
-    voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), vee::buffer_usage::transfer_dst_buffer);
+    voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     vee::query_pool m_qp = vee::create_timestamp_query_pool(4);
 
     void read() {
