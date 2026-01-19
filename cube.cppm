@@ -2,6 +2,10 @@ export module cube;
 import dotz;
 import clay;
 import no;
+import traits;
+import voo;
+
+using namespace traits::ints;
 
 export namespace cube {
   struct vtx {
@@ -68,6 +72,15 @@ export namespace cube {
       m += vtx { .pos {  0.5,  0.5, -0.5 }, .uv { 1, 1 }, .normal { 1, 0, 0 } };
     }
   };
+
+  auto ix_buffer() {
+    auto bb = voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+    voo::memiter<uint16_t> m { *bb.memory };
+    for (auto i = 0; i < 36; i++) m += i;
+
+    return bb;
+  }
 
   struct i_buffer : clay::buffer<inst>, no::no {
     i_buffer() : clay::buffer<inst> { 128 * 128 * 2} {

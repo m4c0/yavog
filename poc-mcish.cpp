@@ -34,6 +34,7 @@ static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer cube {};
   cube::i_buffer insts {};
+  voo::bound_buffer idx = cube::ix_buffer();
 
   texmap::cache tmap {};
   hai::array<unsigned> txt_ids { 3 };
@@ -69,7 +70,11 @@ static float sun_angle() { return g_sun; }
 static void render_scene(vee::command_buffer cb) {
   vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
   vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-  vee::cmd_draw(cb, vv::as()->cube.count(), vv::as()->insts.count());
+  vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx.buffer);
+  vee::cmd_draw_indexed(cb, {
+    .xcount = 36,
+    .icount = vv::as()->insts.count(),
+  });
 }
 static void render_to_shadowmap(vee::command_buffer cb) {
   auto rpg = vv::as()->shadow.cmd_render_pass(cb, sun_angle());
