@@ -50,6 +50,8 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[2] = tmap.load(t131);
 
     ofs.update_descriptor_sets(shadow.iv());
+
+    shadows.setup({ 0, -1, 1 });
   }
 };
 struct ext_stuff {
@@ -74,6 +76,12 @@ static void render_scene(vee::command_buffer cb) {
   vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx.buffer);
   vee::cmd_draw_indexed(cb, {
     .xcount = 36,
+    .icount = vv::as()->insts.count(),
+  });
+
+  vee::cmd_bind_index_buffer_u16(cb, *vv::as()->shadows);
+  vee::cmd_draw_indexed(cb, {
+    .xcount = vv::as()->shadows.count(),
     .icount = vv::as()->insts.count(),
   });
 }

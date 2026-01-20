@@ -99,6 +99,7 @@ export namespace cube {
       add(1, 2, { 0, 0, 1 });
     }
 
+    [[nodiscard]] constexpr auto operator*() const { return *m_bb.buffer; }
     [[nodiscard]] constexpr auto count() const { return m_count; }
   };
 
