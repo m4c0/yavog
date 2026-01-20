@@ -34,6 +34,7 @@ static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer cube {};
   cube::i_buffer insts {};
+  cube::shadow_ix_buffer shadows {};
   voo::bound_buffer idx = cube::ix_buffer();
 
   texmap::cache tmap {};

@@ -78,6 +78,30 @@ export namespace cube {
     return bb;
   }
 
+  class shadow_ix_buffer {
+    voo::bound_buffer m_bb;
+    unsigned m_count;
+
+  public:
+    shadow_ix_buffer() :
+      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
+    {}
+
+    void setup(dotz::vec3 l) {
+      struct tri { uint16_t x[3]; };
+      voo::memiter<tri> m { *m_bb.memory, &m_count };
+      
+      const auto add = [&](uint16_t a, uint16_t b, dotz::vec3 normal) {
+        // backface
+        if (dotz::dot(normal, l) < 0) m += {{ a, b, 0 }};
+        else                          m += {{ b, a, 0 }};
+      };
+      add(1, 2, { 0, 0, 1 });
+    }
+
+    [[nodiscard]] constexpr auto count() const { return m_count; }
+  };
+
   struct i_buffer : clay::buffer<inst>, no::no {
     i_buffer() : clay::buffer<inst> { 128 * 128 * 2} {
       auto m = map();
