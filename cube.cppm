@@ -80,27 +80,48 @@ export namespace cube {
 
   class shadow_ix_buffer {
     voo::bound_buffer m_bb;
-    unsigned m_count;
+    unsigned m_count = 0;
 
   public:
     shadow_ix_buffer() :
-      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
+      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36 * 3, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
     {}
 
     void setup(dotz::vec3 l) {
       struct tri { uint16_t x[3]; };
       voo::memiter<tri> m { *m_bb.memory, &m_count };
       
-      const auto add = [&](uint16_t a, uint16_t b, dotz::vec3 normal) {
-        // backface
-        if (dotz::dot(normal, l) < 0) m += {{ a, b, 0 }};
-        else                          m += {{ b, a, 0 }};
+      const auto mm = [&](uint16_t a, uint16_t b, uint16_t c) {
+        m += {{ a, b, c }};
       };
-      add(1, 2, { 0, 0, 1 });
+      const auto add2 = [&](uint16_t i, dotz::vec3 normal) {
+        bool backface = (dotz::dot(normal, l) < 0);
+        if (backface) {
+          mm(i + 3, i + 2, i + 1);
+          mm(i + 2, i + 3, i + 4);
+          mm(i + 1, i + 3, 0);
+          mm(i + 2, i + 1, 0);
+          mm(i + 4, i + 2, 0);
+          mm(i + 3, i + 4, 0);
+        } else {
+          mm(i + 1, i + 2, i + 3);
+          mm(i + 4, i + 3, i + 2);
+          mm(i + 3, i + 1, 0);
+          mm(i + 1, i + 2, 0);
+          mm(i + 2, i + 4, 0);
+          mm(i + 4, i + 3, 0);
+        }
+      };
+      add2( 0, {  0,  0,  1 });
+      add2( 4, {  0,  0, -1 });
+      add2( 8, {  0, -1,  0 });
+      add2(12, {  0,  1,  0 });
+      add2(16, { -1,  0,  0 });
+      add2(20, {  1,  0,  0 });
     }
 
     [[nodiscard]] constexpr auto operator*() const { return *m_bb.buffer; }
-    [[nodiscard]] constexpr auto count() const { return m_count; }
+    [[nodiscard]] constexpr auto count() const { return m_count * 3; }
   };
 
   struct i_buffer : clay::buffer<inst>, no::no {

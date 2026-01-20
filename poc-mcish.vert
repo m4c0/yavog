@@ -27,22 +27,21 @@ vec3 to_light_space(vec3 p, float angle);
 void main() {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
 
-  vec3 p = pos.xyz + i_pos; // Vertex + Model
+  // TODO: adjust to camera
+  vec4 p = pos.w == 0
+    ? vec4(0, -1, 0, 0) // Point at infinity, oriented to the light
+    : vec4(pos.xyz + i_pos, 1);
   p.xy *= -1; // Left-hand to right-hand
 
-  f_pos = p;
-  f_lspos = to_light_space(p, pc.sun_angle);
+  f_pos = p.xyz;
+  f_lspos = to_light_space(p.xyz, pc.sun_angle);
 
-  // TODO: adjust to camera
-  vec4 p4 = pos.w == 0
-    ? vec4(0, -1, 1, 0) // Point at infinity, oriented to the light
-    : vec4(p, 1);
   gl_Position = mat4(
     f / pc.aspect, 0, 0, 0,
     0, f, 0, 0,
     0, 0, far / (far - near), 1,
     0, 0, -(far * near) / (far - near), 0
-  ) * p4;
+  ) * p;
 
   f_normal = normal;
   f_uv = uv;
