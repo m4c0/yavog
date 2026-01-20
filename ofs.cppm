@@ -1,3 +1,5 @@
+#pragma leco add_shader "ofs-colour.frag"
+#pragma leco add_shader "ofs-colour.vert"
 export module ofs;
 import :common;
 import clay;
@@ -33,8 +35,8 @@ namespace ofs {
         vee::colour_blend_none(),
       },
       .shaders {
-        *clay::vert_shader("poc-mcish", [] {}),
-        *clay::frag_shader("poc-mcish", [] {}),
+        *clay::vert_shader("ofs-colour", [] {}),
+        *clay::frag_shader("ofs-colour", [] {}),
       },
       .bindings {
         cube::v_buffer::vertex_input_bind(),

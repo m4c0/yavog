@@ -1,7 +1,5 @@
 #pragma leco app
 #pragma leco add_resource_dir assets
-#pragma leco add_shader "poc-mcish.frag"
-#pragma leco add_shader "poc-mcish.vert"
 
 import casein;
 import clay;
