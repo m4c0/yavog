@@ -34,12 +34,15 @@ void main() {
   f_lspos = to_light_space(p, pc.sun_angle);
 
   // TODO: adjust to camera
-  gl_Position = vec4( // Projection
-    p.x * f / pc.aspect,
-    p.y * f,
-    far * (p.z - near) / (far - near),
-    p.z
-  );
+  vec4 p4 = pos.w == 0
+    ? vec4(0, -1, 1, 0) // Point at infinity, oriented to the light
+    : vec4(p, 1);
+  gl_Position = mat4(
+    f / pc.aspect, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, far / (far - near), 1,
+    0, 0, -(far * near) / (far - near), 0
+  ) * p4;
 
   f_normal = normal;
   f_uv = uv;
