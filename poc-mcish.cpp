@@ -64,25 +64,6 @@ struct ext_stuff {
 
 static float g_sun = 180;
 static float sun_angle() { return g_sun; }
-static void render_scene(vee::command_buffer cb) {
-  vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
-  vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-  vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx.buffer);
-  vee::cmd_draw_indexed(cb, {
-    .xcount = 36,
-    .icount = vv::as()->insts.count(),
-  });
-
-  vee::cmd_bind_index_buffer_u16(cb, *vv::as()->shadows);
-  vee::cmd_draw_indexed(cb, {
-    .xcount = vv::as()->shadows.count(),
-    .icount = vv::as()->insts.count(),
-  });
-}
-static void render_to_offscreen(vee::command_buffer cb) {
-  auto rpg = vv::as()->ofs.cmd_render_pass(cb, vv::as()->tmap.dset(), sun_angle());
-  render_scene(cb);
-}
 
 extern "C" void casein_init() {
   vv::setup([] {
@@ -95,7 +76,15 @@ extern "C" void casein_init() {
 
       qp.write_begin(cb);
 
-      render_to_offscreen(cb);
+      vv::as()->ofs.render(cb, {
+        .vtx = *vv::as()->cube,
+        .inst = *vv::as()->insts,
+        .idx = *vv::as()->idx.buffer,
+        .shdidx = *vv::as()->shadows,
+        .icount = vv::as()->insts.count(),
+        .tmap = vv::as()->tmap.dset(),
+        .sun_angle = sun_angle(),
+      });
 
       qp.write_prepost(cb);
 

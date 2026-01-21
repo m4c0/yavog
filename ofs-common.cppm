@@ -113,6 +113,9 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
           vee::create_attachment_ref(2, vee::image_layout_color_attachment_optimal),
         }},
         .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
+      }),
+      vee::create_subpass({
+        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
         .resolves {{
           vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
           vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
@@ -121,6 +124,7 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
         }},
       }),
     }},
+    // TODO: dependencies between subpasses
     .dependencies {{
       vee::create_colour_dependency(),
       vee::create_depth_dependency(),
