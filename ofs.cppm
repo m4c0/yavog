@@ -13,16 +13,9 @@ using namespace wagen;
 
 namespace ofs {
   export class pipeline : no::no {
-    vee::sampler m_light_smp = create_shadowmap_sampler();
-    voo::single_frag_dset m_light_dset { 1 };
-
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout({
-      .descriptor_set_layouts {{
-        *texmap::descriptor_set_layout(),
-        m_light_dset.descriptor_set_layout(),
-      }},
-      .push_constant_ranges {{ vee::vertex_push_constant_range<upc>() }},
-    });
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(
+      *texmap::descriptor_set_layout(),
+      vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *m_pl,
       .render_pass = *create_render_pass(max_sampling()),
@@ -57,9 +50,6 @@ namespace ofs {
   public:
     [[nodiscard]] constexpr const auto & fb() const { return *m_fb; }
 
-    void update_descriptor_sets(vee::image_view::type lmap) {
-      vee::update_descriptor_set(m_light_dset.descriptor_set(), 0, lmap, *m_light_smp);
-    }
     void setup(const voo::swapchain & swc) {
       m_pc.aspect = swc.aspect();
       m_ext = swc.extent();
@@ -89,7 +79,6 @@ namespace ofs {
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_push_vertex_constants(cb, *m_pl, &m_pc);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, tmap);
-      vee::cmd_bind_descriptor_set(cb, *m_pl, 1, m_light_dset.descriptor_set());
       return rp;
     }
   };

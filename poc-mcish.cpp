@@ -8,7 +8,6 @@ import dotz;
 import hai;
 import ofs;
 import post;
-import shadowmap;
 import silog;
 import sitime;
 import sv;
@@ -39,15 +38,12 @@ struct app_stuff : vinyl::base_app_stuff {
   hai::array<unsigned> txt_ids { 3 };
 
   post::pipeline post { dq };
-  shadowmap::pipeline shadow {};
   ofs::pipeline ofs {};
 
   app_stuff() : base_app_stuff { "poc-mcish" } {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
     txt_ids[2] = tmap.load(t131);
-
-    ofs.update_descriptor_sets(shadow.iv());
 
     shadows.setup({ 0, -1, 1 });
   }
@@ -83,10 +79,6 @@ static void render_scene(vee::command_buffer cb) {
     .icount = vv::as()->insts.count(),
   });
 }
-static void render_to_shadowmap(vee::command_buffer cb) {
-  auto rpg = vv::as()->shadow.cmd_render_pass(cb, sun_angle());
-  render_scene(cb);
-}
 static void render_to_offscreen(vee::command_buffer cb) {
   auto rpg = vv::as()->ofs.cmd_render_pass(cb, vv::as()->tmap.dset(), sun_angle());
   render_scene(cb);
@@ -102,10 +94,6 @@ extern "C" void casein_init() {
       voo::cmd_buf_one_time_submit ots { cb };
 
       qp.write_begin(cb);
-
-      render_to_shadowmap(cb);
-
-      qp.write_postshadow(cb);
 
       render_to_offscreen(cb);
 

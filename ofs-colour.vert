@@ -1,5 +1,4 @@
 #version 450
-#pragma leco include "shadowmap.glsl"
 
 layout(push_constant) uniform upc {
   float aspect;
@@ -17,12 +16,9 @@ layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
-layout(location = 4) out vec3 f_lspos;
 
 const float near =  0.01;
 const float far  = 10.0;
-
-vec3 to_light_space(vec3 p, float angle);
 
 void main() {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
@@ -34,7 +30,6 @@ void main() {
   p.xy *= -1; // Left-hand to right-hand
 
   f_pos = p.xyz;
-  f_lspos = to_light_space(p.xyz, pc.sun_angle);
 
   gl_Position = mat4(
     f / pc.aspect, 0, 0, 0,

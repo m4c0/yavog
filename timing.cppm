@@ -21,7 +21,6 @@ namespace timing {
     uint64_t m_frames = 0;
     uint64_t m_total = 0;
     uint64_t m_post = 0;
-    uint64_t m_shadow = 0;
 
   public:
     void print() {
@@ -30,7 +29,6 @@ namespace timing {
       float tp = vee::get_physical_device_properties().limits.timestampPeriod;
       silog::infof("Average timings per frame after %d frames (resolution: %.0fx%.0f)",
           m_frames, m_wnd_size.x, m_wnd_size.y);
-      silog::infof("-- Shadow:  %7.3fms", m_shadow * tp / (m_frames * 1000'000));
       silog::infof("-- Post-FX: %7.3fms", m_post   * tp / (m_frames * 1000'000));
       silog::infof("-- All:     %7.3fms", m_total  * tp / (m_frames * 1000'000));
     }
@@ -39,7 +37,6 @@ namespace timing {
       m_frames++;
       m_total  += q.end - q.begin;
       m_post   += q.end - q.prepost;
-      m_shadow += q.postshadow - q.begin;
     }
   } g_counter {};
 
@@ -64,15 +61,12 @@ namespace timing {
       vee::cmd_reset_query_pool(cb, *m_qp, 0, 4);
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, 0);
     }
-    void write_postshadow(vee::command_buffer cb) {
+    void write_prepost(vee::command_buffer cb) {
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 1);
     }
-    void write_prepost(vee::command_buffer cb) {
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 2);
-    }
     void write_end(vee::command_buffer cb) {
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 3);
-      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, 4, *m_buf.buffer);
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 2);
+      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, 3, *m_buf.buffer);
     }
   };
 }
