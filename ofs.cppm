@@ -1,5 +1,7 @@
 #pragma leco add_shader "ofs-colour.frag"
 #pragma leco add_shader "ofs-colour.vert"
+#pragma leco add_shader "ofs-lights.frag"
+#pragma leco add_shader "ofs-lights.vert"
 #pragma leco add_shader "ofs-shadow.frag"
 #pragma leco add_shader "ofs-shadow.vert"
 export module ofs;
@@ -97,6 +99,54 @@ namespace ofs::shadow {
   };
 }
 
+namespace ofs::lights {
+  export struct pipeline : no::no {
+    vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
+    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+      .pipeline_layout = *pl,
+      .render_pass = *create_render_pass(max_sampling()),
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+      .multisampling = max_sampling(),
+      .subpass = 2,
+      .depth = vee::depth::of({
+        .depthTestEnable = vk_true,
+        .depthWriteEnable = vk_false,
+        .depthCompareOp = VK_COMPARE_OP_EQUAL,
+        .stencilTestEnable = vk_true,
+        .front = {
+          .failOp = VK_STENCIL_OP_KEEP,
+          .passOp = VK_STENCIL_OP_KEEP,
+          .depthFailOp = VK_STENCIL_OP_KEEP,
+          .compareOp = VK_COMPARE_OP_EQUAL,
+          .compareMask = ~0U,
+          .writeMask = ~0U,
+        },
+        .back = {
+          .failOp = VK_STENCIL_OP_KEEP,
+          .passOp = VK_STENCIL_OP_KEEP,
+          .depthFailOp = VK_STENCIL_OP_KEEP,
+          .compareOp = VK_COMPARE_OP_EQUAL,
+          .compareMask = ~0U,
+          .writeMask = ~0U,
+        },
+      }),
+      .blends { vee::colour_blend_classic() },
+      .shaders {
+        *clay::vert_shader("ofs-lights", [] {}),
+        *clay::frag_shader("ofs-lights", [] {}),
+      },
+      .bindings {
+        cube::v_buffer::vertex_input_bind(),
+        cube::i_buffer::vertex_input_bind_per_instance(),
+      },
+      .attributes { 
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+      },
+    });
+  };
+}
+
 namespace ofs {
   export struct params {
     vee::buffer::type vtx;
@@ -112,6 +162,7 @@ namespace ofs {
   export class pipeline {
     colour::pipeline m_clr {};
     shadow::pipeline m_shd {};
+    lights::pipeline m_lig {};
 
     upc m_pc {};
     vee::extent m_ext {};
@@ -164,6 +215,14 @@ namespace ofs {
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36 * 3,
+        .icount = p.icount,
+      });
+
+      vee::cmd_next_subpass(cb);
+      vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
+      vee::cmd_bind_index_buffer_u16(cb, p.idx);
+      vee::cmd_draw_indexed(cb, {
+        .xcount = 36,
         .icount = p.icount,
       });
     }
