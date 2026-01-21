@@ -113,21 +113,32 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
           vee::create_attachment_ref(2, vee::image_layout_color_attachment_optimal),
         }},
         .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
-      }),
-      vee::create_subpass({
-        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
         .resolves {{
           vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
           vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
           vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(7, vee::image_layout_color_attachment_optimal),
         }},
       }),
+      vee::create_subpass({
+        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
+        .resolves {{
+          vee::create_attachment_ref(7, vee::image_layout_color_attachment_optimal),
+        }},
+        .preserves {{ 4, 5, 6 }},
+      }),
     }},
-    // TODO: dependencies between subpasses
     .dependencies {{
-      vee::create_colour_dependency(),
-      vee::create_depth_dependency(),
+      vee::create_dependency({
+        .src_subpass = 0,
+        .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+        .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        .dst_subpass = 1,
+        .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+        .dst_access_mask =
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+        .dependency = 0,
+      }),
     }},
   });
 }
