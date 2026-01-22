@@ -22,7 +22,7 @@ inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   res.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
   res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   res.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   res.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   res.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   res.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -38,7 +38,7 @@ inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits
     .samples        = samples,
     .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
     .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR,
     .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
     .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
     .finalLayout    = final_layout,
@@ -52,7 +52,7 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
 
   auto ci = vee::image_create_info(
       ext, fmt, 
-      usage | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
+      usage | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
   ci.samples = samples;
 
   voo::bound_image res {};
@@ -127,11 +127,14 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
         .colours {{
           vee::create_attachment_ref(0, vee::image_layout_color_attachment_optimal),
         }},
+        .inputs {{
+          vee::create_attachment_ref(0, vee::image_layout_shader_read_only_optimal),
+        }},
         .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
         .resolves {{
           vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
         }},
-        .preserves {{ 1, 2, 5, 6 }},
+        .preserves {{ 5, 6 }},
       }),
     }},
     .dependencies {{
@@ -171,10 +174,12 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       vee::create_dependency({
         .src_subpass = 0,
         .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        .src_access_mask =
+          VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+          VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .dst_subpass = 2,
-        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        .dst_stage_mask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+        .dst_access_mask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
         .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
     }},
