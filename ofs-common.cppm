@@ -217,7 +217,9 @@ struct framebuffer : no::no {
     auto flg = max_samples == VK_SAMPLE_COUNT_1_BIT
       ? VK_IMAGE_USAGE_SAMPLED_BIT
       : VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-    auto ci = vee::depth_image_create_info(ext, flg);
+    auto ci = vee::image_create_info(
+        ext, VK_FORMAT_D32_SFLOAT_S8_UINT,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | flg);
     ci.samples = max_samples;
     return voo::bound_image::create(ci, VK_IMAGE_ASPECT_DEPTH_BIT);
   }
