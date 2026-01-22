@@ -21,7 +21,7 @@ inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   VkAttachmentDescription res{};
   res.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
   res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  res.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  res.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   res.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   res.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
