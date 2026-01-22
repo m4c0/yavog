@@ -19,7 +19,7 @@ inline VkSampleCountFlagBits max_sampling() {
 
 inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   VkAttachmentDescription res{};
-  res.format = VK_FORMAT_D32_SFLOAT;
+  res.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
   res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   res.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -30,7 +30,7 @@ inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
   return res;
 }
 inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits samples) {
-  auto final_layout = fmt == VK_FORMAT_D32_SFLOAT
+  auto final_layout = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
   return VkAttachmentDescription {
@@ -46,7 +46,7 @@ inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits
 }
 
 inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampleCountFlagBits samples) {
-  auto usage = fmt == VK_FORMAT_D32_SFLOAT
+  auto usage = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
     : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -60,7 +60,7 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   res.mem = vee::create_lazy_image_memory(wagen::physical_device(), *res.img);
   vee::bind_image_memory(*res.img, *res.mem);
 
-  auto aspect = fmt == VK_FORMAT_D32_SFLOAT
+  auto aspect = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_ASPECT_DEPTH_BIT
     : VK_IMAGE_ASPECT_COLOR_BIT;
   auto iv = vee::image_view_create_info({
@@ -89,7 +89,7 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       create_msaa_attachment(VK_FORMAT_R8G8B8A8_UNORM,      samples),
       create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
       create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
-      create_msaa_attachment(VK_FORMAT_D32_SFLOAT,          samples),
+      create_msaa_attachment(VK_FORMAT_D32_SFLOAT_S8_UINT,  samples),
 
       vee::create_colour_attachment({
         .format = VK_FORMAT_R8G8B8A8_UNORM,
@@ -231,7 +231,7 @@ struct framebuffer : no::no {
   , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
   , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
 
-  , msaa_depth { create_msaa_image(ext, VK_FORMAT_D32_SFLOAT, max_samples) }
+  , msaa_depth { create_msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
   , depth { dpth(ext, VK_SAMPLE_COUNT_1_BIT) }
 
   , rp { create_render_pass(max_samples) }
