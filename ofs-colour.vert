@@ -1,10 +1,5 @@
 #version 450
-
-layout(push_constant) uniform upc {
-  float aspect;
-  float fov_deg;
-  float sun_angle;
-} pc;
+#pragma leco include "ofs.glsl"
 
 layout(location = 0) in vec4 pos;
 layout(location = 1) in vec2 uv;
@@ -17,27 +12,10 @@ layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
-const float near =  0.01;
-const float far  = 10.0;
+vec3 proj(vec4);
 
 void main() {
-  float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
-
-  // TODO: adjust to camera
-  vec4 p = pos.w == 0
-    ? vec4(0, -1, 0, 0) // Point at infinity, oriented to the light
-    : vec4(pos.xyz + i_pos, 1);
-  p.xy *= -1; // Left-hand to right-hand
-
-  f_pos = p.xyz;
-
-  gl_Position = mat4(
-    f / pc.aspect, 0, 0, 0,
-    0, f, 0, 0,
-    0, 0, far / (far - near), 1,
-    0, 0, -(far * near) / (far - near), 0
-  ) * p;
-
+  f_pos = proj(pos + vec4(i_pos, 0));
   f_normal = normal;
   f_uv = uv;
   f_txtid = int(txtid);
