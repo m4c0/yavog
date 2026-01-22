@@ -20,7 +20,6 @@ namespace post {
       vee::dsl_fragment_sampler(),
       vee::dsl_fragment_sampler(),
       vee::dsl_fragment_sampler(),
-      vee::dsl_fragment_sampler(),
     });
     vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
       vee::combined_image_sampler(4)
@@ -59,7 +58,6 @@ namespace post {
       vee::update_descriptor_set(m_dset, 0, *ofs.fb().colour.iv,   *m_smp);
       vee::update_descriptor_set(m_dset, 1, *ofs.fb().position.iv, *m_smp);
       vee::update_descriptor_set(m_dset, 2, *ofs.fb().normal.iv,   *m_smp);
-      vee::update_descriptor_set(m_dset, 3, *ofs.fb().depth.iv,    *m_smp);
     }
 
     void render(vee::command_buffer cb, voo::swapchain & swc) {

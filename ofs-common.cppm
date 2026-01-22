@@ -103,7 +103,6 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
         .format = VK_FORMAT_R32G32B32A32_SFLOAT,
         .final_layout = vee::image_layout_shader_read_only_optimal,
       }),
-      create_depth_attachment(VK_SAMPLE_COUNT_1_BIT),
     }},
     .subpasses {{
       vee::create_subpass({
@@ -201,9 +200,7 @@ struct framebuffer : no::no {
   voo::bound_image position;
   voo::bound_image normal;
 
-  // TODO: remove depth resolve if we keep using pos.z
   voo::bound_image msaa_depth;
-  voo::bound_image depth;
 
   vee::render_pass rp;
   vee::framebuffer fb;
@@ -239,7 +236,6 @@ struct framebuffer : no::no {
   , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
 
   , msaa_depth { create_msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
-  , depth { dpth(ext, VK_SAMPLE_COUNT_1_BIT) }
 
   , rp { create_render_pass(max_samples) }
   , fb { vee::create_framebuffer({
@@ -252,7 +248,6 @@ struct framebuffer : no::no {
       *colour.iv,
       *position.iv,
       *normal.iv,
-      *depth.iv,
     }},
     .extent = ext,
   }) }
