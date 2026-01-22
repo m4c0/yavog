@@ -120,7 +120,7 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       }),
       vee::create_subpass({
         .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
-        .preserves {{ 0, 1, 2, 4, 5, 6 }},
+        .preserves {{ 4, 5, 6 }},
       }),
       vee::create_subpass({
         .colours {{
