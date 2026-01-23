@@ -11,7 +11,6 @@ using namespace traits::ints;
 namespace timing {
   struct q {
     uint64_t begin;
-    uint64_t postshadow;
     uint64_t prepost;
     uint64_t end;
   };
