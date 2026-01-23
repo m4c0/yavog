@@ -117,15 +117,21 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
     }},
     .dependencies {{
       vee::create_dependency({
+        .src_subpass = vee::subpass_external,
+        .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .src_access_mask = 0,
+        .dst_subpass = 2,
+        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+      }),
+      vee::create_dependency({
         .src_subpass = 0,
         .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
         .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
         .dst_subpass = 1,
         .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-        .dst_access_mask =
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-        .dependency = 0,
+        .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
       vee::create_dependency({
         .src_subpass = 1,
@@ -133,31 +139,16 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
         .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
         .dst_subpass = 2,
         .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-        .dst_access_mask =
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dependency = 0,
-      }),
-      vee::create_dependency({
-        .src_subpass = 2,
-        .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = vk_subpass_external,
-        .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-        .dst_access_mask =
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dependency = 0,
+        .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
       vee::create_dependency({
         .src_subpass = 0,
         .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask =
-          VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-          VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .dst_subpass = 2,
-        .dst_stage_mask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        .dst_access_mask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
     }},
