@@ -18,18 +18,6 @@ inline VkSampleCountFlagBits max_sampling() {
   return VK_SAMPLE_COUNT_1_BIT;
 }
 
-inline constexpr auto create_depth_attachment(VkSampleCountFlagBits samples) {
-  VkAttachmentDescription res{};
-  res.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
-  res.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  res.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  res.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  res.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  res.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  res.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  res.samples = samples;
-  return res;
-}
 inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits samples) {
   auto final_layout = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
@@ -72,16 +60,6 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   res.iv = vee::image_view { &iv };
 
   return res;
-}
-
-inline vee::sampler create_shadowmap_sampler() {
-  return vee::create_sampler({
-    .magFilter = VK_FILTER_LINEAR,
-    .minFilter = VK_FILTER_LINEAR,
-    .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-    .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-    .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-  });
 }
 
 inline auto create_render_pass(VkSampleCountFlagBits samples) {
