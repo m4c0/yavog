@@ -156,7 +156,7 @@ namespace ofs {
     unsigned icount;
 
     vee::descriptor_set tmap;
-    float sun_angle;
+    dotz::vec4 light;
   };
 
   export class pipeline {
@@ -178,7 +178,7 @@ namespace ofs {
     }
 
     void render(vee::command_buffer cb, const params & p) {
-      m_pc.sun_angle = p.sun_angle;
+      m_pc.light = p.light;
 
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,

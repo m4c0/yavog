@@ -1,4 +1,5 @@
 export module ofs:common;
+import dotz;
 import no;
 import silog;
 import voo;
@@ -186,9 +187,9 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
 }
 
 struct upc {
+  dotz::vec4 light;
   float aspect;
   float fov = 90;
-  float sun_angle;
 };
 
 struct framebuffer : no::no {

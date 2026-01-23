@@ -44,8 +44,6 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
     txt_ids[2] = tmap.load(t131);
-
-    shadows.setup({ 0, -1, 1 });
   }
 };
 struct ext_stuff {
@@ -62,8 +60,7 @@ struct ext_stuff {
   }
 };
 
-static float g_sun = 180;
-static float sun_angle() { return g_sun; }
+static float g_sun = 45;
 
 extern "C" void casein_init() {
   vv::setup([] {
@@ -76,6 +73,8 @@ extern "C" void casein_init() {
 
       qp.write_begin(cb);
 
+      dotz::vec3 l { dotz::sin(g_sun*3.14/180.), 1, dotz::cos(g_sun*3.14/180.) };
+      vv::as()->shadows.setup(l);
       vv::as()->ofs.render(cb, {
         .vtx = *vv::as()->cube,
         .inst = *vv::as()->insts,
@@ -83,7 +82,7 @@ extern "C" void casein_init() {
         .shdidx = *vv::as()->shadows,
         .icount = vv::as()->insts.count(),
         .tmap = vv::as()->tmap.dset(),
-        .sun_angle = sun_angle(),
+        .light { l, 0 },
       });
 
       qp.write_prepost(cb);
