@@ -22,7 +22,7 @@ export namespace cube {
     v_buffer() : clay::buffer<vtx> { 37 } {
       auto m = map();
 
-      m += vtx {};
+      m += vtx { .pos {} };
 
       // Front
       m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, 1 } };
