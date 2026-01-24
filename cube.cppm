@@ -98,17 +98,17 @@ export namespace cube {
         if (backface) {
           mm(i + 3, i + 2, i + 1);
           mm(i + 2, i + 3, i + 4);
-          mm(i + 1, i + 3, 0);
-          mm(i + 2, i + 1, 0);
-          mm(i + 4, i + 2, 0);
-          mm(i + 3, i + 4, 0);
-        } else {
-          mm(i + 1, i + 2, i + 3);
-          mm(i + 4, i + 3, i + 2);
           mm(i + 3, i + 1, 0);
           mm(i + 1, i + 2, 0);
           mm(i + 2, i + 4, 0);
           mm(i + 4, i + 3, 0);
+        } else {
+          mm(i + 1, i + 2, i + 3);
+          mm(i + 4, i + 3, i + 2);
+          mm(i + 1, i + 3, 0);
+          mm(i + 2, i + 1, 0);
+          mm(i + 4, i + 2, 0);
+          mm(i + 3, i + 4, 0);
         }
       };
       add2( 0, {  0,  0,  1 });
