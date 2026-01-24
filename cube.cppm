@@ -12,10 +12,14 @@ export namespace cube {
     dotz::vec4 pos;
     dotz::vec2 uv;
     dotz::vec3 normal;
+
+    static inline auto win32_hack() { return traits::offset_of(&vtx::pos); }
   };
   struct inst {
     dotz::vec3 pos;
     float txtid;
+
+    static inline auto win32_hack() { return traits::offset_of(&inst::pos); }
   };
 
   struct v_buffer : public clay::buffer<vtx>, no::no {
