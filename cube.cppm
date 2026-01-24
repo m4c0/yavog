@@ -17,7 +17,6 @@ export namespace cube {
     dotz::vec3 pos;
     float txtid;
   };
-
   struct v_buffer : public clay::buffer<vtx>, no::no {
     v_buffer() : clay::buffer<vtx> { 37 } {
       auto m = map();
@@ -99,17 +98,17 @@ export namespace cube {
         if (backface) {
           mm(i + 3, i + 2, i + 1);
           mm(i + 2, i + 3, i + 4);
-          mm(i + 1, i + 3, 0);
-          mm(i + 2, i + 1, 0);
-          mm(i + 4, i + 2, 0);
-          mm(i + 3, i + 4, 0);
-        } else {
-          mm(i + 1, i + 2, i + 3);
-          mm(i + 4, i + 3, i + 2);
           mm(i + 3, i + 1, 0);
           mm(i + 1, i + 2, 0);
           mm(i + 2, i + 4, 0);
           mm(i + 4, i + 3, 0);
+        } else {
+          mm(i + 1, i + 2, i + 3);
+          mm(i + 4, i + 3, i + 2);
+          mm(i + 1, i + 3, 0);
+          mm(i + 2, i + 1, 0);
+          mm(i + 4, i + 2, 0);
+          mm(i + 3, i + 4, 0);
         }
       };
       add2( 0, {  0,  0,  1 });
@@ -145,3 +144,9 @@ export namespace cube {
     }
   };
 }
+
+inline auto win32_hack() {
+  // Pre-instantiate the simple to avoid clang exploding later
+  return traits::offset_of(&cube::vtx::pos) + traits::offset_of(&cube::inst::pos);
+}
+
