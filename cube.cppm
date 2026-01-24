@@ -7,6 +7,17 @@ import voo;
 
 using namespace traits::ints;
 
+constexpr dotz::vec4 vtxes[] {
+  {  0.5,  0.5,  0.5, 1.0 },
+  {  0.5,  0.5, -0.5, 1.0 },
+  {  0.5, -0.5,  0.5, 1.0 },
+  {  0.5, -0.5, -0.5, 1.0 },
+  { -0.5,  0.5,  0.5, 1.0 },
+  { -0.5,  0.5, -0.5, 1.0 },
+  { -0.5, -0.5,  0.5, 1.0 },
+  { -0.5, -0.5, -0.5, 1.0 },
+};
+
 export namespace cube {
   struct vtx {
     dotz::vec4 pos;
@@ -21,43 +32,41 @@ export namespace cube {
     v_buffer() : clay::buffer<vtx> { 37 } {
       auto m = map();
 
-      m += vtx { .pos {} };
-
       // Front
-      m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, 1 } };
-      m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 0, 1 } };
-      m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 0, 1 } };
-      m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 0, 1 } };
+      m += vtx { .pos = vtxes[6], .uv { 1, 0 }, .normal { 0, 0, 1 } };
+      m += vtx { .pos = vtxes[2], .uv { 0, 0 }, .normal { 0, 0, 1 } };
+      m += vtx { .pos = vtxes[4], .uv { 1, 1 }, .normal { 0, 0, 1 } };
+      m += vtx { .pos = vtxes[0], .uv { 0, 1 }, .normal { 0, 0, 1 } };
 
       // Back
-      m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 0, -1 } };
-      m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 0, -1 } };
-      m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 0, -1 } };
-      m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 0, -1 } };
+      m += vtx { .pos = vtxes[7], .uv { 0, 0 }, .normal { 0, 0, -1 } };
+      m += vtx { .pos = vtxes[5], .uv { 0, 1 }, .normal { 0, 0, -1 } };
+      m += vtx { .pos = vtxes[3], .uv { 1, 0 }, .normal { 0, 0, -1 } };
+      m += vtx { .pos = vtxes[1], .uv { 1, 1 }, .normal { 0, 0, -1 } };
 
       // Bottom
-      m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, -1, 0 } };
-      m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, -1, 0 } };
-      m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, -1, 0 } };
-      m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, -1, 0 } };
+      m += vtx { .pos = vtxes[7], .uv { 1, 1 }, .normal { 0, -1, 0 } };
+      m += vtx { .pos = vtxes[3], .uv { 0, 1 }, .normal { 0, -1, 0 } };
+      m += vtx { .pos = vtxes[6], .uv { 1, 0 }, .normal { 0, -1, 0 } };
+      m += vtx { .pos = vtxes[2], .uv { 0, 0 }, .normal { 0, -1, 0 } };
 
       // Top
-      m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 0, 1, 0 } };
-      m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { 0, 1, 0 } };
-      m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { 0, 1, 0 } };
-      m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 0, 1, 0 } };
+      m += vtx { .pos = vtxes[5], .uv { 1, 1 }, .normal { 0, 1, 0 } };
+      m += vtx { .pos = vtxes[4], .uv { 1, 0 }, .normal { 0, 1, 0 } };
+      m += vtx { .pos = vtxes[1], .uv { 0, 1 }, .normal { 0, 1, 0 } };
+      m += vtx { .pos = vtxes[0], .uv { 0, 0 }, .normal { 0, 1, 0 } };
 
       // Left
-      m += vtx { .pos { -0.5, -0.5, -0.5, 1.0 }, .uv { 0, 0 }, .normal { -1, 0, 0 } };
-      m += vtx { .pos { -0.5, -0.5,  0.5, 1.0 }, .uv { 1, 0 }, .normal { -1, 0, 0 } };
-      m += vtx { .pos { -0.5,  0.5, -0.5, 1.0 }, .uv { 0, 1 }, .normal { -1, 0, 0 } };
-      m += vtx { .pos { -0.5,  0.5,  0.5, 1.0 }, .uv { 1, 1 }, .normal { -1, 0, 0 } };
+      m += vtx { .pos = vtxes[7], .uv { 0, 0 }, .normal { -1, 0, 0 } };
+      m += vtx { .pos = vtxes[6], .uv { 1, 0 }, .normal { -1, 0, 0 } };
+      m += vtx { .pos = vtxes[5], .uv { 0, 1 }, .normal { -1, 0, 0 } };
+      m += vtx { .pos = vtxes[4], .uv { 1, 1 }, .normal { -1, 0, 0 } };
 
       // Right
-      m += vtx { .pos {  0.5, -0.5, -0.5, 1.0 }, .uv { 1, 0 }, .normal { 1, 0, 0 } };
-      m += vtx { .pos {  0.5,  0.5, -0.5, 1.0 }, .uv { 1, 1 }, .normal { 1, 0, 0 } };
-      m += vtx { .pos {  0.5, -0.5,  0.5, 1.0 }, .uv { 0, 0 }, .normal { 1, 0, 0 } };
-      m += vtx { .pos {  0.5,  0.5,  0.5, 1.0 }, .uv { 0, 1 }, .normal { 1, 0, 0 } };
+      m += vtx { .pos = vtxes[3], .uv { 1, 0 }, .normal { 1, 0, 0 } };
+      m += vtx { .pos = vtxes[1], .uv { 1, 1 }, .normal { 1, 0, 0 } };
+      m += vtx { .pos = vtxes[2], .uv { 0, 0 }, .normal { 1, 0, 0 } };
+      m += vtx { .pos = vtxes[0], .uv { 0, 1 }, .normal { 1, 0, 0 } };
     }
   };
 
@@ -67,16 +76,23 @@ export namespace cube {
     struct tri { uint16_t x[3]; };
     voo::memiter<tri> m { *bb.memory };
     
-    m += {{  1,  2,  3 }}; m += {{  4,  3,  2 }}; // Front
-    m += {{  5,  6,  7 }}; m += {{  8,  7,  6 }}; // Back
-    m += {{  9, 10, 11 }}; m += {{ 12, 11, 10 }}; // Bottom
-    m += {{ 13, 14, 15 }}; m += {{ 16, 15, 14 }}; // Top
-    m += {{ 17, 18, 19 }}; m += {{ 20, 19, 18 }}; // Left
-    m += {{ 21, 22, 23 }}; m += {{ 24, 23, 22 }}; // Right
+    m += {{  0,  1,  2 }}; m += {{  3,  2,  1 }}; // Front
+    m += {{  4,  5,  6 }}; m += {{  7,  6,  5 }}; // Back
+    m += {{  8,  9, 10 }}; m += {{ 11, 10,  9 }}; // Bottom
+    m += {{ 12, 13, 14 }}; m += {{ 15, 14, 13 }}; // Top
+    m += {{ 16, 17, 18 }}; m += {{ 19, 18, 17 }}; // Left
+    m += {{ 20, 21, 22 }}; m += {{ 23, 22, 21 }}; // Right
 
     return bb;
   }
 
+  struct shadow_v_buffer : public clay::buffer<dotz::vec4>, no::no {
+    shadow_v_buffer() : clay::buffer<dotz::vec4> { 8 } {
+      auto m = map();
+      m += {};
+      for (auto v : vtxes) m += v;
+    }
+  };
   class shadow_ix_buffer {
     voo::bound_buffer m_bb;
     unsigned m_count = 0;
@@ -93,30 +109,18 @@ export namespace cube {
       const auto mm = [&](uint16_t a, uint16_t b, uint16_t c) {
         m += {{ a, b, c }};
       };
-      const auto add2 = [&](uint16_t i, dotz::vec3 normal) {
-        bool backface = (dotz::dot(normal, l) < 0);
-        if (backface) {
-          mm(i + 3, i + 2, i + 1);
-          mm(i + 2, i + 3, i + 4);
-          mm(i + 3, i + 1, 0);
-          mm(i + 1, i + 2, 0);
-          mm(i + 2, i + 4, 0);
-          mm(i + 4, i + 3, 0);
-        } else {
-          mm(i + 1, i + 2, i + 3);
-          mm(i + 4, i + 3, i + 2);
-          mm(i + 1, i + 3, 0);
-          mm(i + 2, i + 1, 0);
-          mm(i + 4, i + 2, 0);
-          mm(i + 3, i + 4, 0);
-        }
+      const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
+        bool backface = (dotz::dot(normal, -l) < 0);
+        if (backface) return;
+        mm(a + 1, b + 1, c + 1);
+        mm(d + 1, c + 1, b + 1);
       };
-      add2( 0, {  0,  0,  1 });
-      add2( 4, {  0,  0, -1 });
-      add2( 8, {  0, -1,  0 });
-      add2(12, {  0,  1,  0 });
-      add2(16, { -1,  0,  0 });
-      add2(20, {  1,  0,  0 });
+      cap({  0,  0,  1 }, 6, 2, 4, 0);
+      cap({  0,  0, -1 }, 7, 5, 3, 1);
+      cap({  0, -1,  0 }, 7, 3, 6, 2);
+      cap({  0,  1,  0 }, 5, 4, 1, 0);
+      cap({ -1,  0,  0 }, 7, 6, 5, 4);
+      cap({  1,  0,  0 }, 3, 1, 2, 0);
     }
 
     [[nodiscard]] constexpr auto operator*() const { return *m_bb.buffer; }

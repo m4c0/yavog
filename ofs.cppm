@@ -152,7 +152,9 @@ namespace ofs {
     vee::buffer::type vtx;
     vee::buffer::type inst;
     vee::buffer::type idx;
+    vee::buffer::type shdvtx;
     vee::buffer::type shdidx;
+    unsigned sicount;
     unsigned icount;
 
     vee::descriptor_set tmap;
@@ -211,14 +213,16 @@ namespace ofs {
 
       vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
+      vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
       vee::cmd_draw_indexed(cb, {
-        .xcount = 36 * 3,
+        .xcount = p.sicount,
         .icount = p.icount,
       });
 
       vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
+      vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.idx);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36,

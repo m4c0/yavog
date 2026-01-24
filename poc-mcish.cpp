@@ -31,6 +31,7 @@ static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer cube {};
   cube::i_buffer insts {};
+  cube::shadow_v_buffer shdvtx {};
   cube::shadow_ix_buffer shadows {};
   voo::bound_buffer idx = cube::ix_buffer();
 
@@ -79,7 +80,9 @@ extern "C" void casein_init() {
         .vtx = *vv::as()->cube,
         .inst = *vv::as()->insts,
         .idx = *vv::as()->idx.buffer,
+        .shdvtx = *vv::as()->shdvtx,
         .shdidx = *vv::as()->shadows,
+        .sicount = vv::as()->shadows.count(),
         .icount = vv::as()->insts.count(),
         .tmap = vv::as()->tmap.dset(),
         .light { l, 0 },
