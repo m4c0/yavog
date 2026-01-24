@@ -121,6 +121,27 @@ export namespace cube {
       cap({  0,  1,  0 }, 5, 4, 1, 0);
       cap({ -1,  0,  0 }, 7, 6, 5, 4);
       cap({  1,  0,  0 }, 3, 1, 2, 0);
+
+      const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
+        bool b1 = (dotz::dot(n1, -l) < 0);
+        bool b2 = (dotz::dot(n2, -l) < 0);
+        if (b1 == b2) return;
+
+        if (!b1 && b2) {
+          mm(a, b, 0);
+        } else {
+          mm(b, a, 0);
+        }
+      };
+      side({ 0, 0,  1 }, {  0, -1, 0 }, 6, 2);
+      side({ 0, 0,  1 }, {  1,  0, 0 }, 2, 0);
+      side({ 0, 0,  1 }, {  0,  1, 0 }, 0, 4);
+      side({ 0, 0,  1 }, { -1,  0, 0 }, 4, 6);
+
+      side({ 0, 0, -1 }, { -1,  0, 0 }, 7, 5);
+      side({ 0, 0, -1 }, {  0, -1, 0 }, 5, 1);
+      side({ 0, 0, -1 }, {  1,  0, 0 }, 1, 3);
+      side({ 0, 0, -1 }, {  0,  1, 0 }, 3, 7);
     }
 
     [[nodiscard]] constexpr auto operator*() const { return *m_bb.buffer; }
