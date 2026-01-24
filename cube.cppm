@@ -12,16 +12,11 @@ export namespace cube {
     dotz::vec4 pos;
     dotz::vec2 uv;
     dotz::vec3 normal;
-
-    static inline auto win32_hack() { return traits::offset_of(&vtx::pos); }
   };
   struct inst {
     dotz::vec3 pos;
     float txtid;
-
-    static inline auto win32_hack() { return traits::offset_of(&inst::pos); }
   };
-
   struct v_buffer : public clay::buffer<vtx>, no::no {
     v_buffer() : clay::buffer<vtx> { 37 } {
       auto m = map();
@@ -149,3 +144,9 @@ export namespace cube {
     }
   };
 }
+
+inline auto win32_hack() {
+  // Pre-instantiate the simple to avoid clang exploding later
+  return traits::offset_of(&cube::vtx::pos) + traits::offset_of(&cube::inst::pos);
+}
+
