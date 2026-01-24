@@ -87,7 +87,7 @@ export namespace cube {
   }
 
   struct shadow_v_buffer : public clay::buffer<dotz::vec4>, no::no {
-    shadow_v_buffer() : clay::buffer<dotz::vec4> { 8 } {
+    shadow_v_buffer() : clay::buffer<dotz::vec4> { 9 } {
       auto m = map();
       m += {};
       for (auto v : vtxes) m += v;
@@ -99,7 +99,7 @@ export namespace cube {
 
   public:
     shadow_ix_buffer() :
-      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 36 * 3, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
+      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 1024, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
     {}
 
     void setup(dotz::vec3 l) {

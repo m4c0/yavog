@@ -88,11 +88,11 @@ namespace ofs::shadow {
         *clay::frag_shader("ofs-shadow", [] {}),
       },
       .bindings {
-        cube::v_buffer::vertex_input_bind(),
+        vee::vertex_input_bind(sizeof(dotz::vec4)),
         cube::i_buffer::vertex_input_bind_per_instance(),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec4(0, 0),
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
