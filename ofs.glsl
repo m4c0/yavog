@@ -13,7 +13,7 @@ vec3 proj(vec4 pos) {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
 
   // TODO: adjust to camera
-  vec4 p = pos.w == 0 ? -pc.light : vec4(pos.xyz, 1);
+  vec4 p = pos.w == 0 ? pc.light : vec4(pos.xyz, 1);
   p.xy *= -1; // Left-hand to right-hand
 
   vec3 ret = p.xyz;
