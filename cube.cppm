@@ -17,6 +17,8 @@ constexpr dotz::vec4 vtxes[] {
   { -0.5,  0.5, -0.5, 1.0 },
   { -0.5, -0.5,  0.5, 1.0 },
   { -0.5, -0.5, -0.5, 1.0 },
+
+  { 0, 0, 0, 0 }, // Light projection at infinity
 };
 
 export namespace cube {
@@ -90,7 +92,6 @@ export namespace cube {
   struct shadow_v_buffer : public clay::buffer<dotz::vec4>, no::no {
     shadow_v_buffer() : clay::buffer<dotz::vec4> { 9 } {
       auto m = map();
-      m += {};
       for (auto v : vtxes) m += v;
     }
   };
@@ -113,8 +114,8 @@ export namespace cube {
       const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
       const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
         if (backface(normal)) return;
-        mm(a + 1, b + 1, c + 1);
-        mm(d + 1, c + 1, b + 1);
+        mm(a, b, c);
+        mm(d, c, b);
       };
 
       const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
@@ -123,9 +124,9 @@ export namespace cube {
         if (b1 == b2) return;
 
         if (!b1 && b2) {
-          mm(a, b, 0);
+          mm(a, b, 9);
         } else {
-          mm(b, a, 0);
+          mm(b, a, 9);
         }
       };
 
