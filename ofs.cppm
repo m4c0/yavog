@@ -101,7 +101,9 @@ namespace ofs::shadow {
 
 namespace ofs::lights {
   export struct pipeline : no::no {
-    vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
+    vee::pipeline_layout pl = vee::create_pipeline_layout(
+      *texmap::descriptor_set_layout(),
+      vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *pl,
       .render_pass = *create_render_pass(max_sampling()),
@@ -141,6 +143,7 @@ namespace ofs::lights {
       },
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
