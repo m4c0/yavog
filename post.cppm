@@ -34,8 +34,12 @@ namespace post {
 
     hai::array<vee::framebuffer> m_fbs {};
 
+    struct sconst {
+      unsigned enabled;
+    };
+
   public:
-    pipeline(voo::device_and_queue & dq) :
+    pipeline(voo::device_and_queue & dq, bool enabled = true) :
       m_rp { voo::single_att_render_pass(dq) }
     , m_ppl { vee::create_graphics_pipeline({
         .pipeline_layout = *m_pl,
@@ -43,8 +47,11 @@ namespace post {
         .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
         .back_face_cull = false,
         .shaders {
-          *clay::vert_shader("post", [] {}),
-          *clay::frag_shader("post", [] {}),
+          voo::vert_shader("post.vert.spv").pipeline_stage(),
+          voo::frag_shader("post.frag.spv").pipeline_stage("main",
+              vee::specialisation_info<sconst>({ enabled }, {
+                vee::specialisation_map_entry(33, &sconst::enabled),
+              })),
         },
         .bindings {},
         .attributes {},

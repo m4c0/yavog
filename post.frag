@@ -1,5 +1,7 @@
 #version 450
 
+layout(constant_id = 33) const uint enabled = 1;
+
 layout(push_constant) uniform upc {
   vec2 scr_sz;
 };
@@ -82,8 +84,10 @@ void main() {
   float depth = DEPTH_READ(f_pos);
 
   vec4 colour = texture(u_colour, f_pos);
-  colour.rgb = unsharp_mask_depth_buffer(colour.rgb, depth);
-  colour.rgb = sobel(colour.rgb);
-  colour.rgb = fog(colour.rgb, depth);
+  if (enabled != 0) {
+    colour.rgb = unsharp_mask_depth_buffer(colour.rgb, depth);
+    colour.rgb = sobel(colour.rgb);
+    colour.rgb = fog(colour.rgb, depth);
+  }
   o_colour = colour;
 }
