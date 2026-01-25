@@ -110,7 +110,7 @@ export namespace cube {
       const auto mm = [&](uint16_t a, uint16_t b, uint16_t c) {
         m += {{ a, b, c }};
       };
-      const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, -l) < 0); };
+      const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
       const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
         if (backface(normal)) return;
         mm(a + 1, b + 1, c + 1);
