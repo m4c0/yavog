@@ -110,22 +110,16 @@ export namespace cube {
       const auto mm = [&](uint16_t a, uint16_t b, uint16_t c) {
         m += {{ a, b, c }};
       };
+      const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, -l) < 0); };
       const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
-        bool backface = (dotz::dot(normal, -l) < 0);
-        if (backface) return;
+        if (backface(normal)) return;
         mm(a + 1, b + 1, c + 1);
         mm(d + 1, c + 1, b + 1);
       };
-      cap({  0,  0,  1 }, 6, 2, 4, 0);
-      cap({  0,  0, -1 }, 7, 5, 3, 1);
-      cap({  0, -1,  0 }, 7, 3, 6, 2);
-      cap({  0,  1,  0 }, 5, 4, 1, 0);
-      cap({ -1,  0,  0 }, 7, 6, 5, 4);
-      cap({  1,  0,  0 }, 3, 1, 2, 0);
 
       const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
-        bool b1 = (dotz::dot(n1, -l) < 0);
-        bool b2 = (dotz::dot(n2, -l) < 0);
+        bool b1 = backface(n1);
+        bool b2 = backface(n2);
         if (b1 == b2) return;
 
         if (!b1 && b2) {
@@ -134,31 +128,38 @@ export namespace cube {
           mm(b, a, 0);
         }
       };
+
+      cap({  0,  0,  1 }, 6, 2, 4, 0);
       side({  0,  0,  1 }, {  0, -1,  0 }, 6, 2);
       side({  0,  0,  1 }, {  1,  0,  0 }, 2, 0);
       side({  0,  0,  1 }, {  0,  1,  0 }, 0, 4);
       side({  0,  0,  1 }, { -1,  0,  0 }, 4, 6);
 
+      cap({  0,  0, -1 }, 7, 5, 3, 1);
       side({  0,  0, -1 }, { -1,  0,  0 }, 7, 5);
       side({  0,  0, -1 }, {  0,  1,  0 }, 5, 1);
       side({  0,  0, -1 }, {  1,  0,  0 }, 1, 3);
       side({  0,  0, -1 }, {  0, -1,  0 }, 3, 7);
 
+      cap({  0, -1,  0 }, 7, 3, 6, 2);
       side({  0, -1,  0 }, {  0,  0, -1 }, 7, 3);
       side({  0, -1,  0 }, {  1,  0,  0 }, 3, 2);
       side({  0, -1,  0 }, {  0,  0,  1 }, 2, 6);
       side({  0, -1,  0 }, { -1,  0,  0 }, 6, 7);
 
+      cap({  0,  1,  0 }, 5, 4, 1, 0);
       side({  0,  1,  0 }, { -1,  0,  0 }, 5, 4);
       side({  0,  1,  0 }, {  0,  0,  1 }, 4, 0);
       side({  0,  1,  0 }, {  1,  0,  0 }, 0, 1);
       side({  0,  1,  0 }, {  0,  0, -1 }, 1, 5);
 
+      cap({ -1,  0,  0 }, 7, 6, 5, 4);
       side({ -1,  0,  0 }, {  0, -1,  0 }, 7, 6);
       side({ -1,  0,  0 }, {  0,  0,  1 }, 6, 4);
       side({ -1,  0,  0 }, {  0,  1,  0 }, 4, 5);
       side({ -1,  0,  0 }, {  0,  0, -1 }, 5, 7);
 
+      cap({  1,  0,  0 }, 3, 1, 2, 0);
       side({  1,  0,  0 }, {  0,  0, -1 }, 3, 1);
       side({  1,  0,  0 }, {  0,  1,  0 }, 1, 0);
       side({  1,  0,  0 }, {  0,  0,  1 }, 0, 2);
