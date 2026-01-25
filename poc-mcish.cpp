@@ -62,6 +62,7 @@ struct ext_stuff {
 };
 
 static float g_sun = 45;
+static float g_sun_y = 1;
 
 extern "C" void casein_init() {
   vv::setup([] {
@@ -74,7 +75,7 @@ extern "C" void casein_init() {
 
       qp.write_begin(cb);
 
-      dotz::vec3 l { dotz::sin(g_sun*3.14/180.), 1, dotz::cos(g_sun*3.14/180.) };
+      dotz::vec3 l { dotz::sin(g_sun*3.14/180.), g_sun_y, dotz::cos(g_sun*3.14/180.) };
       vv::as()->shadows.setup(l);
       vv::as()->ofs.render(cb, {
         .vtx = *vv::as()->cube,
@@ -114,6 +115,9 @@ extern "C" void casein_init() {
     casein::interrupt(casein::IRQ_FULLSCREEN);
   });
 
-  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun -= 1.0; });
-  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun += 1.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun -= 2.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun += 2.0; });
+
+  casein::handle(casein::KEY_DOWN, casein::K_UP,   [] { g_sun_y = +1.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_DOWN, [] { g_sun_y = -1.0; });
 }
