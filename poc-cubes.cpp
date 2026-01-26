@@ -69,10 +69,15 @@ struct ext_stuff {
 static float g_sun = 45;
 static float g_sun_y = 1;
 
+static sitime::stopwatch g_tt {};
+
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
     auto cb = vv::ss()->cb.cb();
+
+    g_sun += g_tt.secs() * 90;
+    g_tt = {};
 
     {
       voo::cmd_buf_one_time_submit ots { cb };
