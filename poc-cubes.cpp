@@ -47,7 +47,11 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[2] = tmap.load(t131);
 
     auto m = insts.map();
-    m += cube::inst { .pos { 0, -1, 5 } };
+    m += cube::inst { .pos { -1,  0, 4 }, .txtid = 1 };
+    m += cube::inst { .pos {  1,  0, 4 }, .txtid = 1 };
+    m += cube::inst { .pos { -1,  0, 2 }, .txtid = 1 };
+    m += cube::inst { .pos {  1,  0, 2 }, .txtid = 1 };
+    m += cube::inst { .pos {  0, -1, 3 }, .txtid = 1 };
   }
 };
 struct ext_stuff {
