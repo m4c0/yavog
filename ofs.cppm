@@ -26,6 +26,7 @@ namespace ofs::planes {
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
       .multisampling = max_sampling(),
       .back_face_cull = false,
+      .subpass = rpsp_planes,
       .depth = vee::depth::op_less(),
       .blends { vee::colour_blend_classic() },
       .shaders {
@@ -48,7 +49,7 @@ namespace ofs::colour {
       .render_pass = *create_render_pass(max_sampling()),
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
-      .subpass = 1,
+      .subpass = rpsp_colour,
       .depth = vee::depth::op_less(),
       .blends {
         vee::colour_blend_classic(),
@@ -82,7 +83,7 @@ namespace ofs::shadow {
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
       .back_face_cull = false,
-      .subpass = 2,
+      .subpass = rpsp_shadow,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
@@ -132,7 +133,7 @@ namespace ofs::lights {
       .render_pass = *create_render_pass(max_sampling()),
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
-      .subpass = 3,
+      .subpass = rpsp_lights,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,

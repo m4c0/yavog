@@ -62,6 +62,13 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   return res;
 }
 
+enum render_pass_subpasses {
+  rpsp_planes = 0,
+  rpsp_colour,
+  rpsp_shadow,
+  rpsp_lights,
+};
+
 inline auto create_render_pass(VkSampleCountFlagBits samples) {
   return vee::create_render_pass({
     .attachments {{
@@ -128,42 +135,42 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       vee::create_dependency({
         .src_subpass = vee::subpass_external,
         .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = 0,
-        .dst_subpass = 3,
+        .src_access_mask = rpsp_planes,
+        .dst_subpass = rpsp_lights,
         .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
       }),
       vee::create_dependency({
-        .src_subpass = 0,
+        .src_subpass = rpsp_planes,
         .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = 1,
+        .dst_subpass = rpsp_colour,
         .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
       }),
       vee::create_dependency({
-        .src_subpass = 1,
+        .src_subpass = rpsp_colour,
         .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
         .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = 2,
+        .dst_subpass = rpsp_shadow,
         .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
         .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
         .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
       vee::create_dependency({
-        .src_subpass = 2,
+        .src_subpass = rpsp_shadow,
         .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
         .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = 3,
+        .dst_subpass = rpsp_lights,
         .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
         .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
         .dependency = VK_DEPENDENCY_BY_REGION_BIT,
       }),
       vee::create_dependency({
-        .src_subpass = 0,
+        .src_subpass = rpsp_planes,
         .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = 3,
+        .dst_subpass = rpsp_lights,
         .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .dependency = VK_DEPENDENCY_BY_REGION_BIT,
