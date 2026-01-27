@@ -67,7 +67,7 @@ struct ext_stuff {
 };
 
 static float g_sun = 45;
-static float g_sun_y = 1;
+static float g_sun_y = -1;
 
 static float g_sun_spd = 90;
 static sitime::stopwatch g_tt {};
