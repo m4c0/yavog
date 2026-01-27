@@ -17,8 +17,8 @@ import voo;
 
 using namespace wagen;
 
-namespace ofs::planes {
-  struct pipeline : no::no {
+namespace ofs {
+  struct planes : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = create_graphics_pipeline("ofs-planes", {
       .pipeline_layout = *pl,
@@ -29,10 +29,7 @@ namespace ofs::planes {
       .blends { vee::colour_blend_classic() },
     });
   };
-}
-
-namespace ofs::colour {
-  struct pipeline : no::no {
+  struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
@@ -57,10 +54,7 @@ namespace ofs::colour {
       },
     });
   };
-}
-
-namespace ofs::shadow {
-  struct pipeline : no::no {
+  struct shadow : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = create_graphics_pipeline("ofs-shadow", {
       .pipeline_layout = *pl,
@@ -85,10 +79,7 @@ namespace ofs::shadow {
       },
     });
   };
-}
-
-namespace ofs::lights {
-  struct pipeline : no::no {
+  struct lights : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
@@ -132,10 +123,10 @@ namespace ofs {
   };
 
   export class pipeline {
-    planes::pipeline m_pln {};
-    colour::pipeline m_clr {};
-    shadow::pipeline m_shd {};
-    lights::pipeline m_lig {};
+    planes m_pln {};
+    colour m_clr {};
+    shadow m_shd {};
+    lights m_lig {};
 
     upc m_pc {};
     vee::extent m_ext {};
