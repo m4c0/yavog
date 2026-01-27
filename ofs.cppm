@@ -2,10 +2,12 @@
 #pragma leco add_shader "ofs-colour.vert"
 #pragma leco add_shader "ofs-lights.frag"
 #pragma leco add_shader "ofs-lights.vert"
+#pragma leco add_shader "ofs-planes.frag"
+#pragma leco add_shader "ofs-planes.vert"
 #pragma leco add_shader "ofs-shadow.frag"
 #pragma leco add_shader "ofs-shadow.vert"
 export module ofs;
-import :common;
+export import :common;
 import clay;
 import cube;
 import hai;
@@ -15,8 +17,29 @@ import voo;
 
 using namespace wagen;
 
+namespace ofs::planes {
+  struct pipeline : no::no {
+    vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
+    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+      .pipeline_layout = *pl,
+      .render_pass = *create_render_pass(max_sampling()),
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+      .multisampling = max_sampling(),
+      .back_face_cull = false,
+      .depth = vee::depth::op_less(),
+      .blends { vee::colour_blend_classic() },
+      .shaders {
+        *clay::vert_shader("ofs-planes", [] {}),
+        *clay::frag_shader("ofs-planes", [] {}),
+      },
+      .bindings {},
+      .attributes {},
+    });
+  };
+}
+
 namespace ofs::colour {
-  export struct pipeline : no::no {
+  struct pipeline : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
@@ -25,7 +48,7 @@ namespace ofs::colour {
       .render_pass = *create_render_pass(max_sampling()),
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
-      .subpass = 0,
+      .subpass = 1,
       .depth = vee::depth::op_less(),
       .blends {
         vee::colour_blend_classic(),
@@ -51,7 +74,7 @@ namespace ofs::colour {
 }
 
 namespace ofs::shadow {
-  export struct pipeline : no::no {
+  struct pipeline : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *pl,
@@ -59,7 +82,7 @@ namespace ofs::shadow {
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
       .back_face_cull = false,
-      .subpass = 1,
+      .subpass = 2,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
@@ -100,7 +123,7 @@ namespace ofs::shadow {
 }
 
 namespace ofs::lights {
-  export struct pipeline : no::no {
+  struct pipeline : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
@@ -109,7 +132,7 @@ namespace ofs::lights {
       .render_pass = *create_render_pass(max_sampling()),
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
       .multisampling = max_sampling(),
-      .subpass = 2,
+      .subpass = 3,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
@@ -165,6 +188,7 @@ namespace ofs {
   };
 
   export class pipeline {
+    planes::pipeline m_pln {};
     colour::pipeline m_clr {};
     shadow::pipeline m_shd {};
     lights::pipeline m_lig {};
@@ -203,9 +227,13 @@ namespace ofs {
       vee::cmd_set_viewport(cb, m_ext);
       vee::cmd_set_scissor(cb, m_ext);
 
+      vee::cmd_bind_gr_pipeline(cb, *m_pln.ppl);
+      vee::cmd_push_vertex_constants(cb, *m_clr.pl, &m_pc);
+      vee::cmd_draw(cb, 4);
+
+      vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
-      vee::cmd_push_vertex_constants(cb, *m_clr.pl, &m_pc);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, p.inst, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.idx);
