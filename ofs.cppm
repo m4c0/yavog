@@ -20,21 +20,13 @@ using namespace wagen;
 namespace ofs::planes {
   struct pipeline : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-planes", {
       .pipeline_layout = *pl,
-      .render_pass = *create_render_pass(max_sampling()),
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-      .multisampling = max_sampling(),
       .back_face_cull = false,
       .subpass = rpsp_planes,
       .depth = vee::depth::op_less(),
       .blends { vee::colour_blend_classic() },
-      .shaders {
-        *clay::vert_shader("ofs-planes", [] {}),
-        *clay::frag_shader("ofs-planes", [] {}),
-      },
-      .bindings {},
-      .attributes {},
     });
   };
 }
@@ -44,21 +36,14 @@ namespace ofs::colour {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-colour", {
       .pipeline_layout = *pl,
-      .render_pass = *create_render_pass(max_sampling()),
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-      .multisampling = max_sampling(),
       .subpass = rpsp_colour,
       .depth = vee::depth::op_less(),
       .blends {
         vee::colour_blend_classic(),
         vee::colour_blend_none(),
         vee::colour_blend_none(),
-      },
-      .shaders {
-        *clay::vert_shader("ofs-colour", [] {}),
-        *clay::frag_shader("ofs-colour", [] {}),
       },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
@@ -77,11 +62,8 @@ namespace ofs::colour {
 namespace ofs::shadow {
   struct pipeline : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-shadow", {
       .pipeline_layout = *pl,
-      .render_pass = *create_render_pass(max_sampling()),
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-      .multisampling = max_sampling(),
       .back_face_cull = false,
       .subpass = rpsp_shadow,
       .depth = vee::depth::of({
@@ -89,28 +71,10 @@ namespace ofs::shadow {
         .depthWriteEnable = vk_false,
         .depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL,
         .stencilTestEnable = vk_true,
-        .front = {
-          .failOp = VK_STENCIL_OP_KEEP,
-          .passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP,
-          .depthFailOp = VK_STENCIL_OP_KEEP,
-          .compareOp = VK_COMPARE_OP_ALWAYS,
-          .compareMask = ~0U,
-          .writeMask = ~0U,
-        },
-        .back = {
-          .failOp = VK_STENCIL_OP_KEEP,
-          .passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP,
-          .depthFailOp = VK_STENCIL_OP_KEEP,
-          .compareOp = VK_COMPARE_OP_ALWAYS,
-          .compareMask = ~0U,
-          .writeMask = ~0U,
-        },
+        .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
+        .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .blends {},
-      .shaders {
-        *clay::vert_shader("ofs-shadow", [] {}),
-        *clay::frag_shader("ofs-shadow", [] {}),
-      },
+      .blends { vee::colour_blend_classic() },
       .bindings {
         vee::vertex_input_bind(sizeof(dotz::vec4)),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -128,39 +92,18 @@ namespace ofs::lights {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-lights", {
       .pipeline_layout = *pl,
-      .render_pass = *create_render_pass(max_sampling()),
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-      .multisampling = max_sampling(),
       .subpass = rpsp_lights,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
         .depthCompareOp = VK_COMPARE_OP_EQUAL,
         .stencilTestEnable = vk_true,
-        .front = {
-          .failOp = VK_STENCIL_OP_KEEP,
-          .passOp = VK_STENCIL_OP_KEEP,
-          .depthFailOp = VK_STENCIL_OP_KEEP,
-          .compareOp = VK_COMPARE_OP_EQUAL,
-          .compareMask = ~0U,
-          .writeMask = ~0U,
-        },
-        .back = {
-          .failOp = VK_STENCIL_OP_KEEP,
-          .passOp = VK_STENCIL_OP_KEEP,
-          .depthFailOp = VK_STENCIL_OP_KEEP,
-          .compareOp = VK_COMPARE_OP_EQUAL,
-          .compareMask = ~0U,
-          .writeMask = ~0U,
-        },
+        .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
+        .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
       .blends { vee::colour_blend_classic() },
-      .shaders {
-        *clay::vert_shader("ofs-lights", [] {}),
-        *clay::frag_shader("ofs-lights", [] {}),
-      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),

@@ -1,7 +1,10 @@
 export module ofs:common;
+import clay;
 import dotz;
 import no;
 import silog;
+import sv;
+import traits;
 import voo;
 
 using namespace wagen;
@@ -177,6 +180,27 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       }),
     }},
   });
+}
+
+inline auto stencil(VkStencilOp stencil_op, VkCompareOp compare_op) {
+  return VkStencilOpState {
+    .failOp = VK_STENCIL_OP_KEEP,
+    .passOp = stencil_op,
+    .depthFailOp = VK_STENCIL_OP_KEEP,
+    .compareOp = compare_op,
+    .compareMask = ~0U,
+    .writeMask = ~0U,
+  };
+}
+inline auto create_graphics_pipeline(sv shader, vee::gr_pipeline_params p) {
+  auto vert = clay::vert_shader(shader, [] {});
+  auto frag = clay::frag_shader(shader, [] {});
+
+  auto rp = create_render_pass(max_sampling());
+  p.render_pass = *rp;
+  p.multisampling = max_sampling();
+  p.shaders = { *vert, *frag };
+  return vee::create_graphics_pipeline(traits::move(p));
 }
 
 struct upc {
