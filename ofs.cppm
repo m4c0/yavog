@@ -49,9 +49,14 @@ namespace ofs {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-colour", {
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-colour", {
       .pipeline_layout = *pl,
       .depth = vee::depth::op_less(),
+      .blends {
+        vee::colour_blend_classic(),
+        vee::colour_blend_none(),
+        vee::colour_blend_none(),
+      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -101,7 +106,7 @@ namespace ofs {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vert_frag_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-lights", {
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-lights", {
       .pipeline_layout = *pl,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
@@ -111,11 +116,6 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .blends {
-        vee::colour_blend_classic(),
-        vee::colour_blend_none(),
-        vee::colour_blend_none(),
-      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),

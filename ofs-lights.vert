@@ -9,13 +9,12 @@ layout(location = 3, component = 3) in float txtid;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
-layout(location = 2) out vec3 f_pos;
-layout(location = 3) out vec3 f_normal;
+layout(location = 2) out vec3 f_normal;
 
 vec3 proj(vec4);
 
 void main() {
-  f_pos = proj(pos + vec4(i_pos, 0));
+  proj(pos + vec4(i_pos, 0));
   f_uv = uv;
   f_txtid = int(txtid);
   f_normal = normal;
