@@ -39,6 +39,11 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
     });
+
+    planes() {
+      vee::set_debug_utils_object_name(*pl, "ofs::planes");
+      vee::set_debug_utils_object_name(*ppl, "ofs::planes");
+    }
   };
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
@@ -58,6 +63,11 @@ namespace ofs {
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
+
+    colour() {
+      vee::set_debug_utils_object_name(*pl, "ofs::colour");
+      vee::set_debug_utils_object_name(*ppl, "ofs::colour");
+    }
   };
   struct shadow : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
@@ -81,6 +91,11 @@ namespace ofs {
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
+
+    shadow() {
+      vee::set_debug_utils_object_name(*pl, "ofs::shadow");
+      vee::set_debug_utils_object_name(*ppl, "ofs::shadow");
+    }
   };
   struct lights : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
@@ -112,6 +127,11 @@ namespace ofs {
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
+
+    lights() {
+      vee::set_debug_utils_object_name(*pl, "ofs::lights");
+      vee::set_debug_utils_object_name(*ppl, "ofs::lights");
+    }
   };
 }
 
