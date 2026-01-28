@@ -20,16 +20,11 @@ using namespace wagen;
 namespace ofs {
   struct planes : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-planes", {
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-planes", {
       .pipeline_layout = *pl,
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
       .back_face_cull = false,
       .depth = vee::depth::op_less(),
-      .blends {
-        vee::colour_blend_classic(),
-        VkPipelineColorBlendAttachmentState {},
-        VkPipelineColorBlendAttachmentState {},
-      },
     });
   };
   struct colour : no::no {
@@ -58,7 +53,7 @@ namespace ofs {
   };
   struct shadow : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-shadow", {
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-shadow", {
       .pipeline_layout = *pl,
       .back_face_cull = false,
       .depth = vee::depth::of({
@@ -69,11 +64,6 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .blends {
-        vee::colour_blend_classic(),
-        VkPipelineColorBlendAttachmentState {},
-        VkPipelineColorBlendAttachmentState {},
-      },
       .bindings {
         vee::vertex_input_bind(sizeof(dotz::vec4)),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -88,7 +78,7 @@ namespace ofs {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-lights", {
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-lights", {
       .pipeline_layout = *pl,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
@@ -98,11 +88,6 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .blends {
-        vee::colour_blend_classic(),
-        VkPipelineColorBlendAttachmentState {},
-        VkPipelineColorBlendAttachmentState {},
-      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),

@@ -128,6 +128,14 @@ inline auto create_graphics_pipeline(sv shader, vee::gr_pipeline_params p) {
   p.shaders = { *vert, *frag };
   return vee::create_graphics_pipeline(traits::move(p));
 }
+inline auto create_colour_only_pipeline(sv shader, vee::gr_pipeline_params p) {
+  p.blends = {
+    vee::colour_blend_classic(),
+    VkPipelineColorBlendAttachmentState {},
+    VkPipelineColorBlendAttachmentState {},
+  };
+  return create_graphics_pipeline(shader, p);
+}
 
 struct upc {
   dotz::vec4 light;
