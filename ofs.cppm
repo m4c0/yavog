@@ -26,6 +26,19 @@ namespace ofs {
       .back_face_cull = false,
       .depth = vee::depth::op_less(),
     });
+    vee::gr_pipeline lppl = create_colour_only_pipeline("ofs-planes", {
+      .pipeline_layout = *pl,
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+      .back_face_cull = false,
+      .depth = vee::depth::of({
+        .depthTestEnable = vk_true,
+        .depthWriteEnable = vk_false,
+        .depthCompareOp = VK_COMPARE_OP_EQUAL,
+        .stencilTestEnable = vk_true,
+        .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
+        .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
+      }),
+    });
   };
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
@@ -176,6 +189,9 @@ namespace ofs {
         .xcount = p.sicount,
         .icount = p.icount,
       });
+
+      vee::cmd_bind_gr_pipeline(cb, *m_pln.lppl);
+      vee::cmd_draw(cb, 4);
 
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
