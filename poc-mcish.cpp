@@ -62,7 +62,15 @@ struct ext_stuff {
 };
 
 static float g_sun = 45;
-static float g_sun_y = 1;
+static float g_sun_y = -1;
+
+static float g_sun_spd = 90;
+static sitime::stopwatch g_tt {};
+
+static dotz::vec3 sun_vec() {
+  dotz::vec3 l { dotz::sin(g_sun*3.14/180.), g_sun_y, dotz::cos(g_sun*3.14/180.) };
+  return dotz::normalise(l);
+}
 
 extern "C" void casein_init() {
   vv::setup([] {
@@ -70,12 +78,15 @@ extern "C" void casein_init() {
     auto cb = vv::ss()->cb.cb();
     auto & qp = vv::ss()->tq[vv::ss()->swc.index()];
 
+    g_sun += g_tt.secs() * g_sun_spd;
+    g_tt = {};
+
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
       qp.write_begin(cb);
 
-      dotz::vec3 l { dotz::sin(g_sun*3.14/180.), g_sun_y, dotz::cos(g_sun*3.14/180.) };
+      dotz::vec3 l = sun_vec();;
       vv::as()->shadows.setup(l);
       vv::as()->ofs.render(cb, {
         .vtx = *vv::as()->cube,
@@ -115,9 +126,15 @@ extern "C" void casein_init() {
     casein::interrupt(casein::IRQ_FULLSCREEN);
   });
 
-  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun -= 2.0; });
-  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun += 2.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_1, [] { g_sun_spd = -90.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_2, [] { g_sun_spd = -10.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_3, [] { g_sun_spd =   0.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_4, [] { g_sun_spd =  10.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_5, [] { g_sun_spd =  90.0; });
 
   casein::handle(casein::KEY_DOWN, casein::K_UP,   [] { g_sun_y = +1.0; });
   casein::handle(casein::KEY_DOWN, casein::K_DOWN, [] { g_sun_y = -1.0; });
+
+  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun += 1.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun -= 1.0; });
 }
