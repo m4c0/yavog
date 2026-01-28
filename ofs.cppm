@@ -44,14 +44,9 @@ namespace ofs {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
       vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-colour", {
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-colour", {
       .pipeline_layout = *pl,
       .depth = vee::depth::op_less(),
-      .blends {
-        vee::colour_blend_classic(),
-        vee::colour_blend_none(),
-        vee::colour_blend_none(),
-      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -90,8 +85,8 @@ namespace ofs {
   struct lights : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
-      vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-lights", {
+      vee::vert_frag_push_constant_range<upc>());
+    vee::gr_pipeline ppl = create_graphics_pipeline("ofs-lights", {
       .pipeline_layout = *pl,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
@@ -101,6 +96,11 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
+      .blends {
+        vee::colour_blend_classic(),
+        vee::colour_blend_none(),
+        vee::colour_blend_none(),
+      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -108,6 +108,7 @@ namespace ofs {
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
         vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
@@ -168,8 +169,9 @@ namespace ofs {
       vee::cmd_set_viewport(cb, m_ext);
       vee::cmd_set_scissor(cb, m_ext);
 
+      vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
+
       vee::cmd_bind_gr_pipeline(cb, *m_pln.ppl);
-      vee::cmd_push_vertex_constants(cb, *m_clr.pl, &m_pc);
       vee::cmd_draw(cb, 4);
 
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
@@ -194,6 +196,7 @@ namespace ofs {
       vee::cmd_draw(cb, 4);
 
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
+      vee::cmd_bind_descriptor_set(cb, *m_lig.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.idx);
       vee::cmd_draw_indexed(cb, {
