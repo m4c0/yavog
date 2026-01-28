@@ -24,9 +24,13 @@ namespace ofs {
       .pipeline_layout = *pl,
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
       .back_face_cull = false,
-      .subpass = rpsp_planes,
+      .subpass = rpsp_colour,
       .depth = vee::depth::op_less(),
-      .blends { vee::colour_blend_classic() },
+      .blends {
+        vee::colour_blend_classic(),
+        VkPipelineColorBlendAttachmentState {},
+        VkPipelineColorBlendAttachmentState {},
+      },
     });
   };
   struct colour : no::no {
@@ -166,7 +170,6 @@ namespace ofs {
       vee::cmd_push_vertex_constants(cb, *m_clr.pl, &m_pc);
       vee::cmd_draw(cb, 4);
 
-      vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
