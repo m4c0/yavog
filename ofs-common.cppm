@@ -65,12 +65,6 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
   return res;
 }
 
-enum render_pass_subpasses {
-  rpsp_colour,
-  rpsp_shadow,
-  rpsp_lights,
-};
-
 inline auto create_render_pass(VkSampleCountFlagBits samples) {
   return vee::create_render_pass({
     .attachments {{
@@ -106,82 +100,10 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
           vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
         }},
       }),
-      vee::create_subpass({
-        .colours {{
-          vee::create_attachment_ref(0, vee::image_layout_color_attachment_optimal),
-        }},
-        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
-        .resolves {{
-          vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
-        }},
-        .preserves {{ 5, 6 }},
-      }),
-      vee::create_subpass({
-        .colours {{
-          vee::create_attachment_ref(0, vee::image_layout_color_attachment_optimal),
-        }},
-        .inputs {{
-          vee::create_attachment_ref(0, vee::image_layout_shader_read_only_optimal),
-        }},
-        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
-        .resolves {{
-          vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
-        }},
-        .preserves {{ 5, 6 }},
-      }),
     }},
     .dependencies {{
-      vee::create_dependency({
-        .src_subpass = vee::subpass_external,
-        .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = 0,
-        .dst_subpass = rpsp_lights,
-        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-      }),
-      vee::create_dependency({
-        .src_subpass = rpsp_colour,
-        .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = rpsp_shadow,
-        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-      }),
-      vee::create_dependency({
-        .src_subpass = rpsp_shadow,
-        .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = rpsp_lights,
-        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-      }),
-      vee::create_dependency({
-        .src_subpass = rpsp_colour,
-        .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = rpsp_shadow,
-        .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-        .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dependency = VK_DEPENDENCY_BY_REGION_BIT,
-      }),
-      vee::create_dependency({
-        .src_subpass = rpsp_shadow,
-        .src_stage_mask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        .src_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = rpsp_lights,
-        .dst_stage_mask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-        .dst_access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dependency = VK_DEPENDENCY_BY_REGION_BIT,
-      }),
-      vee::create_dependency({
-        .src_subpass = rpsp_colour,
-        .src_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .src_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dst_subpass = rpsp_lights,
-        .dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dst_access_mask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dependency = VK_DEPENDENCY_BY_REGION_BIT,
-      }),
+      vee::create_colour_dependency(),
+      vee::create_depth_dependency(),
     }},
   });
 }

@@ -24,7 +24,6 @@ namespace ofs {
       .pipeline_layout = *pl,
       .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
       .back_face_cull = false,
-      .subpass = rpsp_colour,
       .depth = vee::depth::op_less(),
       .blends {
         vee::colour_blend_classic(),
@@ -39,7 +38,6 @@ namespace ofs {
       vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = create_graphics_pipeline("ofs-colour", {
       .pipeline_layout = *pl,
-      .subpass = rpsp_colour,
       .depth = vee::depth::op_less(),
       .blends {
         vee::colour_blend_classic(),
@@ -63,7 +61,6 @@ namespace ofs {
     vee::gr_pipeline ppl = create_graphics_pipeline("ofs-shadow", {
       .pipeline_layout = *pl,
       .back_face_cull = false,
-      .subpass = rpsp_shadow,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
@@ -72,7 +69,11 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .blends { vee::colour_blend_classic() },
+      .blends {
+        vee::colour_blend_classic(),
+        VkPipelineColorBlendAttachmentState {},
+        VkPipelineColorBlendAttachmentState {},
+      },
       .bindings {
         vee::vertex_input_bind(sizeof(dotz::vec4)),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -89,7 +90,6 @@ namespace ofs {
       vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline ppl = create_graphics_pipeline("ofs-lights", {
       .pipeline_layout = *pl,
-      .subpass = rpsp_lights,
       .depth = vee::depth::of({
         .depthTestEnable = vk_true,
         .depthWriteEnable = vk_false,
@@ -98,7 +98,11 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .blends { vee::colour_blend_classic() },
+      .blends {
+        vee::colour_blend_classic(),
+        VkPipelineColorBlendAttachmentState {},
+        VkPipelineColorBlendAttachmentState {},
+      },
       .bindings {
         cube::v_buffer::vertex_input_bind(),
         cube::i_buffer::vertex_input_bind_per_instance(),
@@ -180,7 +184,6 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
@@ -189,7 +192,6 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      vee::cmd_next_subpass(cb);
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.idx);
