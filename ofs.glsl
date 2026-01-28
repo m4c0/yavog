@@ -6,8 +6,8 @@ layout(push_constant) uniform upc {
   float fov_deg;
 } pc;
 
-const float near =  0.01;
-const float far  = 10.0;
+const float near =   0.01;
+const float far  = 100.0;
 
 vec3 proj(vec4 pos) {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);

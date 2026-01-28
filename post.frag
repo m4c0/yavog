@@ -76,7 +76,7 @@ vec3 sobel(vec3 c) {
 }
 
 vec3 fog(vec3 c, float depth) {
-  float f = smoothstep(0.0, 9.0, depth);
+  float f = smoothstep(0.0, 90.0, depth);
   return mix(c, fog_colour, f);
 }
 
