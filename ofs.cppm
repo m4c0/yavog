@@ -193,9 +193,9 @@ namespace ofs {
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
 
+      p.qp->write(timing::ppl_ofs_clr, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_pln.ppl);
       vee::cmd_draw(cb, 4);
-
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
@@ -206,6 +206,7 @@ namespace ofs {
         .icount = p.icount,
       });
 
+      p.qp->write(timing::ppl_ofs_shd, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
@@ -214,9 +215,9 @@ namespace ofs {
         .icount = p.icount,
       });
 
+      p.qp->write(timing::ppl_ofs_lig, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_pln.lppl);
       vee::cmd_draw(cb, 4);
-
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_lig.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);

@@ -10,6 +10,9 @@ using namespace traits::ints;
 
 namespace timing {
   export enum ppl {
+    ppl_ofs_clr,
+    ppl_ofs_shd,
+    ppl_ofs_lig,
     ppl_post,
     ppl_max,
   };
@@ -31,6 +34,10 @@ namespace timing {
       float tp = vee::get_physical_device_properties().limits.timestampPeriod;
       silog::infof("Average timings per frame after %d frames (resolution: %.0fx%.0f)",
           m_frames, m_wnd_size.x, m_wnd_size.y);
+
+      print("Colour",  m_acc[ppl_ofs_clr], tp);
+      print("Shadow",  m_acc[ppl_ofs_shd], tp);
+      print("Lights",  m_acc[ppl_ofs_lig], tp);
       print("Post-FX", m_acc[ppl_post], tp);
       print("All",     m_acc_total,     tp);
     }
@@ -38,14 +45,14 @@ namespace timing {
     void add(uint64_t * qq) {
       m_frames++;
       for (auto i = 0; i < ppl_max; i++) {
-        m_acc[i] = qq[i * 2 + 1] - qq[i * 2];
+        m_acc[i] += qq[i + 1] - qq[i];
       }
-      m_acc_total += qq[ppl_max * 2 - 1] - qq[0];
+      m_acc_total += qq[ppl_max] - qq[0];
     }
   } g_counter {};
 
   export class query : no::no {
-    static constexpr const auto num_qry = ppl_max * 2;
+    static constexpr const auto num_qry = ppl_max + 1;
     static constexpr const auto buf_size = sizeof(uint64_t) * num_qry;
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(buf_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -67,14 +74,11 @@ namespace timing {
 
       vee::cmd_reset_query_pool(cb, *m_qp, 0, num_qry);
       fn();
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, ppl_max);
       vee::cmd_copy_query_pool_results(cb, *m_qp, 0, num_qry, *m_buf.buffer);
     }
-    void write(ppl pp, vee::command_buffer cb, auto && fn) {
-      auto p = pp * 2;
-
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, p);
-      fn();
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, p + 1);
+    void write(ppl pp, vee::command_buffer cb) {
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, pp);
     }
   };
 }

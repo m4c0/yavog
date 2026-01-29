@@ -101,9 +101,8 @@ extern "C" void casein_init() {
           .light { l, 0 },
         });
 
-        qp.write(timing::ppl_post, cb, [&] {
-          vv::as()->post.render(cb, vv::ss()->swc);
-        });
+        qp.write(timing::ppl_post, cb);
+        vv::as()->post.render(cb, vv::ss()->swc);
       });
     }
     vv::ss()->swc.queue_submit(cb);
