@@ -167,7 +167,7 @@ export namespace cube {
           if (n == 3) continue;
 
           m += inst {
-            .pos { x - 64, -1, y },
+            .pos { x - 64, -2, y },
             .txtid = static_cast<float>(n),
           };
         }
