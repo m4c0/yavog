@@ -12,6 +12,7 @@ import clay;
 import cube;
 import hai;
 import texmap;
+import timing;
 import traits;
 import voo;
 
@@ -137,6 +138,7 @@ namespace ofs {
 
 namespace ofs {
   export struct params {
+    timing::query * qp;
     vee::buffer::type vtx;
     vee::buffer::type inst;
     vee::buffer::type idx;

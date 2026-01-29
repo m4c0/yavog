@@ -9,17 +9,20 @@ import voo;
 using namespace traits::ints;
 
 namespace timing {
-  struct q {
-    uint64_t begin;
-    uint64_t prepost;
-    uint64_t end;
+  export enum ppl {
+    ppl_post,
+    ppl_max,
   };
 
   class counters {
     dotz::vec2 m_wnd_size = casein::window_size;
     uint64_t m_frames = 0;
-    uint64_t m_total = 0;
-    uint64_t m_post = 0;
+    uint64_t m_acc_total = 0;
+    uint64_t m_acc[ppl_max] {};
+
+    void print(const char * str, uint64_t p, float tp) {
+      silog::infof("-- %10s: %7.3fms", str, p * tp / (m_frames * 1000'000));
+    }
 
   public:
     void print() {
@@ -28,24 +31,29 @@ namespace timing {
       float tp = vee::get_physical_device_properties().limits.timestampPeriod;
       silog::infof("Average timings per frame after %d frames (resolution: %.0fx%.0f)",
           m_frames, m_wnd_size.x, m_wnd_size.y);
-      silog::infof("-- Post-FX: %7.3fms", m_post   * tp / (m_frames * 1000'000));
-      silog::infof("-- All:     %7.3fms", m_total  * tp / (m_frames * 1000'000));
+      print("Post-FX", m_acc[ppl_post], tp);
+      print("All",     m_acc_total,     tp);
     }
 
-    void add(q q) {
+    void add(uint64_t * qq) {
       m_frames++;
-      m_total  += q.end - q.begin;
-      m_post   += q.end - q.prepost;
+      for (auto i = 0; i < ppl_max; i++) {
+        m_acc[i] = qq[i * 2 + 1] - qq[i * 2];
+      }
+      m_acc_total += qq[ppl_max * 2 - 1] - qq[0];
     }
   } g_counter {};
 
   export class query : no::no {
-    voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(sizeof(q), VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    vee::query_pool m_qp = vee::create_timestamp_query_pool(4);
+    static constexpr const auto num_qry = ppl_max * 2;
+    static constexpr const auto buf_size = sizeof(uint64_t) * num_qry;
+
+    voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(buf_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    vee::query_pool m_qp = vee::create_timestamp_query_pool(num_qry);
 
     void read() {
-      voo::memiter<q> m { *m_buf.memory };
-      g_counter.add(m[0]);
+      voo::memiter<uint64_t> m { *m_buf.memory };
+      g_counter.add(&m[0]);
     }
 
   public:
@@ -54,18 +62,19 @@ namespace timing {
       g_counter = {};
     };
 
-    void write_begin(vee::command_buffer cb) {
+    void write(vee::command_buffer cb, auto && fn) {
       read();
 
-      vee::cmd_reset_query_pool(cb, *m_qp, 0, 4);
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, 0);
+      vee::cmd_reset_query_pool(cb, *m_qp, 0, num_qry);
+      fn();
+      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, num_qry, *m_buf.buffer);
     }
-    void write_prepost(vee::command_buffer cb) {
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 1);
-    }
-    void write_end(vee::command_buffer cb) {
-      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, 2);
-      vee::cmd_copy_query_pool_results(cb, *m_qp, 0, 3, *m_buf.buffer);
+    void write(ppl pp, vee::command_buffer cb, auto && fn) {
+      auto p = pp * 2;
+
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, p);
+      fn();
+      vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, p + 1);
     }
   };
 }

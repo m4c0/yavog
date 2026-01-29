@@ -84,27 +84,27 @@ extern "C" void casein_init() {
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      qp.write_begin(cb);
+      qp.write(cb, [&] {
+        dotz::vec3 l = sun_vec();
 
-      dotz::vec3 l = sun_vec();;
-      vv::as()->shadows.setup(l);
-      vv::as()->ofs.render(cb, {
-        .vtx = *vv::as()->cube,
-        .inst = *vv::as()->insts,
-        .idx = *vv::as()->idx.buffer,
-        .shdvtx = *vv::as()->shdvtx,
-        .shdidx = *vv::as()->shadows,
-        .sicount = vv::as()->shadows.count(),
-        .icount = vv::as()->insts.count(),
-        .tmap = vv::as()->tmap.dset(),
-        .light { l, 0 },
+        vv::as()->shadows.setup(l);
+        vv::as()->ofs.render(cb, {
+          .qp = &qp,
+          .vtx = *vv::as()->cube,
+          .inst = *vv::as()->insts,
+          .idx = *vv::as()->idx.buffer,
+          .shdvtx = *vv::as()->shdvtx,
+          .shdidx = *vv::as()->shadows,
+          .sicount = vv::as()->shadows.count(),
+          .icount = vv::as()->insts.count(),
+          .tmap = vv::as()->tmap.dset(),
+          .light { l, 0 },
+        });
+
+        qp.write(timing::ppl_post, cb, [&] {
+          vv::as()->post.render(cb, vv::ss()->swc);
+        });
       });
-
-      qp.write_prepost(cb);
-
-      vv::as()->post.render(cb, vv::ss()->swc);
-
-      qp.write_end(cb);
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
