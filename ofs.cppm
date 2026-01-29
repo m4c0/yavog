@@ -173,6 +173,7 @@ namespace ofs {
     void render(vee::command_buffer cb, const params & p) {
       m_pc.light = p.light;
 
+      p.qp->write(timing::ppl_ofs, cb);
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,

@@ -10,6 +10,8 @@ using namespace traits::ints;
 
 namespace timing {
   export enum ppl {
+    ppl_shd_cpy,
+    ppl_ofs,
     ppl_ofs_clr,
     ppl_ofs_shd,
     ppl_ofs_lig,
@@ -24,7 +26,7 @@ namespace timing {
     uint64_t m_acc[ppl_max] {};
 
     void print(const char * str, uint64_t p, float tp) {
-      silog::infof("-- %10s: %7.3fms", str, p * tp / (m_frames * 1000'000));
+      silog::infof("-- %12s: %7.3fms", str, p * tp / (m_frames * 1000'000));
     }
 
   public:
@@ -35,11 +37,13 @@ namespace timing {
       silog::infof("Average timings per frame after %d frames (resolution: %.0fx%.0f)",
           m_frames, m_wnd_size.x, m_wnd_size.y);
 
-      print("Colour",  m_acc[ppl_ofs_clr], tp);
-      print("Shadow",  m_acc[ppl_ofs_shd], tp);
-      print("Lights",  m_acc[ppl_ofs_lig], tp);
-      print("Post-FX", m_acc[ppl_post], tp);
-      print("All",     m_acc_total,     tp);
+      print("Shadow Copy",  m_acc[ppl_shd_cpy], tp);
+      print("Render Start", m_acc[ppl_ofs],     tp);
+      print("Colour",       m_acc[ppl_ofs_clr], tp);
+      print("Shadow",       m_acc[ppl_ofs_shd], tp);
+      print("Lights",       m_acc[ppl_ofs_lig], tp);
+      print("Post-FX",      m_acc[ppl_post],    tp);
+      print("All",          m_acc_total,        tp);
     }
 
     void add(uint64_t * qq) {
