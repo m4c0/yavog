@@ -112,12 +112,6 @@ export namespace cube {
         m += {{ a, b, c }};
       };
       const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
-      const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
-        //if (!backface(normal)) return;
-        //mm(a, b, c);
-        //mm(d, c, b);
-      };
-
       const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
         bool b1 = backface(n1);
         bool b2 = backface(n2);
@@ -129,13 +123,6 @@ export namespace cube {
           mm(b, a, 9);
         }
       };
-
-      cap({  0,  0,  1 }, 6, 2, 4, 0);
-      cap({  0,  0, -1 }, 7, 5, 3, 1);
-      cap({  0, -1,  0 }, 7, 3, 6, 2);
-      cap({  0,  1,  0 }, 5, 4, 1, 0);
-      cap({ -1,  0,  0 }, 7, 6, 5, 4);
-      cap({  1,  0,  0 }, 3, 1, 2, 0);
 
       side({  0,  0,  1 }, { -1,  0,  0 }, 6, 4);
       side({  0,  0,  1 }, {  1,  0,  0 }, 0, 2);

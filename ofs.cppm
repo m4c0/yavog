@@ -239,13 +239,14 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      p.qp->write(timing::ppl_ofs_shd, cb);
+      p.qp->write(timing::ppl_ofs_scp, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36,
         .icount = p.icount,
       });
 
+      p.qp->write(timing::ppl_ofs_shd, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
