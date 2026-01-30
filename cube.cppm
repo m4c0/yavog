@@ -113,9 +113,9 @@ export namespace cube {
       };
       const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
       const auto cap = [&](dotz::vec3 normal, uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
-        if (!backface(normal)) return;
-        mm(a, b, c);
-        mm(d, c, b);
+        //if (!backface(normal)) return;
+        //mm(a, b, c);
+        //mm(d, c, b);
       };
 
       const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {

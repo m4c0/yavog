@@ -6,6 +6,8 @@
 #pragma leco add_shader "ofs-planes.vert"
 #pragma leco add_shader "ofs-shadow.frag"
 #pragma leco add_shader "ofs-shadow.vert"
+#pragma leco add_shader "ofs-shcaps.frag"
+#pragma leco add_shader "ofs-shcaps.vert"
 export module ofs;
 export import :common;
 import clay;
@@ -103,6 +105,35 @@ namespace ofs {
       vee::set_debug_utils_object_name(*ppl, "ofs::shadow");
     }
   };
+  struct shcaps : no::no {
+    vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
+    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-shcaps", {
+      .pipeline_layout = *pl,
+      .back_face_cull = false,
+      .depth = vee::depth::of({
+        .depthTestEnable = vk_true,
+        .depthWriteEnable = vk_false,
+        .depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL,
+        .stencilTestEnable = vk_true,
+        .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
+        .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
+      }),
+      .bindings {
+        cube::v_buffer::vertex_input_bind(),
+        cube::i_buffer::vertex_input_bind_per_instance(),
+      },
+      .attributes { 
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+      },
+    });
+
+    shcaps() {
+      vee::set_debug_utils_object_name(*pl, "ofs::shcaps");
+      vee::set_debug_utils_object_name(*ppl, "ofs::shcaps");
+    }
+  };
   struct lights : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
@@ -155,6 +186,7 @@ namespace ofs {
     planes m_pln {};
     colour m_clr {};
     shadow m_shd {};
+    shcaps m_scp {};
     lights m_lig {};
 
     upc m_pc {};
@@ -208,6 +240,12 @@ namespace ofs {
       });
 
       p.qp->write(timing::ppl_ofs_shd, cb);
+      vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
+      vee::cmd_draw_indexed(cb, {
+        .xcount = 36,
+        .icount = p.icount,
+      });
+
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);

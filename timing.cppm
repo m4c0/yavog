@@ -13,6 +13,7 @@ namespace timing {
     ppl_shd_cpy,
     ppl_ofs,
     ppl_ofs_clr,
+    ppl_ofs_scp,
     ppl_ofs_shd,
     ppl_ofs_lig,
     ppl_post,
@@ -40,6 +41,7 @@ namespace timing {
       print("Shadow Copy",  m_acc[ppl_shd_cpy], tp);
       print("Render Start", m_acc[ppl_ofs],     tp);
       print("Colour",       m_acc[ppl_ofs_clr], tp);
+      print("Shadow Caps",  m_acc[ppl_ofs_scp], tp);
       print("Shadow",       m_acc[ppl_ofs_shd], tp);
       print("Lights",       m_acc[ppl_ofs_lig], tp);
       print("Post-FX",      m_acc[ppl_post],    tp);
