@@ -88,7 +88,6 @@ extern "C" void casein_init() {
         dotz::vec3 l = sun_vec();
 
         qp.write(timing::ppl_shd_cpy, cb);
-        vv::as()->shadows.setup(l);
 
         vv::as()->ofs.render(cb, {
           .qp = &qp,

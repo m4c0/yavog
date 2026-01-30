@@ -91,11 +91,14 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings {
-        vee::vertex_input_bind(sizeof(dotz::vec4)),
+        vee::vertex_input_bind(sizeof(cube::shadow_edge)),
         cube::i_buffer::vertex_input_bind_per_instance(),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, 0),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::nrm_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::nrm_b)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::vtx_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::vtx_b)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
       },
     });
@@ -251,7 +254,7 @@ namespace ofs {
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
       vee::cmd_draw_indexed(cb, {
-        .xcount = p.sicount,
+        .xcount = 36,
         .icount = p.icount,
       });
 

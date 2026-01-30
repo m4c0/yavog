@@ -89,7 +89,6 @@ extern "C" void casein_init() {
       voo::cmd_buf_one_time_submit ots { cb };
 
       dotz::vec3 l = sun_vec();
-      vv::as()->shadows.setup(l);
       vv::as()->ofs.render(cb, {
         .vtx = *vv::as()->cube,
         .inst = *vv::as()->insts,

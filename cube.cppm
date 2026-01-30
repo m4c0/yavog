@@ -89,28 +89,46 @@ export namespace cube {
     return bb;
   }
 
-  struct shadow_v_buffer : public clay::buffer<dotz::vec4>, no::no {
-    shadow_v_buffer() : clay::buffer<dotz::vec4> { 9 } {
+  struct shadow_edge {
+    dotz::vec4 nrm_a;
+    dotz::vec4 nrm_b;
+    dotz::vec4 vtx_a;
+    dotz::vec4 vtx_b;
+  };
+  struct shadow_v_buffer : public clay::buffer<shadow_edge>, no::no {
+    shadow_v_buffer() : clay::buffer<shadow_edge> { 13 } {
       auto m = map();
-      for (auto v : vtxes) m += v;
+
+      m += { {  0,  0,  1 }, { -1,  0,  0 }, vtxes[6], vtxes[4] };
+      m += { {  0,  0,  1 }, {  1,  0,  0 }, vtxes[0], vtxes[2] };
+      m += { {  0,  0,  1 }, {  0, -1,  0 }, vtxes[2], vtxes[6] };
+      m += { {  0,  0,  1 }, {  0,  1,  0 }, vtxes[4], vtxes[0] };
+
+      m += { {  0,  0, -1 }, { -1,  0,  0 }, vtxes[5], vtxes[7] };
+      m += { {  0,  0, -1 }, {  1,  0,  0 }, vtxes[3], vtxes[1] };
+      m += { {  0,  0, -1 }, {  0, -1,  0 }, vtxes[7], vtxes[3] };
+      m += { {  0,  0, -1 }, {  0,  1,  0 }, vtxes[1], vtxes[5] };
+
+      m += { {  0, -1,  0 }, { -1,  0,  0 }, vtxes[7], vtxes[6] };
+      m += { {  0, -1,  0 }, {  1,  0,  0 }, vtxes[2], vtxes[3] };
+
+      m += { {  0,  1,  0 }, { -1,  0,  0 }, vtxes[4], vtxes[5] };
+      m += { {  0,  1,  0 }, {  1,  0,  0 }, vtxes[1], vtxes[0] };
+      
+      m += {};
     }
   };
-  class shadow_ix_buffer {
-    voo::bound_buffer m_bb;
-    unsigned m_count = 0;
+  struct shadow_ix_buffer : public clay::ix_buffer<uint16_t>, no::no {
+    shadow_ix_buffer() : clay::ix_buffer<uint16_t> { 36 } {
+      auto m = map();
+      for (uint16_t i = 0; i < 12; i++) {
+        m += i; m += i; m += 12;
+      }
+    }
+  };
 
-  public:
-    shadow_ix_buffer() :
-      m_bb { voo::bound_buffer::create_from_host(sizeof(uint16_t) * 1024, VK_BUFFER_USAGE_INDEX_BUFFER_BIT) }
-    {}
-
+  /*
     void setup(dotz::vec3 l) {
-      struct tri { uint16_t x[3]; };
-      voo::memiter<tri> m { *m_bb.memory, &m_count };
-      
-      const auto mm = [&](uint16_t a, uint16_t b, uint16_t c) {
-        m += {{ a, b, c }};
-      };
       const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
       const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
         bool b1 = backface(n1);
@@ -124,26 +142,7 @@ export namespace cube {
         }
       };
 
-      side({  0,  0,  1 }, { -1,  0,  0 }, 6, 4);
-      side({  0,  0,  1 }, {  1,  0,  0 }, 0, 2);
-      side({  0,  0,  1 }, {  0, -1,  0 }, 2, 6);
-      side({  0,  0,  1 }, {  0,  1,  0 }, 4, 0);
-
-      side({  0,  0, -1 }, { -1,  0,  0 }, 5, 7);
-      side({  0,  0, -1 }, {  1,  0,  0 }, 3, 1);
-      side({  0,  0, -1 }, {  0, -1,  0 }, 7, 3);
-      side({  0,  0, -1 }, {  0,  1,  0 }, 1, 5);
-
-      side({  0, -1,  0 }, { -1,  0,  0 }, 7, 6);
-      side({  0, -1,  0 }, {  1,  0,  0 }, 2, 3);
-
-      side({  0,  1,  0 }, { -1,  0,  0 }, 4, 5);
-      side({  0,  1,  0 }, {  1,  0,  0 }, 1, 0);
-    }
-
-    [[nodiscard]] constexpr auto operator*() const { return *m_bb.buffer; }
-    [[nodiscard]] constexpr auto count() const { return m_count * 3; }
-  };
+    */
 
   struct i_buffer : clay::buffer<inst>, no::no {
     i_buffer() : clay::buffer<inst> { 128 * 128 * 2} {
