@@ -205,7 +205,7 @@ namespace ofs {
     void render(vee::command_buffer cb, const params & p) {
       m_pc.light = p.light;
 
-      p.qp->write(timing::ppl_ofs, cb);
+      if (p.qp) p.qp->write(timing::ppl_ofs, cb);
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,
@@ -226,7 +226,7 @@ namespace ofs {
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
 
-      p.qp->write(timing::ppl_ofs_clr, cb);
+      if (p.qp) p.qp->write(timing::ppl_ofs_clr, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_pln.ppl);
       vee::cmd_draw(cb, 4);
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
@@ -239,14 +239,14 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      p.qp->write(timing::ppl_ofs_scp, cb);
+      if (p.qp) p.qp->write(timing::ppl_ofs_scp, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36,
         .icount = p.icount,
       });
 
-      p.qp->write(timing::ppl_ofs_shd, cb);
+      if (p.qp) p.qp->write(timing::ppl_ofs_shd, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, p.shdidx);
@@ -255,7 +255,7 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      p.qp->write(timing::ppl_ofs_lig, cb);
+      if (p.qp) p.qp->write(timing::ppl_ofs_lig, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_pln.lppl);
       vee::cmd_draw(cb, 4);
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
