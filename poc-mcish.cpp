@@ -86,10 +86,8 @@ extern "C" void casein_init() {
       qp.write(cb, [&] {
         dotz::vec3 l = sun_vec();
 
-        qp.write(timing::ppl_shd_cpy, cb);
-
+        qp.write(timing::ppl_render, cb);
         vv::as()->ofs.render(cb, {
-          .qp = &qp,
           .vtx = *vv::as()->cube,
           .inst = *vv::as()->insts,
           .idx = *vv::as()->idx.buffer,

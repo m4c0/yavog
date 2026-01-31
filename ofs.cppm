@@ -145,7 +145,6 @@ namespace ofs {
 
 namespace ofs {
   export struct params {
-    timing::query * qp;
     vee::buffer::type vtx;
     vee::buffer::type inst;
     vee::buffer::type idx;
@@ -178,7 +177,6 @@ namespace ofs {
     void render(vee::command_buffer cb, const params & p) {
       m_pc.light = p.light;
 
-      if (p.qp) p.qp->write(timing::ppl_ofs, cb);
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,
@@ -199,7 +197,6 @@ namespace ofs {
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
 
-      if (p.qp) p.qp->write(timing::ppl_ofs_clr, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
@@ -210,14 +207,12 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      if (p.qp) p.qp->write(timing::ppl_ofs_scp, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36,
         .icount = p.icount,
       });
 
-      if (p.qp) p.qp->write(timing::ppl_ofs_shd, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
       vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
       vee::cmd_draw(cb, {
@@ -225,7 +220,6 @@ namespace ofs {
         .icount = p.icount,
       });
 
-      if (p.qp) p.qp->write(timing::ppl_ofs_lig, cb);
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_lig.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
