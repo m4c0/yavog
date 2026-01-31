@@ -31,12 +31,8 @@ static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
 static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
 struct app_stuff : vinyl::base_app_stuff {
-  cube::v_buffer cube {};
-  cube::i_buffer insts {};
-  cube::shadow_v_buffer shdvtx {};
-  voo::bound_buffer idx = cube::ix_buffer();
-
   texmap::cache tmap {};
+  cube::drawer cube { tmap.dset() };
   hai::array<unsigned> txt_ids { 3 };
 
   post::pipeline post { dq };
@@ -46,6 +42,23 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
     txt_ids[2] = tmap.load(t131);
+
+    auto m = cube.map();
+    for (auto x = 0; x < 128; x++) {
+      for (auto y = 0; y < 128; y++) {
+        unsigned n = (x + y) % 4;
+        if (n == 3) continue;
+
+        m += {
+          .pos { x - 64, -2, y },
+          .txtid = static_cast<float>(n),
+        };
+      }
+    }
+    m += {
+      .pos { 3, 0, 5 },
+      .txtid = static_cast<float>(0),
+    };
   }
 };
 struct ext_stuff {
@@ -73,26 +86,6 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
-struct drawer : ofs::drawer {
-  void faces(VkCommandBuffer cb, VkPipelineLayout pl) {
-    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, vv::as()->tmap.dset());
-    vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
-    vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
-    vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx.buffer);
-    vee::cmd_draw_indexed(cb, {
-      .xcount = 36,
-      .icount = vv::as()->insts.count(),
-    });
-  }
-  void edges(VkCommandBuffer cb) {
-    vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->shdvtx, 0);
-    vee::cmd_draw(cb, {
-      .vcount = 36,
-      .icount = vv::as()->insts.count(),
-    });
-  }
-};
-
 static float g_far_plane = 15.f;
 static constexpr const float far_plane_delta = 10.0f;
 extern "C" void casein_init() {
@@ -113,10 +106,8 @@ extern "C" void casein_init() {
       last = qp.write(cb, [&] {
         dotz::vec3 l = sun_vec();
 
-        drawer d {};
-
         qp.write(timing::ppl_render, cb);
-        vv::as()->ofs.render(cb, &d, {
+        vv::as()->ofs.render(cb, &vv::as()->cube, {
           .light { l, 0 },
           .aspect = vv::ss()->swc.aspect(),
           .far = g_far_plane,

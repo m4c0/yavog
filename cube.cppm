@@ -111,22 +111,38 @@ export namespace cube {
 
   struct i_buffer : clay::buffer<ofs::inst>, no::no {
     i_buffer() : clay::buffer<ofs::inst> { 128 * 128 * 2} {
-      auto m = map();
-      for (auto x = 0; x < 128; x++) {
-        for (auto y = 0; y < 128; y++) {
-          unsigned n = (x + y) % 4;
-          if (n == 3) continue;
+    }
+  };
 
-          m += {
-            .pos { x - 64, -2, y },
-            .txtid = static_cast<float>(n),
-          };
-        }
-      }
-      m += {
-        .pos { 3, 0, 5 },
-        .txtid = static_cast<float>(0),
-      };
+  class drawer : public ofs::drawer {
+    vee::descriptor_set tmap;
+
+    v_buffer cube {};
+    i_buffer insts {};
+    shadow_v_buffer shdvtx {};
+    voo::bound_buffer idx = cube::ix_buffer();
+
+  public:
+    explicit drawer(vee::descriptor_set tmap) : tmap { tmap } {}
+
+    [[nodiscard]] auto map() { return insts.map(); }
+
+    void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+      if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap);
+      vee::cmd_bind_vertex_buffers(cb, 0, *cube, 0);
+      vee::cmd_bind_vertex_buffers(cb, 1, *insts, 0);
+      vee::cmd_bind_index_buffer_u16(cb, *idx.buffer);
+      vee::cmd_draw_indexed(cb, {
+        .xcount = 36,
+        .icount = insts.count(),
+      });
+    }
+    void edges(vee::command_buffer cb) override {
+      vee::cmd_bind_vertex_buffers(cb, 0, *shdvtx, 0);
+      vee::cmd_draw(cb, {
+        .vcount = 36,
+        .icount = insts.count(),
+      });
     }
   };
 }
