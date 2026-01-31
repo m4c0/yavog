@@ -21,33 +21,6 @@ import voo;
 using namespace wagen;
 
 namespace ofs {
-  struct planes : no::no {
-    vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline ppl = create_colour_only_pipeline("ofs-planes", {
-      .pipeline_layout = *pl,
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-      .back_face_cull = false,
-      .depth = vee::depth::op_less(),
-    });
-    vee::gr_pipeline lppl = create_colour_only_pipeline("ofs-planes", {
-      .pipeline_layout = *pl,
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-      .back_face_cull = false,
-      .depth = vee::depth::of({
-        .depthTestEnable = vk_true,
-        .depthWriteEnable = vk_false,
-        .depthCompareOp = VK_COMPARE_OP_EQUAL,
-        .stencilTestEnable = vk_true,
-        .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
-        .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
-      }),
-    });
-
-    planes() {
-      vee::set_debug_utils_object_name(*pl, "ofs::planes");
-      vee::set_debug_utils_object_name(*ppl, "ofs::planes");
-    }
-  };
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
@@ -184,7 +157,6 @@ namespace ofs {
   };
 
   export class pipeline {
-    planes m_pln {};
     colour m_clr {};
     shadow m_shd {};
     shcaps m_scp {};
@@ -228,8 +200,6 @@ namespace ofs {
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
 
       if (p.qp) p.qp->write(timing::ppl_ofs_clr, cb);
-      vee::cmd_bind_gr_pipeline(cb, *m_pln.ppl);
-      vee::cmd_draw(cb, 4);
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
@@ -256,8 +226,6 @@ namespace ofs {
       });
 
       if (p.qp) p.qp->write(timing::ppl_ofs_lig, cb);
-      vee::cmd_bind_gr_pipeline(cb, *m_pln.lppl);
-      vee::cmd_draw(cb, 4);
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
       vee::cmd_bind_descriptor_set(cb, *m_lig.pl, 0, p.tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
