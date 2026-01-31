@@ -108,7 +108,7 @@ extern "C" void casein_init() {
     vv::ss()->swc.queue_present();
 
     constexpr const auto fps = 30.f;
-    constexpr const auto frame_ms = 1.0f / fps;
+    constexpr const auto frame_ms = 1000.0f / fps;
     if (g_far_plane < 15) g_far_plane++;
     if (last > frame_ms && g_far_plane > 15) g_far_plane--;
     if (last < frame_ms && g_far_plane < 100) g_far_plane++;
