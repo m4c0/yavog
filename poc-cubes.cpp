@@ -76,6 +76,7 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
+static constexpr const float far_plane = 100.f;
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
@@ -96,9 +97,10 @@ extern "C" void casein_init() {
         .icount = vv::as()->insts.count(),
         .tmap = vv::as()->tmap.dset(),
         .light { l, 0 },
+        .far = far_plane,
       });
 
-      vv::as()->post.render(cb, vv::ss()->swc);
+      vv::as()->post.render(cb, vv::ss()->swc, far_plane);
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();

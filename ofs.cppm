@@ -153,7 +153,7 @@ namespace ofs {
 
     vee::descriptor_set tmap;
     dotz::vec4 light;
-    float far = 100.0f;
+    float far;
   };
 
   export class pipeline {

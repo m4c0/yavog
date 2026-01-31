@@ -6,6 +6,10 @@ import ofs;
 import voo;
 
 namespace post {
+  struct upc {
+    vee::extent ext;
+    float far;
+  };
   export class pipeline : no::no {
     vee::sampler m_smp = vee::create_sampler({
       .magFilter = VK_FILTER_LINEAR,
@@ -28,7 +32,7 @@ namespace post {
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(
         *m_dsl,
-        vee::fragment_push_constant_range<vee::extent>());
+        vee::fragment_push_constant_range<upc>());
     vee::render_pass m_rp;
     vee::gr_pipeline m_ppl;
 
@@ -67,19 +71,21 @@ namespace post {
       vee::update_descriptor_set(m_dset, 2, *ofs.fb().normal.iv,   *m_smp);
     }
 
-    void render(vee::command_buffer cb, voo::swapchain & swc) {
-      auto ext = swc.extent();
+    void render(vee::command_buffer cb, voo::swapchain & swc, float far) {
+      upc pc {
+        .ext = swc.extent(),
+        .far = far,
+      };
 
       voo::cmd_render_pass rpg {vee::render_pass_begin{
         .command_buffer = cb,
         .render_pass = *m_rp,
         .framebuffer = *m_fbs[swc.index()],
-        .extent = ext,
+        .extent = swc.extent(),
         .clear_colours { vee::clear_colour({}) },
       }, true};
 
-      vee::cmd_set_viewport(cb, ext);
-      vee::cmd_push_fragment_constants(cb, *m_pl, &ext);
+      vee::cmd_push_fragment_constants(cb, *m_pl, &pc);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
       vee::cmd_draw(cb, 4);

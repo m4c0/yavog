@@ -4,6 +4,7 @@ layout(constant_id = 33) const uint enabled = 1;
 
 layout(push_constant) uniform upc {
   vec2 scr_sz;
+  float far;
 };
 
 layout(set = 0, binding = 0) uniform sampler2D u_colour;
@@ -76,7 +77,7 @@ vec3 sobel(vec3 c) {
 }
 
 vec3 fog(vec3 c, float depth) {
-  float f = smoothstep(0.0, 90.0, depth);
+  float f = smoothstep(0.0, far, depth);
   return mix(c, fog_colour, f);
 }
 
