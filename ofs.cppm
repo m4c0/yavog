@@ -21,6 +21,13 @@ import voo;
 using namespace wagen;
 
 namespace ofs {
+  export struct upc {
+    dotz::vec4 light;
+    float aspect;
+    float fov = 90;
+    float far;
+  };
+
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
@@ -156,13 +163,16 @@ namespace ofs {
     float far;
   };
 
+  export struct drawer {
+    virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
+    virtual void edges(VkCommandBuffer cb) = 0;
+  };
   export class pipeline {
     colour m_clr {};
     shadow m_shd {};
     shcaps m_scp {};
     lights m_lig {};
 
-    upc m_pc {};
     vee::extent m_ext {};
     hai::uptr<framebuffer> m_fb {};
 
@@ -170,15 +180,11 @@ namespace ofs {
     [[nodiscard]] constexpr const auto & fb() const { return *m_fb; }
 
     void setup(const voo::swapchain & swc) {
-      m_pc.aspect = swc.aspect();
       m_ext = swc.extent();
       m_fb.reset(new framebuffer { swc.extent() });
     }
 
-    void render(vee::command_buffer cb, const params & p) {
-      m_pc.light = p.light;
-      m_pc.far = p.far;
-
+    void render(vee::command_buffer cb, drawer * d, upc pc) {
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,
@@ -186,48 +192,30 @@ namespace ofs {
         .extent = m_ext,
         .clear_colours { 
           vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, p.far, 0 }), 
+          vee::clear_colour({ 0, 0, pc.far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
           vee::clear_depth(1.0),
           vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, p.far, 0 }), 
+          vee::clear_colour({ 0, 0, pc.far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
         },
       }, true };
       vee::cmd_set_viewport(cb, m_ext);
       vee::cmd_set_scissor(cb, m_ext);
 
-      vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
-
-      const auto draw = [&](vee::command_buffer cb, VkPipelineLayout pl) {
-        if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, p.tmap);
-        vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
-        vee::cmd_bind_vertex_buffers(cb, 1, p.inst, 0);
-        vee::cmd_bind_index_buffer_u16(cb, p.idx);
-        vee::cmd_draw_indexed(cb, {
-          .xcount = 36,
-          .icount = p.icount,
-        });
-      };
-      const auto draw_edges = [&](vee::command_buffer cb) {
-        vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
-        vee::cmd_draw(cb, {
-          .vcount = 36,
-          .icount = p.icount,
-        });
-      };
+      vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &pc);
 
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
-      draw(cb, *m_clr.pl);
+      d->faces(cb, *m_clr.pl);
 
       vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
-      draw(cb, nullptr);
+      d->faces(cb, nullptr);
 
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
-      draw_edges(cb);
+      d->edges(cb);
 
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
-      draw(cb, *m_lig.pl);
+      d->faces(cb, *m_lig.pl);
     }
   };
 }

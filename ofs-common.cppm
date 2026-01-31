@@ -137,13 +137,6 @@ inline auto create_colour_only_pipeline(sv shader, vee::gr_pipeline_params p) {
   return create_graphics_pipeline(shader, p);
 }
 
-struct upc {
-  dotz::vec4 light;
-  float aspect;
-  float fov = 90;
-  float far;
-};
-
 struct framebuffer : no::no {
   voo::bound_image msaa_colour;
   voo::bound_image msaa_position;

@@ -73,6 +73,26 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
+struct drawer : ofs::drawer {
+  void faces(VkCommandBuffer cb, VkPipelineLayout pl) {
+    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, vv::as()->tmap.dset());
+    vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->cube, 0);
+    vee::cmd_bind_vertex_buffers(cb, 1, *vv::as()->insts, 0);
+    vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx.buffer);
+    vee::cmd_draw_indexed(cb, {
+      .xcount = 36,
+      .icount = vv::as()->insts.count(),
+    });
+  }
+  void edges(VkCommandBuffer cb) {
+    vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->shdvtx, 0);
+    vee::cmd_draw(cb, {
+      .vcount = 36,
+      .icount = vv::as()->insts.count(),
+    });
+  }
+};
+
 static float g_far_plane = 15.f;
 static constexpr const float far_plane_delta = 10.0f;
 extern "C" void casein_init() {
@@ -93,15 +113,12 @@ extern "C" void casein_init() {
       last = qp.write(cb, [&] {
         dotz::vec3 l = sun_vec();
 
+        drawer d {};
+
         qp.write(timing::ppl_render, cb);
-        vv::as()->ofs.render(cb, {
-          .vtx = *vv::as()->cube,
-          .inst = *vv::as()->insts,
-          .idx = *vv::as()->idx.buffer,
-          .shdvtx = *vv::as()->shdvtx,
-          .icount = vv::as()->insts.count(),
-          .tmap = vv::as()->tmap.dset(),
+        vv::as()->ofs.render(cb, &d, {
           .light { l, 0 },
+          .aspect = vv::ss()->swc.aspect(),
           .far = g_far_plane,
         });
 
