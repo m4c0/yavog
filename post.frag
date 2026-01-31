@@ -25,7 +25,7 @@ vec3 unsharp_mask_depth_buffer(vec3 c, float depth) {
   // https://en.wikipedia.org/wiki/Kernel_(image_processing)
 
   float d = depth;
-  float dist = 1 + 2000 * pow(smoothstep(0.01, 10, d), 1);
+  float dist = 1 + 200 * pc.far * pow(smoothstep(0.01, 10, d), 1);
 
   float fgn = 0;
   for (int my = -2; my <= 2; my++) {
@@ -45,8 +45,9 @@ vec3 unsharp_mask_depth_buffer(vec3 c, float depth) {
   fgn /= 256;
 
   float dd = fgn - d;
+  dd = 1 + 2 * dd;
   
-  return (1 - dd * -2) * c;
+  return dd * c;
 }
 
 // https://en.wikipedia.org/wiki/Sobel_operator
