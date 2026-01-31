@@ -1,7 +1,8 @@
 #version 450
 #pragma leco include "ofs.glsl"
 
-layout(location = 0) in vec4 nrm_a;
+layout(location = 0, component = 0) in vec3 nrm_a;
+layout(location = 0, component = 3) in float idx;
 layout(location = 1) in vec4 nrm_b;
 layout(location = 2) in vec4 vtx_a;
 layout(location = 3) in vec4 vtx_b;
@@ -14,12 +15,11 @@ void main() {
   float back_a = backface(nrm_a.xyz);
   float back_b = backface(nrm_b.xyz);
 
-  int idx = gl_VertexIndex % 3;
-  if (idx == 2) proj(vec4(0));
-  else if (back_a == back_b) proj(vec4(0));
+  if (idx == 0) proj(vec4(0));
+  else if (back_a == back_b) gl_Position = vec4(0);
   else if (back_a == 0) {
-    proj(mix(vtx_a, vtx_b, idx) + vec4(i_pos, 0));
+    proj(mix(vtx_a, vtx_b, idx - 1) + vec4(i_pos, 0));
   } else {
-    proj(mix(vtx_b, vtx_a, idx) + vec4(i_pos, 0));
+    proj(mix(vtx_b, vtx_a, idx - 1) + vec4(i_pos, 0));
   }
 }

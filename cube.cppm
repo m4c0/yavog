@@ -96,34 +96,30 @@ export namespace cube {
     dotz::vec4 vtx_b;
   };
   struct shadow_v_buffer : public clay::buffer<shadow_edge>, no::no {
-    shadow_v_buffer() : clay::buffer<shadow_edge> { 13 } {
+    shadow_v_buffer() : clay::buffer<shadow_edge> { 36 } {
       auto m = map();
 
-      m += { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtxes[6], vtxes[4] };
-      m += { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtxes[0], vtxes[2] };
-      m += { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtxes[2], vtxes[6] };
-      m += { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtxes[4], vtxes[0] };
+      const auto tri = [&](shadow_edge e) {
+        m += {};
+        e.nrm_a.w = 1; m += e;
+        e.nrm_a.w = 2; m += e;
+      };
 
-      m += { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtxes[5], vtxes[7] };
-      m += { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtxes[3], vtxes[1] };
-      m += { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtxes[7], vtxes[3] };
-      m += { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtxes[1], vtxes[5] };
+      tri({ {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtxes[6], vtxes[4] });
+      tri({ {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtxes[0], vtxes[2] });
+      tri({ {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtxes[2], vtxes[6] });
+      tri({ {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtxes[4], vtxes[0] });
 
-      m += { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[7], vtxes[6] };
-      m += { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[2], vtxes[3] };
+      tri({ {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtxes[5], vtxes[7] });
+      tri({ {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtxes[3], vtxes[1] });
+      tri({ {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtxes[7], vtxes[3] });
+      tri({ {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtxes[1], vtxes[5] });
 
-      m += { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[4], vtxes[5] };
-      m += { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[1], vtxes[0] };
-      
-      m += {};
-    }
-  };
-  struct shadow_ix_buffer : public clay::ix_buffer<uint16_t>, no::no {
-    shadow_ix_buffer() : clay::ix_buffer<uint16_t> { 36 } {
-      auto m = map();
-      for (uint16_t i = 0; i < 12; i++) {
-        m += i; m += i; m += 12;
-      }
+      tri({ {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[7], vtxes[6] });
+      tri({ {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[2], vtxes[3] });
+
+      tri({ {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[4], vtxes[5] });
+      tri({ {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[1], vtxes[0] });
     }
   };
 
