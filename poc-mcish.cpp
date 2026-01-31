@@ -73,15 +73,18 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
-static float g_far_plane = 0.f;
+static float g_far_plane = 15.f;
+static constexpr const float far_plane_delta = 10.0f;
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
     auto cb = vv::ss()->cb.cb();
     auto & qp = vv::ss()->tq[vv::ss()->swc.index()];
 
-    g_sun += g_tt.secs() * g_sun_spd;
+    auto frame_secs = g_tt.secs();
     g_tt = {};
+
+    g_sun += frame_secs * g_sun_spd;
 
     static float last = 0;
     {
@@ -114,8 +117,8 @@ extern "C" void casein_init() {
 
     constexpr const auto frame_ms = 1000.0f / target_fps;
     if (g_far_plane < 15) g_far_plane++;
-    if (last > frame_ms && g_far_plane > 15) g_far_plane--;
-    if (last < frame_ms && g_far_plane < 100) g_far_plane++;
+    if (last > frame_ms && g_far_plane > 15)  g_far_plane -= far_plane_delta * frame_secs;
+    if (last < frame_ms && g_far_plane < 100) g_far_plane += far_plane_delta * frame_secs;
 
     static struct count {
       sitime::stopwatch w {};
