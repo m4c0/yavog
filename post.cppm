@@ -48,8 +48,6 @@ namespace post {
     , m_ppl { vee::create_graphics_pipeline({
         .pipeline_layout = *m_pl,
         .render_pass = *m_rp,
-        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-        .back_face_cull = false,
         .shaders {
           voo::vert_shader("post.vert.spv").pipeline_stage(),
           voo::frag_shader("post.frag.spv").pipeline_stage("main",
@@ -88,7 +86,7 @@ namespace post {
       vee::cmd_push_fragment_constants(cb, *m_pl, &pc);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
-      vee::cmd_draw(cb, 4);
+      vee::cmd_draw(cb, 3);
     }
   };
 }
