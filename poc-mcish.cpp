@@ -71,7 +71,7 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
-static constexpr const float far_plane = 20.f;
+static float g_far_plane = 0.f;
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
@@ -81,10 +81,11 @@ extern "C" void casein_init() {
     g_sun += g_tt.secs() * g_sun_spd;
     g_tt = {};
 
+    static float last = 0;
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      qp.write(cb, [&] {
+      last = qp.write(cb, [&] {
         dotz::vec3 l = sun_vec();
 
         qp.write(timing::ppl_render, cb);
@@ -96,20 +97,26 @@ extern "C" void casein_init() {
           .icount = vv::as()->insts.count(),
           .tmap = vv::as()->tmap.dset(),
           .light { l, 0 },
-          .far = far_plane,
+          .far = g_far_plane,
         });
 
         qp.write(timing::ppl_post, cb);
-        vv::as()->post.render(cb, vv::ss()->swc, far_plane);
+        vv::as()->post.render(cb, vv::ss()->swc, g_far_plane);
       });
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
 
+    constexpr const auto fps = 30.f;
+    constexpr const auto frame_ms = 1.0f / fps;
+    if (g_far_plane < 15) g_far_plane++;
+    if (last > frame_ms && g_far_plane > 15) g_far_plane--;
+    if (last < frame_ms && g_far_plane < 100) g_far_plane++;
+
     static struct count {
       sitime::stopwatch w {};
       int i = 0;
-      ~count() { silog::infof(">>>> %.3f", i / w.secs()); }
+      ~count() { silog::infof("Counters: %.3f FPS, last frame: %.1fms, far plane %.0f", i / w.secs(), last, g_far_plane); }
     } * cnt = new count {};
     cnt->i++;
     if (cnt->w.secs() > 3) {

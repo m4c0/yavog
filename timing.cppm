@@ -53,10 +53,13 @@ namespace timing {
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(buf_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     vee::query_pool m_qp = vee::create_timestamp_query_pool(num_qry);
+    float m_tp = vee::get_physical_device_properties().limits.timestampPeriod;
+    float m_last = 0;
 
     void read() {
       voo::memiter<uint64_t> m { *m_buf.memory };
       g_counter.add(&m[0]);
+      m_last = (m[ppl_max] - m[0]) * m_tp / 1000'000;
     }
 
   public:
@@ -65,13 +68,15 @@ namespace timing {
       g_counter = {};
     };
 
-    void write(vee::command_buffer cb, auto && fn) {
+    float write(vee::command_buffer cb, auto && fn) {
       read();
 
       vee::cmd_reset_query_pool(cb, *m_qp, 0, num_qry);
       fn();
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, *m_qp, ppl_max);
       vee::cmd_copy_query_pool_results(cb, *m_qp, 0, num_qry, *m_buf.buffer);
+
+      return m_last;
     }
     void write(ppl pp, vee::command_buffer cb) {
       vee::cmd_write_timestamp(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, *m_qp, pp);
