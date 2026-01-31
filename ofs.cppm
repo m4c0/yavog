@@ -9,18 +9,31 @@
 #pragma leco add_shader "ofs-shcaps.frag"
 #pragma leco add_shader "ofs-shcaps.vert"
 export module ofs;
-export import :common;
-import clay;
-import cube;
+import :common;
 import hai;
 import texmap;
-import timing;
 import traits;
 import voo;
 
 using namespace wagen;
 
 namespace ofs {
+  export struct vtx {
+    dotz::vec4 pos;
+    dotz::vec2 uv;
+    dotz::vec3 normal;
+  };
+  export struct inst {
+    dotz::vec3 pos;
+    float txtid;
+  };
+  export struct edge {
+    dotz::vec4 nrm_a;
+    dotz::vec4 nrm_b;
+    dotz::vec4 vtx_a;
+    dotz::vec4 vtx_b;
+  };
+
   export struct upc {
     dotz::vec4 light;
     float aspect;
@@ -41,14 +54,14 @@ namespace ofs {
         vee::colour_blend_none(),
       },
       .bindings {
-        cube::v_buffer::vertex_input_bind(),
-        cube::i_buffer::vertex_input_bind_per_instance(),
+        vee::vertex_input_bind(sizeof(vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
       },
     });
 
@@ -71,15 +84,15 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings {
-        vee::vertex_input_bind(sizeof(cube::shadow_edge)),
-        cube::i_buffer::vertex_input_bind_per_instance(),
+        vee::vertex_input_bind(sizeof(edge)),
+        vee::vertex_input_bind_per_instance(sizeof(inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::nrm_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::nrm_b)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::vtx_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::shadow_edge::vtx_b)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::nrm_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::nrm_b)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_b)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
       },
     });
 
@@ -102,13 +115,13 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings {
-        cube::v_buffer::vertex_input_bind(),
-        cube::i_buffer::vertex_input_bind_per_instance(),
+        vee::vertex_input_bind(sizeof(vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
       },
     });
 
@@ -132,14 +145,14 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
       .bindings {
-        cube::v_buffer::vertex_input_bind(),
-        cube::i_buffer::vertex_input_bind_per_instance(),
+        vee::vertex_input_bind(sizeof(vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&cube::vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&cube::vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&cube::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&cube::inst::pos)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
       },
     });
 
