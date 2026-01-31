@@ -20,6 +20,8 @@ import wagen;
 
 using namespace wagen;
 
+static constexpr const auto target_fps = 30.f;
+
 struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
@@ -102,7 +104,7 @@ extern "C" void casein_init() {
 
         qp.write(timing::ppl_post, cb);
         vv::as()->post.render(cb, vv::ss()->swc, {
-          .fog { 0.7, 0.75, 0.8, 0.0 },
+          .fog { 0.4, 0.6, 0.8, g_far_plane * 0.8 },
           .far = g_far_plane,
         });
       });
@@ -110,8 +112,7 @@ extern "C" void casein_init() {
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
 
-    constexpr const auto fps = 30.f;
-    constexpr const auto frame_ms = 1000.0f / fps;
+    constexpr const auto frame_ms = 1000.0f / target_fps;
     if (g_far_plane < 15) g_far_plane++;
     if (last > frame_ms && g_far_plane > 15) g_far_plane--;
     if (last < frame_ms && g_far_plane < 100) g_far_plane++;
