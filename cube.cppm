@@ -168,6 +168,6 @@ export namespace cube {
 
 inline auto win32_hack() {
   // Pre-instantiate the simple to avoid clang exploding later
-  return traits::offset_of(&cube::vtx::pos) + traits::offset_of(&cube::inst::pos);
+  return traits::offset_of(&cube::vtx::pos) + traits::offset_of(&cube::inst::pos) + traits::offset_of(&cube::shadow_edge::nrm_a);
 }
 
