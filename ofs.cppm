@@ -199,37 +199,35 @@ namespace ofs {
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &m_pc);
 
+      const auto draw = [&](vee::command_buffer cb, VkPipelineLayout pl) {
+        if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, p.tmap);
+        vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
+        vee::cmd_bind_vertex_buffers(cb, 1, p.inst, 0);
+        vee::cmd_bind_index_buffer_u16(cb, p.idx);
+        vee::cmd_draw_indexed(cb, {
+          .xcount = 36,
+          .icount = p.icount,
+        });
+      };
+      const auto draw_edges = [&](vee::command_buffer cb) {
+        vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
+        vee::cmd_draw(cb, {
+          .vcount = 36,
+          .icount = p.icount,
+        });
+      };
+
       vee::cmd_bind_gr_pipeline(cb, *m_clr.ppl);
-      vee::cmd_bind_descriptor_set(cb, *m_clr.pl, 0, p.tmap);
-      vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, p.inst, 0);
-      vee::cmd_bind_index_buffer_u16(cb, p.idx);
-      vee::cmd_draw_indexed(cb, {
-        .xcount = 36,
-        .icount = p.icount,
-      });
+      draw(cb, *m_clr.pl);
 
       vee::cmd_bind_gr_pipeline(cb, *m_scp.ppl);
-      vee::cmd_draw_indexed(cb, {
-        .xcount = 36,
-        .icount = p.icount,
-      });
+      draw(cb, nullptr);
 
       vee::cmd_bind_gr_pipeline(cb, *m_shd.ppl);
-      vee::cmd_bind_vertex_buffers(cb, 0, p.shdvtx, 0);
-      vee::cmd_draw(cb, {
-        .vcount = 36,
-        .icount = p.icount,
-      });
+      draw_edges(cb);
 
       vee::cmd_bind_gr_pipeline(cb, *m_lig.ppl);
-      vee::cmd_bind_descriptor_set(cb, *m_lig.pl, 0, p.tmap);
-      vee::cmd_bind_vertex_buffers(cb, 0, p.vtx, 0);
-      vee::cmd_bind_index_buffer_u16(cb, p.idx);
-      vee::cmd_draw_indexed(cb, {
-        .xcount = 36,
-        .icount = p.icount,
-      });
+      draw(cb, *m_lig.pl);
     }
   };
 }
