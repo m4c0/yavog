@@ -30,7 +30,7 @@ static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer cube {};
-  clay::buffer<cube::inst> insts { 100 };
+  clay::buffer<ofs::inst> insts { 100 };
   cube::shadow_v_buffer shdvtx {};
   voo::bound_buffer idx = cube::ix_buffer();
 
@@ -46,11 +46,11 @@ struct app_stuff : vinyl::base_app_stuff {
     txt_ids[2] = tmap.load(t131);
 
     auto m = insts.map();
-    m += cube::inst { .pos { -1,  0, 4 }, .txtid = 1 };
-    m += cube::inst { .pos {  1,  0, 4 }, .txtid = 1 };
-    m += cube::inst { .pos { -1,  0, 2 }, .txtid = 1 };
-    m += cube::inst { .pos {  1,  0, 2 }, .txtid = 1 };
-    m += cube::inst { .pos {  0, -1, 3 }, .txtid = 1 };
+    m += { .pos { -1,  0, 4 }, .txtid = 1 };
+    m += { .pos {  1,  0, 4 }, .txtid = 1 };
+    m += { .pos { -1,  0, 2 }, .txtid = 1 };
+    m += { .pos {  1,  0, 2 }, .txtid = 1 };
+    m += { .pos {  0, -1, 3 }, .txtid = 1 };
   }
 };
 struct ext_stuff {
