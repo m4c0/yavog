@@ -3,9 +3,10 @@
 layout(constant_id = 33) const uint enabled = 1;
 
 layout(push_constant) uniform upc {
+  vec4 fog;
   vec2 scr_sz;
   float far;
-};
+} pc;
 
 layout(set = 0, binding = 0) uniform sampler2D u_colour;
 layout(set = 0, binding = 1) uniform sampler2D u_position;
@@ -14,7 +15,7 @@ layout(set = 0, binding = 2) uniform sampler2D u_normal;
 layout(location = 0) in vec2 f_pos;
 layout(location = 0) out vec4 o_colour;
 
-const vec3 fog_colour = vec3(0.7, 0.75, 0.8);
+//const vec3 fog_colour = vec3(0.7, 0.75, 0.8);
 
 #define DEPTH_READ(p) texture(u_position, (p)).z
 vec3 unsharp_mask_depth_buffer(vec3 c, float depth) {
@@ -77,8 +78,8 @@ vec3 sobel(vec3 c) {
 }
 
 vec3 fog(vec3 c, float depth) {
-  float f = smoothstep(0.0, far, depth);
-  return mix(c, fog_colour, f);
+  float f = smoothstep(pc.fog.a, pc.far, depth);
+  return mix(c, pc.fog.rgb, f);
 }
 
 void main() {

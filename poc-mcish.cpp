@@ -101,7 +101,10 @@ extern "C" void casein_init() {
         });
 
         qp.write(timing::ppl_post, cb);
-        vv::as()->post.render(cb, vv::ss()->swc, g_far_plane);
+        vv::as()->post.render(cb, vv::ss()->swc, {
+          .fog { 0.7, 0.75, 0.8, 0.0 },
+          .far = g_far_plane,
+        });
       });
     }
     vv::ss()->swc.queue_submit(cb);

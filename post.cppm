@@ -1,5 +1,6 @@
 export module post;
 import clay;
+import dotz;
 import hai;
 import no;
 import ofs;
@@ -7,6 +8,7 @@ import voo;
 
 namespace post {
   struct upc {
+    dotz::vec4 fog;
     vee::extent ext;
     float far;
   };
@@ -69,11 +71,8 @@ namespace post {
       vee::update_descriptor_set(m_dset, 2, *ofs.fb().normal.iv,   *m_smp);
     }
 
-    void render(vee::command_buffer cb, voo::swapchain & swc, float far) {
-      upc pc {
-        .ext = swc.extent(),
-        .far = far,
-      };
+    void render(vee::command_buffer cb, voo::swapchain & swc, upc pc) {
+      pc.ext = swc.extent();
 
       voo::cmd_render_pass rpg {vee::render_pass_begin{
         .command_buffer = cb,

@@ -100,7 +100,7 @@ extern "C" void casein_init() {
         .far = far_plane,
       });
 
-      vv::as()->post.render(cb, vv::ss()->swc, far_plane);
+      vv::as()->post.render(cb, vv::ss()->swc, {});
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
