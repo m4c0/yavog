@@ -123,23 +123,6 @@ export namespace cube {
     }
   };
 
-  /*
-    void setup(dotz::vec3 l) {
-      const auto backface = [&](dotz::vec3 n) { return (dotz::dot(n, l) >= 0); };
-      const auto side = [&](dotz::vec3 n1, dotz::vec3 n2, uint16_t a, uint16_t b) {
-        bool b1 = backface(n1);
-        bool b2 = backface(n2);
-        if (b1 == b2) return;
-
-        if (!b1 && b2) {
-          mm(a, b, 9);
-        } else {
-          mm(b, a, 9);
-        }
-      };
-
-    */
-
   struct i_buffer : clay::buffer<inst>, no::no {
     i_buffer() : clay::buffer<inst> { 128 * 128 * 2} {
       auto m = map();
