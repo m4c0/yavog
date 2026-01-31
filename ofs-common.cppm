@@ -141,6 +141,7 @@ struct upc {
   dotz::vec4 light;
   float aspect;
   float fov = 90;
+  float far;
 };
 
 struct framebuffer : no::no {

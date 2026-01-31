@@ -4,10 +4,10 @@ layout(push_constant) uniform upc {
   vec4  light;
   float aspect;
   float fov_deg;
+  float far;
 } pc;
 
 const float near =   0.01;
-const float far  = 100.0;
 
 float backface(vec3 n) {
   return step(0, dot(n, pc.light.xyz));
@@ -22,6 +22,7 @@ vec3 proj(vec4 pos) {
 
   vec3 ret = p.xyz;
 
+  float far = pc.far;
   gl_Position = mat4(
     f / pc.aspect, 0, 0, 0,
     0, f, 0, 0,

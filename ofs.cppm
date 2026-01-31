@@ -153,6 +153,7 @@ namespace ofs {
 
     vee::descriptor_set tmap;
     dotz::vec4 light;
+    float far = 100.0f;
   };
 
   export class pipeline {
@@ -176,6 +177,7 @@ namespace ofs {
 
     void render(vee::command_buffer cb, const params & p) {
       m_pc.light = p.light;
+      m_pc.far = p.far;
 
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
@@ -184,11 +186,11 @@ namespace ofs {
         .extent = m_ext,
         .clear_colours { 
           vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, 100, 0 }), 
+          vee::clear_colour({ 0, 0, p.far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
           vee::clear_depth(1.0),
           vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, 100, 0 }), 
+          vee::clear_colour({ 0, 0, p.far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
         },
       }, true };
