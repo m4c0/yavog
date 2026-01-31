@@ -71,7 +71,7 @@ static dotz::vec3 sun_vec() {
   return dotz::normalise(l);
 }
 
-static constexpr const float far_plane = 100.f;
+static constexpr const float far_plane = 20.f;
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
