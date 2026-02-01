@@ -164,18 +164,6 @@ namespace ofs {
 }
 
 namespace ofs {
-  export struct params {
-    vee::buffer::type vtx;
-    vee::buffer::type inst;
-    vee::buffer::type idx;
-    vee::buffer::type shdvtx;
-    unsigned icount;
-
-    vee::descriptor_set tmap;
-    dotz::vec4 light;
-    float far;
-  };
-
   export struct drawer {
     virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
     virtual void edges(VkCommandBuffer cb) = 0;
