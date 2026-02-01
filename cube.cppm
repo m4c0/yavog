@@ -18,13 +18,11 @@ constexpr dotz::vec4 vtxes[] {
   { -0.5,  0.5, -0.5, 1.0 }, // 5
   { -0.5, -0.5,  0.5, 1.0 }, // 6
   { -0.5, -0.5, -0.5, 1.0 }, // 7
-
-  { 0, 0, 0, 0 }, // Light projection at infinity
 };
 
 export namespace cube {
   struct v_buffer : public clay::buffer<ofs::vtx>, no::no {
-    v_buffer() : clay::buffer<ofs::vtx> { 37 } {
+    v_buffer() : clay::buffer<ofs::vtx> { 36 } {
       auto m = map();
 
       // Front
