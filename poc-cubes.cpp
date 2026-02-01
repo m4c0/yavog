@@ -24,28 +24,21 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
-static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
-static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
-
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  hai::array<unsigned> txt_ids { 3 };
 
   cube::drawer cube {};
 
 public:
   scene_drawer() {
-    txt_ids[0] = tmap.load(t040);
-    txt_ids[1] = tmap.load(t101);
-    txt_ids[2] = tmap.load(t131);
+    float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
 
     auto m = cube.map();
-    m += { .pos { -1,  0, 4 }, .txtid = 1 };
-    m += { .pos {  1,  0, 4 }, .txtid = 1 };
-    m += { .pos { -1,  0, 2 }, .txtid = 1 };
-    m += { .pos {  1,  0, 2 }, .txtid = 1 };
-    m += { .pos {  0, -1, 3 }, .txtid = 1 };
+    m += { .pos { -1,  0, 4 }, .txtid = txt_id };
+    m += { .pos {  1,  0, 4 }, .txtid = txt_id };
+    m += { .pos { -1,  0, 2 }, .txtid = txt_id };
+    m += { .pos {  1,  0, 2 }, .txtid = txt_id };
+    m += { .pos {  0, -1, 3 }, .txtid = txt_id };
   }
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {

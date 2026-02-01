@@ -32,15 +32,16 @@ static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  hai::array<unsigned> txt_ids { 3 };
 
   cube::drawer cube {};
 
 public:
   scene_drawer() {
-    txt_ids[0] = tmap.load(t040);
-    txt_ids[1] = tmap.load(t101);
-    txt_ids[2] = tmap.load(t131);
+    unsigned txt_ids[] {
+      tmap.load(t040),
+      tmap.load(t101),
+      tmap.load(t131),
+    };
 
     auto m = cube.map();
     for (auto x = 0; x < 128; x++) {
@@ -50,13 +51,13 @@ public:
 
         m += {
           .pos { x - 64, -2, y },
-          .txtid = static_cast<float>(n),
+          .txtid = static_cast<float>(txt_ids[n]),
         };
       }
     }
     m += {
       .pos { 3, 0, 5 },
-      .txtid = static_cast<float>(0),
+      .txtid = static_cast<float>(txt_ids[0]),
     };
   }
 
