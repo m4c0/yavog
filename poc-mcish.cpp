@@ -30,15 +30,14 @@ static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
 static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
 static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
-struct app_stuff : vinyl::base_app_stuff {
+class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  cube::drawer cube { tmap.dset() };
   hai::array<unsigned> txt_ids { 3 };
 
-  post::pipeline post { dq };
-  ofs::pipeline ofs {};
+  cube::drawer cube {};
 
-  app_stuff() : base_app_stuff { "poc-mcish" } {
+public:
+  scene_drawer() {
     txt_ids[0] = tmap.load(t040);
     txt_ids[1] = tmap.load(t101);
     txt_ids[2] = tmap.load(t131);
@@ -60,6 +59,23 @@ struct app_stuff : vinyl::base_app_stuff {
       .txtid = static_cast<float>(0),
     };
   }
+
+  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
+    cube.faces(cb, pl);
+  }
+  void edges(vee::command_buffer cb) override {
+    cube.edges(cb);
+  }
+};
+
+struct app_stuff : vinyl::base_app_stuff {
+  scene_drawer scene {};
+
+  post::pipeline post { dq };
+  ofs::pipeline ofs {};
+
+  app_stuff() : base_app_stuff { "poc-mcish" } {}
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -107,7 +123,7 @@ extern "C" void casein_init() {
         dotz::vec3 l = sun_vec();
 
         qp.write(timing::ppl_render, cb);
-        vv::as()->ofs.render(cb, &vv::as()->cube, {
+        vv::as()->ofs.render(cb, &vv::as()->scene, {
           .light { l, 0 },
           .aspect = vv::ss()->swc.aspect(),
           .far = g_far_plane,

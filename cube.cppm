@@ -115,20 +115,15 @@ export namespace cube {
   };
 
   class drawer : public ofs::drawer {
-    vee::descriptor_set tmap;
-
     v_buffer cube {};
     i_buffer insts {};
     shadow_v_buffer shdvtx {};
     voo::bound_buffer idx = cube::ix_buffer();
 
   public:
-    explicit drawer(vee::descriptor_set tmap) : tmap { tmap } {}
-
     [[nodiscard]] auto map() { return insts.map(); }
 
     void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-      if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap);
       vee::cmd_bind_vertex_buffers(cb, 0, *cube, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *insts, 0);
       vee::cmd_bind_index_buffer_u16(cb, *idx.buffer);
