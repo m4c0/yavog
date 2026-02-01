@@ -18,6 +18,8 @@ import vinyl;
 import voo;
 import wagen;
 
+#define CUBE_EXAMPLE
+
 using namespace wagen;
 
 static constexpr const auto target_fps = 30.f;
@@ -26,40 +28,13 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
-static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
-static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
-
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
 
   cube::drawer cube {};
 
 public:
-  scene_drawer() {
-    unsigned txt_ids[] {
-      tmap.load(t040),
-      tmap.load(t101),
-      tmap.load(t131),
-    };
-
-    auto m = cube.map();
-    for (auto x = 0; x < 128; x++) {
-      for (auto y = 0; y < 128; y++) {
-        unsigned n = (x + y) % 4;
-        if (n == 3) continue;
-
-        m += {
-          .pos { x - 64, -2, y },
-          .txtid = static_cast<float>(txt_ids[n]),
-        };
-      }
-    }
-    m += {
-      .pos { 3, 0, 5 },
-      .txtid = static_cast<float>(txt_ids[0]),
-    };
-  }
+  scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
@@ -70,10 +45,56 @@ public:
   }
 };
 
+#ifndef CUBE_EXAMPLE
+scene_drawer::scene_drawer() {
+  static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
+  static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
+  static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
+
+  unsigned txt_ids[] {
+    tmap.load(t040),
+    tmap.load(t101),
+    tmap.load(t131),
+  };
+
+  auto m = cube.map();
+  for (auto x = 0; x < 128; x++) {
+    for (auto y = 0; y < 128; y++) {
+      unsigned n = (x + y) % 4;
+      if (n == 3) continue;
+
+      m += {
+        .pos { x - 64, -2, y },
+        .txtid = static_cast<float>(txt_ids[n]),
+      };
+    }
+  }
+  m += {
+    .pos { 3, 0, 5 },
+    .txtid = static_cast<float>(txt_ids[0]),
+  };
+}
+#else
+scene_drawer::scene_drawer() {
+  float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
+
+  auto m = cube.map();
+  m += { .pos { -1,  0, 4 }, .txtid = txt_id };
+  m += { .pos {  1,  0, 4 }, .txtid = txt_id };
+  m += { .pos { -1,  0, 2 }, .txtid = txt_id };
+  m += { .pos {  1,  0, 2 }, .txtid = txt_id };
+  m += { .pos {  0, -1, 3 }, .txtid = txt_id };
+}
+#endif
+
 struct app_stuff : vinyl::base_app_stuff {
   scene_drawer scene {};
 
+#ifndef CUBE_EXAMPLE
   post::pipeline post { dq };
+#else
+  post::pipeline post { dq, false };
+#endif
   ofs::pipeline ofs {};
 
   app_stuff() : base_app_stuff { "poc-mcish" } {}
@@ -131,10 +152,14 @@ extern "C" void casein_init() {
         });
 
         qp.write(timing::ppl_post, cb);
+#ifndef CUBE_EXAMPLE
         vv::as()->post.render(cb, vv::ss()->swc, {
           .fog { 0.4, 0.6, 0.8, 2 },
           .far = g_far_plane,
         });
+#else
+        vv::as()->post.render(cb, vv::ss()->swc, {});
+#endif
       });
     }
     vv::ss()->swc.queue_submit(cb);
@@ -173,4 +198,10 @@ extern "C" void casein_init() {
 
   casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun += 1.0; });
   casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun -= 1.0; });
+
+  casein::handle(casein::KEY_DOWN, casein::K_SPACE, [] {
+    auto [x, y, z] = sun_vec();
+    silog::infof("Sun vector: %-.3f, %-.3f, %-.3f", x, y, z);
+    g_sun_spd = 0;
+  });
 }
