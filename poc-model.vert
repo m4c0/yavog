@@ -2,6 +2,7 @@
 
 layout(push_constant) uniform upc {
   vec2 angles;
+  float explode;
 } pc;
 
 layout(location = 0) in vec4 pos;
@@ -16,7 +17,10 @@ const float near = 0.1;
 void main() {
   float ax = radians(pc.angles.x);
   float ay = radians(pc.angles.y);
-  vec4 p = mat4(
+
+  vec4 p = pos;
+  p += normal * pc.explode;
+  p = mat4(
     cos(ax), 0, sin(ax), 0,
     0, 1, 0, 0,
     -sin(ax), 0, cos(ax), 0,
@@ -26,7 +30,9 @@ void main() {
     0, cos(ay), sin(ay), 0,
     0, -sin(ay), cos(ay), 0,
     0, 0, 0, 1
-  ) * pos + vec4(0, 0, 2, 0);
+  ) * p;
+  p += vec4(0, 0, 2, 0);
+
   gl_Position = mat4(
     f, 0, 0, 0,
     0, f, 0, 0,

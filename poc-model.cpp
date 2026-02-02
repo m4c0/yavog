@@ -16,13 +16,18 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
+struct upc {
+  dotz::vec2 angles;
+  float explode;
+};
+
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer vtx {};
   cube::ix_buffer idx {};
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<dotz::vec2>());
+  vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
 
   vee::gr_pipeline dots_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
@@ -76,6 +81,11 @@ extern "C" void casein_init() {
     if (g_angles.y < -60) g_angles.y = -60;
     if (g_angles.y >  60) g_angles.y =  60;
 
+    upc pc {
+      .angles = g_angles,
+      .explode = 0.1,
+    };
+
     vv::ss()->swc.acquire_next_image();
 
     auto cb = vv::ss()->cb.cb();
@@ -92,7 +102,7 @@ extern "C" void casein_init() {
       }, true };
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
-      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_angles);
+      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
 
