@@ -44,10 +44,10 @@ export namespace cube {
       m += { .pos = vtxes[2], .uv { 0, 0 }, .normal { 0, -1, 0 } };
 
       // Top
-      m += { .pos = vtxes[5], .uv { 1, 1 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[4], .uv { 1, 0 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[1], .uv { 0, 1 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[0], .uv { 0, 0 }, .normal { 0, 1, 0 } };
+      m += { .pos = vtxes[5], .uv { 0, 1 }, .normal { 0, 1, 0 } };
+      m += { .pos = vtxes[4], .uv { 0, 0 }, .normal { 0, 1, 0 } };
+      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal { 0, 1, 0 } };
+      m += { .pos = vtxes[0], .uv { 1, 0 }, .normal { 0, 1, 0 } };
 
       // Left
       m += { .pos = vtxes[7], .uv { 0, 0 }, .normal { -1, 0, 0 } };
