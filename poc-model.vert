@@ -1,7 +1,7 @@
 #version 450
 
 layout(push_constant) uniform upc {
-  float angle;
+  vec2 angles;
 } pc;
 
 layout(location = 0) in vec4 pos;
@@ -14,7 +14,7 @@ const float far = 10;
 const float near = 0.1;
 
 void main() {
-  float a = radians(pc.angle);
+  float a = radians(pc.angles.x);
   vec4 p = mat4(
     cos(a), 0, sin(a), 0,
     0, 1, 0, 0,
