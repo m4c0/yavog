@@ -3,6 +3,7 @@
 layout(push_constant) uniform upc {
   vec2 angles;
   float explode;
+  float uv_mix;
 } pc;
 
 layout(location = 0) in vec4 pos;
@@ -42,6 +43,8 @@ void main() {
   ) * p;
   gl_PointSize = 20;
 
-  //f_colour = vec4(normal * 0.5 + 0.5, 1);
-  f_colour = vec4(uv, 0, 1);
+  f_colour = mix(
+      vec4(normal * 0.5 + 0.5, 1),
+      vec4(uv, 0, 1),
+      pc.uv_mix);
 }

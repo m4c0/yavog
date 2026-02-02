@@ -19,6 +19,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 struct upc {
   dotz::vec2 angles;
   float explode;
+  float uv_mix;
 };
 
 struct app_stuff : vinyl::base_app_stuff {
@@ -125,7 +126,6 @@ extern "C" void casein_init() {
   handle(KEY_DOWN, K_UP,    [] { g_pc.angles.y -= 5; });
   handle(KEY_DOWN, K_DOWN,  [] { g_pc.angles.y += 5; });
 
-  handle(KEY_DOWN, K_SPACE, [] {
-    g_pc.explode = 0.1 - g_pc.explode;
-  });
+  handle(KEY_DOWN, K_SPACE, [] { g_pc.explode = 0.1 - g_pc.explode; });
+  handle(KEY_DOWN, K_U, [] { g_pc.uv_mix = 1 - g_pc.uv_mix; });
 }
