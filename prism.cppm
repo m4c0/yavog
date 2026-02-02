@@ -20,28 +20,28 @@ export namespace prism {
 
       auto s = dotz::sqrt(2.0f) / 2.0f;
 
-      m += { .pos = vtxes[5], .uv { 0, 0 }, .normal {  0,  0, -1 } };
-      m += { .pos = vtxes[3], .uv { 0, 0 }, .normal {  0,  0, -1 } };
+      m += { .pos = vtxes[5], .uv { 1, 0 }, .normal {  0,  0, -1 } };
+      m += { .pos = vtxes[3], .uv { 1, 1 }, .normal {  0,  0, -1 } };
       m += { .pos = vtxes[1], .uv { 0, 0 }, .normal {  0,  0, -1 } };
 
-      m += { .pos = vtxes[0], .uv { 0, 0 }, .normal {  0,  0,  1 } };
-      m += { .pos = vtxes[2], .uv { 0, 0 }, .normal {  0,  0,  1 } };
+      m += { .pos = vtxes[0], .uv { 1, 0 }, .normal {  0,  0,  1 } };
+      m += { .pos = vtxes[2], .uv { 0, 1 }, .normal {  0,  0,  1 } };
       m += { .pos = vtxes[4], .uv { 0, 0 }, .normal {  0,  0,  1 } };
 
-      m += { .pos = vtxes[2], .uv { 0, 0 }, .normal { -1,  0,  0 } };
-      m += { .pos = vtxes[3], .uv { 0, 0 }, .normal { -1,  0,  0 } };
+      m += { .pos = vtxes[2], .uv { 0, 1 }, .normal { -1,  0,  0 } };
+      m += { .pos = vtxes[3], .uv { 1, 1 }, .normal { -1,  0,  0 } };
       m += { .pos = vtxes[4], .uv { 0, 0 }, .normal { -1,  0,  0 } };
-      m += { .pos = vtxes[5], .uv { 0, 0 }, .normal { -1,  0,  0 } };
+      m += { .pos = vtxes[5], .uv { 1, 0 }, .normal { -1,  0,  0 } };
 
-      m += { .pos = vtxes[0], .uv { 0, 0 }, .normal {  0, -1,  0 } };
-      m += { .pos = vtxes[1], .uv { 0, 0 }, .normal {  0, -1,  0 } };
+      m += { .pos = vtxes[0], .uv { 1, 0 }, .normal {  0, -1,  0 } };
+      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal {  0, -1,  0 } };
       m += { .pos = vtxes[4], .uv { 0, 0 }, .normal {  0, -1,  0 } };
-      m += { .pos = vtxes[5], .uv { 0, 0 }, .normal {  0, -1,  0 } };
+      m += { .pos = vtxes[5], .uv { 0, 1 }, .normal {  0, -1,  0 } };
 
-      m += { .pos = vtxes[0], .uv { 0, 0 }, .normal {  s,  s,  0 } };
-      m += { .pos = vtxes[1], .uv { 0, 0 }, .normal {  s,  s,  0 } };
+      m += { .pos = vtxes[0], .uv { 1, 0 }, .normal {  s,  s,  0 } };
+      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal {  s,  s,  0 } };
       m += { .pos = vtxes[2], .uv { 0, 0 }, .normal {  s,  s,  0 } };
-      m += { .pos = vtxes[3], .uv { 0, 0 }, .normal {  s,  s,  0 } };
+      m += { .pos = vtxes[3], .uv { 0, 1 }, .normal {  s,  s,  0 } };
     }
   };
 
