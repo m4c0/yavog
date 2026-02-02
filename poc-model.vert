@@ -23,14 +23,14 @@ void main() {
   vec4 p = pos;
   p += vec4(normal * pc.explode, 0);
   p = mat4(
-    cos(ax), 0, sin(ax), 0,
-    0, 1, 0, 0,
-    -sin(ax), 0, cos(ax), 0,
-    0, 0, 0, 1
-  ) * mat4(
     1, 0, 0, 0,
     0, cos(ay), sin(ay), 0,
     0, -sin(ay), cos(ay), 0,
+    0, 0, 0, 1
+  ) * mat4(
+    cos(ax), 0, sin(ax), 0,
+    0, 1, 0, 0,
+    -sin(ax), 0, cos(ax), 0,
     0, 0, 0, 1
   ) * p;
   p += vec4(0, 0, 2, 0);
