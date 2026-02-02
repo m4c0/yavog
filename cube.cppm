@@ -6,8 +6,6 @@ import no;
 import traits;
 import voo;
 
-using namespace traits::ints;
-
 constexpr dotz::vec4 vtxes[] {
   {  0.5,  0.5,  0.5, 1.0 }, // 0
   {  0.5,  0.5, -0.5, 1.0 }, // 1
@@ -21,8 +19,8 @@ constexpr dotz::vec4 vtxes[] {
 };
 
 export namespace cube {
-  struct v_buffer : public clay::buffer<ofs::vtx>, no::no {
-    v_buffer() : clay::buffer<ofs::vtx> { 36 } {
+  struct v_buffer : public ofs::v_buffer {
+    v_buffer() : ofs::v_buffer { 36 } {
       auto m = map();
 
       // Front
@@ -63,9 +61,8 @@ export namespace cube {
     }
   };
 
-  struct tri { uint16_t x[3]; };
-  struct ix_buffer : clay::ix_buffer<tri> {
-    ix_buffer() : clay::ix_buffer<tri> { 12 } {
+  struct ix_buffer : ofs::ix_buffer {
+    ix_buffer() : ofs::ix_buffer { 12 } {
       auto m = map();
       m += {{  0,  1,  2 }}; m += {{  3,  2,  1 }}; // Front
       m += {{  4,  5,  6 }}; m += {{  7,  6,  5 }}; // Back
@@ -74,13 +71,10 @@ export namespace cube {
       m += {{ 16, 17, 18 }}; m += {{ 19, 18, 17 }}; // Left
       m += {{ 20, 21, 22 }}; m += {{ 23, 22, 21 }}; // Right
     }
-    [[nodiscard]] int count() const {
-      return clay::ix_buffer<tri>::count() * 3;
-    }
   };
 
-  struct shadow_v_buffer : public clay::buffer<ofs::edge>, no::no {
-    shadow_v_buffer() : clay::buffer<ofs::edge> { 36 } {
+  struct shadow_v_buffer : public ofs::e_buffer {
+    shadow_v_buffer() : e_buffer { 36 } {
       auto m = map();
 
       const auto tri = [&](ofs::edge e) {

@@ -15,6 +15,7 @@ import texmap;
 import traits;
 import voo;
 
+using namespace traits::ints;
 using namespace wagen;
 
 namespace ofs {
@@ -39,6 +40,22 @@ namespace ofs {
     float aspect;
     float fov = 90;
     float far;
+  };
+
+  export struct v_buffer : public clay::buffer<vtx>, no::no {
+    using clay::buffer<vtx>::buffer;
+  };
+  export struct e_buffer : public clay::buffer<edge>, no::no {
+    using clay::buffer<edge>::buffer;
+  };
+
+  export struct tri { uint16_t x[3]; };
+  export struct ix_buffer : clay::ix_buffer<tri> {
+    using clay::ix_buffer<tri>::ix_buffer;
+
+    [[nodiscard]] int count() const {
+      return clay::ix_buffer<tri>::count() * 3;
+    }
   };
 
   struct colour : no::no {
