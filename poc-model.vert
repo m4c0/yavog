@@ -5,6 +5,9 @@ layout(push_constant) uniform upc {
 } pc;
 
 layout(location = 0) in vec4 pos;
+layout(location = 1) in vec4 normal;
+
+layout(location = 0) out vec4 f_normal;
 
 const float f = 1.0 / tan(radians(90) / 2.0);
 const float far = 10;
@@ -25,4 +28,5 @@ void main() {
     0, 0, -(far * near) / (far - near), 0
   ) * p;
   gl_PointSize = 20;
+  f_normal = normal;
 }
