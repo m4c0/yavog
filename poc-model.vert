@@ -35,6 +35,7 @@ void main() {
   ) * p;
   p += vec4(0, 0, 2, 0);
 
+  p.xy *= -1;
   gl_Position = mat4(
     f, 0, 0, 0,
     0, f, 0, 0,
