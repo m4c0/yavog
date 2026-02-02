@@ -33,7 +33,7 @@ struct app_stuff : vinyl::base_app_stuff {
   vee::gr_pipeline dots_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *rp,
-    .topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    .polygon_mode = VK_POLYGON_MODE_LINE,
     .shaders {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
@@ -107,8 +107,12 @@ extern "C" void casein_init() {
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->faces_ppl);
       vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 
+      upc pc = g_pc;
+      pc.explode *= 0.3;
+      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
+
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->dots_ppl);
-      vee::cmd_draw(cb, vv::as()->vtx.count());
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
     }
 
     vv::ss()->swc.queue_submit(cb);
