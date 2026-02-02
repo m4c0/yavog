@@ -6,9 +6,9 @@ layout(push_constant) uniform upc {
 } pc;
 
 layout(location = 0) in vec4 pos;
-layout(location = 1) in vec4 normal;
+layout(location = 1) in vec3 normal;
 
-layout(location = 0) out vec4 f_normal;
+layout(location = 0) out vec4 f_colour;
 
 const float f = 1.0 / tan(radians(90) / 2.0);
 const float far = 10;
@@ -19,7 +19,7 @@ void main() {
   float ay = radians(pc.angles.y);
 
   vec4 p = pos;
-  p += normal * pc.explode;
+  p += vec4(normal * pc.explode, 0);
   p = mat4(
     cos(ax), 0, sin(ax), 0,
     0, 1, 0, 0,
@@ -40,5 +40,6 @@ void main() {
     0, 0, -(far * near) / (far - near), 0
   ) * p;
   gl_PointSize = 20;
-  f_normal = normal;
+
+  f_colour = vec4(normal * 0.5 + 0.5, 1);
 }
