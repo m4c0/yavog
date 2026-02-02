@@ -14,11 +14,17 @@ const float far = 10;
 const float near = 0.1;
 
 void main() {
-  float a = radians(pc.angles.x);
+  float ax = radians(pc.angles.x);
+  float ay = radians(pc.angles.y);
   vec4 p = mat4(
-    cos(a), 0, sin(a), 0,
+    cos(ax), 0, sin(ax), 0,
     0, 1, 0, 0,
-    -sin(a), 0, cos(a), 0,
+    -sin(ax), 0, cos(ax), 0,
+    0, 0, 0, 1
+  ) * mat4(
+    1, 0, 0, 0,
+    0, cos(ay), sin(ay), 0,
+    0, -sin(ay), cos(ay), 0,
     0, 0, 0, 1
   ) * pos + vec4(0, 0, 2, 0);
   gl_Position = mat4(
