@@ -11,6 +11,9 @@ import sitime;
 import traits;
 import vinyl;
 import voo;
+import wagen;
+
+using namespace wagen;
 
 struct app_stuff;
 struct ext_stuff;
@@ -22,7 +25,21 @@ struct upc {
   float uv_mix;
 };
 
-struct app_stuff : vinyl::base_app_stuff {
+static inline auto create_dq() {
+  auto nxt = vee::physical_device_extended_dynamic_state({
+    .extendedDynamicState3PolygonMode = true,
+  });
+  return voo::device_and_queue { "poc-model", casein::native_ptr, {
+    .feats {
+      .fillModeNonSolid = true,
+      .samplerAnisotropy = true,
+    },
+    .next = &nxt,
+  }};
+}
+
+struct app_stuff {
+  voo::device_and_queue dq = create_dq();
   cube::v_buffer vtx {};
   cube::ix_buffer idx {};
 
@@ -33,7 +50,7 @@ struct app_stuff : vinyl::base_app_stuff {
   vee::gr_pipeline dots_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *rp,
-    .polygon_mode = VK_POLYGON_MODE_LINE,
+    .polygon_mode = VK_POLYGON_MODE_POINT,
     .shaders {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
@@ -50,6 +67,7 @@ struct app_stuff : vinyl::base_app_stuff {
   vee::gr_pipeline faces_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *rp,
+    .polygon_mode = vee::dynamic_polygon_mode,
     .shaders {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
@@ -63,8 +81,6 @@ struct app_stuff : vinyl::base_app_stuff {
       vee::vertex_attribute_vec2(0, traits::offset_of(&ofs::vtx::uv)),
     },
   });
-
-  app_stuff() : base_app_stuff { "poc-model" } {}
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -103,13 +119,16 @@ extern "C" void casein_init() {
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
-
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->faces_ppl);
+
+      vkCmdSetPolygonModeEXT(cb, VK_POLYGON_MODE_FILL);
       vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 
       upc pc = g_pc;
       pc.explode *= 0.3;
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
+      vkCmdSetPolygonModeEXT(cb, VK_POLYGON_MODE_LINE);
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->dots_ppl);
       vee::cmd_draw_indexed(cb, vv::as()->idx.count());
@@ -132,4 +151,6 @@ extern "C" void casein_init() {
 
   handle(KEY_DOWN, K_SPACE, [] { g_pc.explode = 0.1 - g_pc.explode; });
   handle(KEY_DOWN, K_U, [] { g_pc.uv_mix = 1 - g_pc.uv_mix; });
+
+  window_title = "poc-model";
 }
