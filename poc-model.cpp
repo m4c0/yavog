@@ -71,20 +71,15 @@ struct ext_stuff {
   ext_stuff() {}
 };
 
-static dotz::vec2 g_angles {};
+static upc g_pc {};
 extern "C" void casein_init() {
   casein::window_size = { 600, 600 };
 
   vv::setup([] {
     auto ext = vv::ss()->swc.extent();
 
-    if (g_angles.y < -60) g_angles.y = -60;
-    if (g_angles.y >  60) g_angles.y =  60;
-
-    upc pc {
-      .angles = g_angles,
-      .explode = 0.1,
-    };
+    if (g_pc.angles.y < -60) g_pc.angles.y = -60;
+    if (g_pc.angles.y >  60) g_pc.angles.y =  60;
 
     vv::ss()->swc.acquire_next_image();
 
@@ -102,7 +97,7 @@ extern "C" void casein_init() {
       }, true };
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
-      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
+      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
       vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
 
@@ -118,13 +113,17 @@ extern "C" void casein_init() {
   });
 
   using namespace casein;
-  handle(KEY_DOWN, K_A, [] { g_angles.x -= 10; });
-  handle(KEY_DOWN, K_D, [] { g_angles.x += 10; });
-  handle(KEY_DOWN, K_W, [] { g_angles.y -= 5; });
-  handle(KEY_DOWN, K_S, [] { g_angles.y += 5; });
+  handle(KEY_DOWN, K_A, [] { g_pc.angles.x -= 10; });
+  handle(KEY_DOWN, K_D, [] { g_pc.angles.x += 10; });
+  handle(KEY_DOWN, K_W, [] { g_pc.angles.y -= 5; });
+  handle(KEY_DOWN, K_S, [] { g_pc.angles.y += 5; });
 
-  handle(KEY_DOWN, K_LEFT,  [] { g_angles.x -= 10; });
-  handle(KEY_DOWN, K_RIGHT, [] { g_angles.x += 10; });
-  handle(KEY_DOWN, K_UP,    [] { g_angles.y -= 5; });
-  handle(KEY_DOWN, K_DOWN,  [] { g_angles.y += 5; });
+  handle(KEY_DOWN, K_LEFT,  [] { g_pc.angles.x -= 10; });
+  handle(KEY_DOWN, K_RIGHT, [] { g_pc.angles.x += 10; });
+  handle(KEY_DOWN, K_UP,    [] { g_pc.angles.y -= 5; });
+  handle(KEY_DOWN, K_DOWN,  [] { g_pc.angles.y += 5; });
+
+  handle(KEY_DOWN, K_SPACE, [] {
+    g_pc.explode = 0.1 - g_pc.explode;
+  });
 }
