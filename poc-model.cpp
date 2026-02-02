@@ -112,4 +112,9 @@ extern "C" void casein_init() {
   handle(KEY_DOWN, K_D, [] { g_angles.x += 10; });
   handle(KEY_DOWN, K_W, [] { g_angles.y -= 5; });
   handle(KEY_DOWN, K_S, [] { g_angles.y += 5; });
+
+  handle(KEY_DOWN, K_LEFT,  [] { g_angles.x -= 10; });
+  handle(KEY_DOWN, K_RIGHT, [] { g_angles.x += 10; });
+  handle(KEY_DOWN, K_UP,    [] { g_angles.y -= 5; });
+  handle(KEY_DOWN, K_DOWN,  [] { g_angles.y += 5; });
 }
