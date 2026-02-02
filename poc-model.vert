@@ -43,8 +43,9 @@ void main() {
   ) * p;
   gl_PointSize = 20;
 
+  vec3 sign_normal = mix(vec3(0.3), vec3(1.0), step(0, normal));
   f_colour = mix(
-      vec4(normal * 0.5 + 0.5, 1),
+      vec4(abs(normal) * sign_normal, 1),
       vec4(uv, 0, 1),
       pc.uv_mix);
 }
