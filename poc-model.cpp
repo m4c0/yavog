@@ -149,7 +149,7 @@ extern "C" void casein_init() {
   handle(KEY_DOWN, K_UP,    [] { g_pc.angles.y -= 5; });
   handle(KEY_DOWN, K_DOWN,  [] { g_pc.angles.y += 5; });
 
-  handle(KEY_DOWN, K_SPACE, [] { g_pc.explode = 0.1 - g_pc.explode; });
+  handle(KEY_DOWN, K_SPACE, [] { g_pc.explode = 0.2 - g_pc.explode; });
   handle(KEY_DOWN, K_U, [] { g_pc.uv_mix = 1 - g_pc.uv_mix; });
 
   window_title = "poc-model";
