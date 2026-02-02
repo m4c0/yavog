@@ -7,6 +7,7 @@ layout(push_constant) uniform upc {
 
 layout(location = 0) in vec4 pos;
 layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 uv;
 
 layout(location = 0) out vec4 f_colour;
 
@@ -41,5 +42,6 @@ void main() {
   ) * p;
   gl_PointSize = 20;
 
-  f_colour = vec4(normal * 0.5 + 0.5, 1);
+  //f_colour = vec4(normal * 0.5 + 0.5, 1);
+  f_colour = vec4(uv, 0, 1);
 }
