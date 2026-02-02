@@ -7,6 +7,7 @@ import cube;
 import dotz;
 import hai;
 import ofs;
+import prism;
 import sitime;
 import traits;
 import vinyl;
@@ -40,8 +41,8 @@ static inline auto create_dq() {
 
 struct app_stuff {
   voo::device_and_queue dq = create_dq();
-  cube::v_buffer vtx {};
-  cube::ix_buffer idx {};
+  prism::v_buffer vtx {};
+  prism::ix_buffer idx {};
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
