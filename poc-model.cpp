@@ -17,7 +17,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct app_stuff : vinyl::base_app_stuff {
-  cube::drawer cube {};
+  cube::v_buffer vtx {};
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
@@ -31,19 +31,14 @@ struct app_stuff : vinyl::base_app_stuff {
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
     .bindings {
-      vee::vertex_input_bind(sizeof(dotz::vec4)),
+      vee::vertex_input_bind(sizeof(ofs::vtx)),
     },
     .attributes {
-      vee::vertex_attribute_vec4(0, 0),
+      vee::vertex_attribute_vec4(0, traits::offset_of(&ofs::vtx::pos)),
     },
   });
 
-  clay::buffer<dotz::vec4> vtx { 8 };
-
-  app_stuff() : base_app_stuff { "poc-model" } {
-    auto m = vtx.map();
-    for (auto v : cube::vtxes) m += v;
-  }
+  app_stuff() : base_app_stuff { "poc-model" } {}
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -80,7 +75,7 @@ extern "C" void casein_init() {
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &angle);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
-      vee::cmd_draw(cb, 8);
+      vee::cmd_draw(cb, vv::as()->vtx.count());
     }
 
     vv::ss()->swc.queue_submit(cb);
