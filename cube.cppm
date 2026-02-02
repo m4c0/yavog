@@ -74,6 +74,9 @@ export namespace cube {
       m += {{ 16, 17, 18 }}; m += {{ 19, 18, 17 }}; // Left
       m += {{ 20, 21, 22 }}; m += {{ 23, 22, 21 }}; // Right
     }
+    [[nodiscard]] int count() const {
+      return clay::ix_buffer<tri>::count() * 3;
+    }
   };
 
   struct shadow_v_buffer : public clay::buffer<ofs::edge>, no::no {

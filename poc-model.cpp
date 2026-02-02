@@ -18,14 +18,30 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct app_stuff : vinyl::base_app_stuff {
   cube::v_buffer vtx {};
+  cube::ix_buffer idx {};
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
   vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<float>());
-  vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+
+  vee::gr_pipeline dots_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *rp,
     .topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    .shaders {
+      voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
+      voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
+    },
+    .bindings {
+      vee::vertex_input_bind(sizeof(ofs::vtx)),
+    },
+    .attributes {
+      vee::vertex_attribute_vec4(0, traits::offset_of(&ofs::vtx::pos)),
+    },
+  });
+  vee::gr_pipeline faces_ppl = vee::create_graphics_pipeline({
+    .pipeline_layout = *pl,
+    .render_pass = *rp,
     .shaders {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
@@ -54,7 +70,7 @@ extern "C" void casein_init() {
 
   vv::setup([] {
     auto ext = vv::ss()->swc.extent();
-    auto angle = g_tt.secs() * 10;
+    auto angle = g_tt.secs() * 40;
 
     vv::ss()->swc.acquire_next_image();
 
@@ -72,10 +88,16 @@ extern "C" void casein_init() {
       }, true };
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
-      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &angle);
       vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
+      vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
+
+      vee::cmd_bind_gr_pipeline(cb, *vv::as()->faces_ppl);
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
+
+      vee::cmd_bind_gr_pipeline(cb, *vv::as()->dots_ppl);
       vee::cmd_draw(cb, vv::as()->vtx.count());
+
     }
 
     vv::ss()->swc.queue_submit(cb);
