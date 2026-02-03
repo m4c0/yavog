@@ -108,11 +108,11 @@ namespace ofs {
     i_buffer ins;
 
     template<typename T>
-    explicit buffers(T) :
+    explicit buffers(T, unsigned i_count) :
       vtx { T::vtx, T::pos }
     , idx { T::tri }
     , edg { T {}, T::edg }
-    , ins { 128 * 128 * 2 }
+    , ins { i_count }
     {}
 
     [[nodiscard]] auto map() { return ins.map(); }

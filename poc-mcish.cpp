@@ -19,7 +19,7 @@ import vinyl;
 import voo;
 import wagen;
 
-#define CUBE_EXAMPLE
+//#define CUBE_EXAMPLE
 
 using namespace wagen;
 
@@ -31,8 +31,8 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  ofs::buffers cube { cube::t {} };
-  ofs::buffers prism { prism::t {} };
+  ofs::buffers cube { cube::t {}, 128 * 128 * 2 };
+  ofs::buffers prism { prism::t {}, 16 };
 
 public:
   scene_drawer();
