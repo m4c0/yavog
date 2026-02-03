@@ -75,28 +75,4 @@ export namespace cube {
     static constexpr const auto & tri = ::tri;
     static constexpr const auto & edg = ::edg;
   };
-
-  class drawer : public ofs::drawer {
-    ofs::buffers bufs { cube::t {} };
-
-  public:
-    [[nodiscard]] auto map() { return bufs.ins.map(); }
-
-    void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-      vee::cmd_bind_vertex_buffers(cb, 0, *bufs.vtx, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *bufs.ins, 0);
-      vee::cmd_bind_index_buffer_u16(cb, *bufs.idx);
-      vee::cmd_draw_indexed(cb, {
-        .xcount = bufs.idx.count(),
-        .icount = bufs.ins.count(),
-      });
-    }
-    void edges(vee::command_buffer cb) override {
-      vee::cmd_bind_vertex_buffers(cb, 0, *bufs.edg, 0);
-      vee::cmd_draw(cb, {
-        .vcount = bufs.edg.count(),
-        .icount = bufs.ins.count(),
-      });
-    }
-  };
 }

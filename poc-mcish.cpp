@@ -30,8 +30,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-
-  cube::drawer cube {};
+  ofs::buffers cube { cube::t {} };
 
 public:
   scene_drawer();

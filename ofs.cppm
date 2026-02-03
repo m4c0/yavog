@@ -96,7 +96,12 @@ namespace ofs {
   export struct i_buffer : clay::buffer<ofs::inst>, no::no {
     using clay::buffer<ofs::inst>::buffer;
   };
-  export struct buffers {
+
+  export struct drawer {
+    virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
+    virtual void edges(VkCommandBuffer cb) = 0;
+  };
+  export struct buffers : drawer {
     v_buffer vtx;
     ix_buffer idx;
     e_buffer edg;
@@ -109,6 +114,25 @@ namespace ofs {
     , edg { T {}, T::edg }
     , ins { 128 * 128 * 2 }
     {}
+
+    [[nodiscard]] auto map() { return ins.map(); }
+
+    void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+      vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
+      vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
+      vee::cmd_bind_index_buffer_u16(cb, *idx);
+      vee::cmd_draw_indexed(cb, {
+        .xcount = idx.count(),
+        .icount = ins.count(),
+      });
+    }
+    void edges(vee::command_buffer cb) override {
+      vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
+      vee::cmd_draw(cb, {
+        .vcount = edg.count(),
+        .icount = ins.count(),
+      });
+    }
   };
 
   struct colour : no::no {
@@ -234,10 +258,6 @@ namespace ofs {
 }
 
 namespace ofs {
-  export struct drawer {
-    virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
-    virtual void edges(VkCommandBuffer cb) = 0;
-  };
   export class pipeline {
     colour m_clr {};
     shadow m_shd {};
