@@ -76,35 +76,26 @@ export namespace cube {
     static constexpr const auto & edg = ::edg;
   };
 
-  struct shadow_v_buffer : public ofs::e_buffer {
-  };
-
-  struct i_buffer : clay::buffer<ofs::inst>, no::no {
-    i_buffer() : clay::buffer<ofs::inst> { 128 * 128 * 2} {
-    }
-  };
-
   class drawer : public ofs::drawer {
     ofs::buffers bufs { cube::t {} };
-    i_buffer insts {};
 
   public:
-    [[nodiscard]] auto map() { return insts.map(); }
+    [[nodiscard]] auto map() { return bufs.ins.map(); }
 
     void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
       vee::cmd_bind_vertex_buffers(cb, 0, *bufs.vtx, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *insts, 0);
+      vee::cmd_bind_vertex_buffers(cb, 1, *bufs.ins, 0);
       vee::cmd_bind_index_buffer_u16(cb, *bufs.idx);
       vee::cmd_draw_indexed(cb, {
-        .xcount = 36,
-        .icount = insts.count(),
+        .xcount = bufs.idx.count(),
+        .icount = bufs.ins.count(),
       });
     }
     void edges(vee::command_buffer cb) override {
       vee::cmd_bind_vertex_buffers(cb, 0, *bufs.edg, 0);
       vee::cmd_draw(cb, {
-        .vcount = 36,
-        .icount = insts.count(),
+        .vcount = bufs.edg.count(),
+        .icount = bufs.ins.count(),
       });
     }
   };

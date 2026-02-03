@@ -93,16 +93,21 @@ namespace ofs {
       }
     }
   };
+  export struct i_buffer : clay::buffer<ofs::inst>, no::no {
+    using clay::buffer<ofs::inst>::buffer;
+  };
   export struct buffers {
     v_buffer vtx;
     ix_buffer idx;
     e_buffer edg;
+    i_buffer ins;
 
     template<typename T>
     explicit buffers(T) :
       vtx { T::vtx, T::pos }
     , idx { T::tri }
     , edg { T {}, T::edg }
+    , ins { 128 * 128 * 2 }
     {}
   };
 
