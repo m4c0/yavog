@@ -49,17 +49,11 @@ constexpr const models::tri tri[] {
 
 export namespace prism {
   struct v_buffer : ofs::v_buffer {
-    v_buffer() : ofs::v_buffer { 36 } {
-      auto m = map();
-      for (auto v : vtx) m += { .pos = vtx_pos[v.id], .uv = v.uv, .normal = v.normal };
-    }
+    v_buffer() : ofs::v_buffer { vtx, vtx_pos } {}
   };
 
   struct ix_buffer : ofs::ix_buffer {
-    ix_buffer() : ofs::ix_buffer { 36 } {
-      auto m = map();
-      for (auto [a, b, c] : tri) m += {{ a, b, c }};
-    }
+    ix_buffer() : ofs::ix_buffer { tri } {}
   };
 
   struct e_buffer : public ofs::e_buffer {

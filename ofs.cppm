@@ -11,6 +11,7 @@
 export module ofs;
 import :common;
 import hai;
+import models;
 import texmap;
 import traits;
 import voo;
@@ -43,8 +44,22 @@ namespace ofs {
   };
 
   export struct v_buffer : public clay::buffer<vtx>, no::no {
-    using clay::buffer<vtx>::buffer;
+    template<unsigned N, unsigned M>
+    v_buffer(const models::vtx (&vtx)[N], const dotz::vec4 (&pos)[M]) : buffer { N } {
+      auto m = map();
+      for (auto v : vtx) m += { .pos = pos[v.id], .uv = v.uv, .normal = v.normal };
+    }
   };
+  export struct ix_buffer : clay::ix_buffer<uint16_t> {
+    template<unsigned N>
+    ix_buffer(const models::tri (&tri)[N]) : clay::ix_buffer<uint16_t> { N * 3 } {
+      auto m = map();
+      for (auto [a, b, c] : tri) {
+        m += a; m += b; m += c;
+      };
+    }
+  };
+
   export struct e_buffer : public clay::buffer<edge>, no::no {
     using clay::buffer<edge>::buffer;
 
@@ -52,15 +67,6 @@ namespace ofs {
       m += {};
       e.nrm_a.w = 1; m += e;
       e.nrm_a.w = 2; m += e;
-    }
-  };
-
-  export struct tri { uint16_t x[3]; };
-  export struct ix_buffer : clay::ix_buffer<tri> {
-    using clay::ix_buffer<tri>::ix_buffer;
-
-    [[nodiscard]] int count() const {
-      return clay::ix_buffer<tri>::count() * 3;
     }
   };
 
