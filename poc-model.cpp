@@ -41,8 +41,8 @@ static inline auto create_dq() {
 
 struct app_stuff {
   voo::device_and_queue dq = create_dq();
-  prism::v_buffer vtx {};
-  prism::ix_buffer idx {};
+  cube::v_buffer vtx {};
+  cube::ix_buffer idx {};
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 

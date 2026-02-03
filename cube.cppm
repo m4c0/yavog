@@ -1,12 +1,13 @@
 export module cube;
 import dotz;
 import clay;
-import ofs;
+import models;
 import no;
+import ofs;
 import traits;
 import voo;
 
-constexpr dotz::vec4 vtxes[] {
+constexpr const dotz::vec4 vtx_pos[] {
   {  0.5,  0.5,  0.5, 1.0 }, // 0
   {  0.5,  0.5, -0.5, 1.0 }, // 1
   {  0.5, -0.5,  0.5, 1.0 }, // 2
@@ -17,59 +18,63 @@ constexpr dotz::vec4 vtxes[] {
   { -0.5, -0.5,  0.5, 1.0 }, // 6
   { -0.5, -0.5, -0.5, 1.0 }, // 7
 };
+constexpr const models::vtx vtx[] {
+  { .id = 6, .uv { 1, 0 }, .normal { 0, 0, 1 } },
+  { .id = 2, .uv { 0, 0 }, .normal { 0, 0, 1 } },
+  { .id = 4, .uv { 1, 1 }, .normal { 0, 0, 1 } },
+  { .id = 0, .uv { 0, 1 }, .normal { 0, 0, 1 } },
+
+  // Back
+  { .id = 7, .uv { 0, 0 }, .normal { 0, 0, -1 } },
+  { .id = 5, .uv { 0, 1 }, .normal { 0, 0, -1 } },
+  { .id = 3, .uv { 1, 0 }, .normal { 0, 0, -1 } },
+  { .id = 1, .uv { 1, 1 }, .normal { 0, 0, -1 } },
+
+  // Bottom
+  { .id = 7, .uv { 1, 1 }, .normal { 0, -1, 0 } },
+  { .id = 3, .uv { 0, 1 }, .normal { 0, -1, 0 } },
+  { .id = 6, .uv { 1, 0 }, .normal { 0, -1, 0 } },
+  { .id = 2, .uv { 0, 0 }, .normal { 0, -1, 0 } },
+
+  // Top
+  { .id = 5, .uv { 0, 1 }, .normal { 0, 1, 0 } },
+  { .id = 4, .uv { 0, 0 }, .normal { 0, 1, 0 } },
+  { .id = 1, .uv { 1, 1 }, .normal { 0, 1, 0 } },
+  { .id = 0, .uv { 1, 0 }, .normal { 0, 1, 0 } },
+
+  // Left
+  { .id = 7, .uv { 0, 0 }, .normal { -1, 0, 0 } },
+  { .id = 6, .uv { 1, 0 }, .normal { -1, 0, 0 } },
+  { .id = 5, .uv { 0, 1 }, .normal { -1, 0, 0 } },
+  { .id = 4, .uv { 1, 1 }, .normal { -1, 0, 0 } },
+
+  // Right
+  { .id = 3, .uv { 1, 0 }, .normal { 1, 0, 0 } },
+  { .id = 1, .uv { 1, 1 }, .normal { 1, 0, 0 } },
+  { .id = 2, .uv { 0, 0 }, .normal { 1, 0, 0 } },
+  { .id = 0, .uv { 0, 1 }, .normal { 1, 0, 0 } },
+};
+constexpr const models::tri tri[] {
+  {  0,  1,  2 }, {  3,  2,  1 }, // Front
+  {  4,  5,  6 }, {  7,  6,  5 }, // Back
+  {  8,  9, 10 }, { 11, 10,  9 }, // Bottom
+  { 12, 13, 14 }, { 15, 14, 13 }, // Top
+  { 16, 17, 18 }, { 19, 18, 17 }, // Left
+  { 20, 21, 22 }, { 23, 22, 21 }, // Right
+};
 
 export namespace cube {
   struct v_buffer : public ofs::v_buffer {
     v_buffer() : ofs::v_buffer { 36 } {
       auto m = map();
-
-      // Front
-      m += { .pos = vtxes[6], .uv { 1, 0 }, .normal { 0, 0, 1 } };
-      m += { .pos = vtxes[2], .uv { 0, 0 }, .normal { 0, 0, 1 } };
-      m += { .pos = vtxes[4], .uv { 1, 1 }, .normal { 0, 0, 1 } };
-      m += { .pos = vtxes[0], .uv { 0, 1 }, .normal { 0, 0, 1 } };
-
-      // Back
-      m += { .pos = vtxes[7], .uv { 0, 0 }, .normal { 0, 0, -1 } };
-      m += { .pos = vtxes[5], .uv { 0, 1 }, .normal { 0, 0, -1 } };
-      m += { .pos = vtxes[3], .uv { 1, 0 }, .normal { 0, 0, -1 } };
-      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal { 0, 0, -1 } };
-
-      // Bottom
-      m += { .pos = vtxes[7], .uv { 1, 1 }, .normal { 0, -1, 0 } };
-      m += { .pos = vtxes[3], .uv { 0, 1 }, .normal { 0, -1, 0 } };
-      m += { .pos = vtxes[6], .uv { 1, 0 }, .normal { 0, -1, 0 } };
-      m += { .pos = vtxes[2], .uv { 0, 0 }, .normal { 0, -1, 0 } };
-
-      // Top
-      m += { .pos = vtxes[5], .uv { 0, 1 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[4], .uv { 0, 0 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal { 0, 1, 0 } };
-      m += { .pos = vtxes[0], .uv { 1, 0 }, .normal { 0, 1, 0 } };
-
-      // Left
-      m += { .pos = vtxes[7], .uv { 0, 0 }, .normal { -1, 0, 0 } };
-      m += { .pos = vtxes[6], .uv { 1, 0 }, .normal { -1, 0, 0 } };
-      m += { .pos = vtxes[5], .uv { 0, 1 }, .normal { -1, 0, 0 } };
-      m += { .pos = vtxes[4], .uv { 1, 1 }, .normal { -1, 0, 0 } };
-
-      // Right
-      m += { .pos = vtxes[3], .uv { 1, 0 }, .normal { 1, 0, 0 } };
-      m += { .pos = vtxes[1], .uv { 1, 1 }, .normal { 1, 0, 0 } };
-      m += { .pos = vtxes[2], .uv { 0, 0 }, .normal { 1, 0, 0 } };
-      m += { .pos = vtxes[0], .uv { 0, 1 }, .normal { 1, 0, 0 } };
+      for (auto v : vtx) m += { .pos = vtx_pos[v.id], .uv = v.uv, .normal = v.normal };
     }
   };
 
   struct ix_buffer : ofs::ix_buffer {
     ix_buffer() : ofs::ix_buffer { 12 } {
       auto m = map();
-      m += {{  0,  1,  2 }}; m += {{  3,  2,  1 }}; // Front
-      m += {{  4,  5,  6 }}; m += {{  7,  6,  5 }}; // Back
-      m += {{  8,  9, 10 }}; m += {{ 11, 10,  9 }}; // Bottom
-      m += {{ 12, 13, 14 }}; m += {{ 15, 14, 13 }}; // Top
-      m += {{ 16, 17, 18 }}; m += {{ 19, 18, 17 }}; // Left
-      m += {{ 20, 21, 22 }}; m += {{ 23, 22, 21 }}; // Right
+      for (auto [a, b, c] : tri) m += {{ a, b, c }};
     }
   };
 
@@ -77,21 +82,21 @@ export namespace cube {
     shadow_v_buffer() : e_buffer { 36 } {
       auto m = map();
 
-      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtxes[6], vtxes[4] });
-      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtxes[0], vtxes[2] });
-      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtxes[2], vtxes[6] });
-      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtxes[4], vtxes[0] });
+      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtx_pos[6], vtx_pos[4] });
+      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtx_pos[0], vtx_pos[2] });
+      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtx_pos[2], vtx_pos[6] });
+      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtx_pos[4], vtx_pos[0] });
 
-      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtxes[5], vtxes[7] });
-      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtxes[3], vtxes[1] });
-      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtxes[7], vtxes[3] });
-      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtxes[1], vtxes[5] });
+      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtx_pos[5], vtx_pos[7] });
+      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtx_pos[3], vtx_pos[1] });
+      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtx_pos[7], vtx_pos[3] });
+      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtx_pos[1], vtx_pos[5] });
 
-      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[7], vtxes[6] });
-      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[2], vtxes[3] });
+      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtx_pos[7], vtx_pos[6] });
+      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtx_pos[2], vtx_pos[3] });
 
-      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[4], vtxes[5] });
-      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[1], vtxes[0] });
+      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtx_pos[4], vtx_pos[5] });
+      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtx_pos[1], vtx_pos[0] });
     }
   };
 
