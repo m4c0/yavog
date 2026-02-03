@@ -7,6 +7,7 @@ import cube;
 import dotz;
 import hai;
 import ofs;
+import prism;
 import post;
 import silog;
 import sitime;
@@ -31,6 +32,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
   ofs::buffers cube { cube::t {} };
+  ofs::buffers prism { prism::t {} };
 
 public:
   scene_drawer();
@@ -38,9 +40,11 @@ public:
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
     cube.faces(cb, pl);
+    prism.faces(cb, pl);
   }
   void edges(vee::command_buffer cb) override {
     cube.edges(cb);
+    prism.edges(cb);
   }
 };
 
@@ -71,6 +75,12 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5 },
     .txtid = static_cast<float>(txt_ids[0]),
+  };
+
+  auto n = prism.map();
+  n += {
+    .pos { -3, 0, 5 },
+    .txtid = static_cast<float>(txt_ids[1]),
   };
 }
 #else

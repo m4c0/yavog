@@ -118,6 +118,7 @@ namespace ofs {
     [[nodiscard]] auto map() { return ins.map(); }
 
     void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+      if (ins.count() == 0) return;
       vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
       vee::cmd_bind_index_buffer_u16(cb, *idx);
@@ -127,6 +128,7 @@ namespace ofs {
       });
     }
     void edges(vee::command_buffer cb) override {
+      if (ins.count() == 0) return;
       vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
       vee::cmd_draw(cb, {
         .vcount = edg.count(),
