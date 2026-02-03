@@ -130,6 +130,7 @@ namespace ofs {
     void edges(vee::command_buffer cb) override {
       if (ins.count() == 0) return;
       vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
+      vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
       vee::cmd_draw(cb, {
         .vcount = edg.count(),
         .icount = ins.count(),

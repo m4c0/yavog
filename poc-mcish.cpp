@@ -79,7 +79,7 @@ scene_drawer::scene_drawer() {
 
   auto n = prism.map();
   n += {
-    .pos { -3, 0, 5 },
+    .pos { 4, 0, 5 },
     .txtid = static_cast<float>(txt_ids[1]),
   };
 }
