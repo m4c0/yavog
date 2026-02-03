@@ -5,7 +5,7 @@ import models;
 import no;
 import ofs;
 
-constexpr dotz::vec4 vtx_pos[] {
+constexpr dotz::vec4 pos[] {
   {  0.5, -0.5,  0.5, 1.0 }, // 0
   {  0.5, -0.5, -0.5, 1.0 }, // 1
   { -0.5,  0.5,  0.5, 1.0 }, // 2
@@ -48,12 +48,10 @@ constexpr const models::tri tri[] {
 };
 
 export namespace prism {
-  struct v_buffer : ofs::v_buffer {
-    v_buffer() : ofs::v_buffer { vtx, vtx_pos } {}
-  };
-
-  struct ix_buffer : ofs::ix_buffer {
-    ix_buffer() : ofs::ix_buffer { tri } {}
+  struct t {
+    static constexpr const auto & pos = ::pos;
+    static constexpr const auto & vtx = ::vtx;
+    static constexpr const auto & tri = ::tri;
   };
 
   struct e_buffer : public ofs::e_buffer {

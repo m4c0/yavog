@@ -7,7 +7,7 @@ import ofs;
 import traits;
 import voo;
 
-constexpr const dotz::vec4 vtx_pos[] {
+constexpr const dotz::vec4 pos[] {
   {  0.5,  0.5,  0.5, 1.0 }, // 0
   {  0.5,  0.5, -0.5, 1.0 }, // 1
   {  0.5, -0.5,  0.5, 1.0 }, // 2
@@ -64,33 +64,31 @@ constexpr const models::tri tri[] {
 };
 
 export namespace cube {
-  struct v_buffer : public ofs::v_buffer {
-    v_buffer() : ofs::v_buffer { vtx, vtx_pos } {}
-  };
-
-  struct ix_buffer : ofs::ix_buffer {
-    ix_buffer() : ofs::ix_buffer { tri } {}
+  struct t {
+    static constexpr const auto & pos = ::pos;
+    static constexpr const auto & vtx = ::vtx;
+    static constexpr const auto & tri = ::tri;
   };
 
   struct shadow_v_buffer : public ofs::e_buffer {
     shadow_v_buffer() : e_buffer { 36 } {
       auto m = map();
 
-      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtx_pos[6], vtx_pos[4] });
-      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtx_pos[0], vtx_pos[2] });
-      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtx_pos[2], vtx_pos[6] });
-      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtx_pos[4], vtx_pos[0] });
+      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, pos[6], pos[4] });
+      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, pos[0], pos[2] });
+      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, pos[2], pos[6] });
+      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, pos[4], pos[0] });
 
-      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtx_pos[5], vtx_pos[7] });
-      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtx_pos[3], vtx_pos[1] });
-      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtx_pos[7], vtx_pos[3] });
-      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtx_pos[1], vtx_pos[5] });
+      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, pos[5], pos[7] });
+      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, pos[3], pos[1] });
+      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, pos[7], pos[3] });
+      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, pos[1], pos[5] });
 
-      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtx_pos[7], vtx_pos[6] });
-      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtx_pos[2], vtx_pos[3] });
+      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, pos[7], pos[6] });
+      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, pos[2], pos[3] });
 
-      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtx_pos[4], vtx_pos[5] });
-      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtx_pos[1], vtx_pos[0] });
+      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, pos[4], pos[5] });
+      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, pos[1], pos[0] });
     }
   };
 
@@ -100,18 +98,17 @@ export namespace cube {
   };
 
   class drawer : public ofs::drawer {
-    v_buffer vtxs {};
+    ofs::buffers bufs { cube::t {} };
     i_buffer insts {};
     shadow_v_buffer shdvtx {};
-    ix_buffer idx {};
 
   public:
     [[nodiscard]] auto map() { return insts.map(); }
 
     void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-      vee::cmd_bind_vertex_buffers(cb, 0, *vtxs, 0);
+      vee::cmd_bind_vertex_buffers(cb, 0, *bufs.vtx, 0);
       vee::cmd_bind_vertex_buffers(cb, 1, *insts, 0);
-      vee::cmd_bind_index_buffer_u16(cb, *idx);
+      vee::cmd_bind_index_buffer_u16(cb, *bufs.idx);
       vee::cmd_draw_indexed(cb, {
         .xcount = 36,
         .icount = insts.count(),

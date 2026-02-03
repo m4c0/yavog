@@ -59,6 +59,16 @@ namespace ofs {
       };
     }
   };
+  export struct buffers {
+    v_buffer vtx;
+    ix_buffer idx;
+
+    template<typename T>
+    explicit buffers(T) :
+      vtx { T::vtx, T::pos }
+    , idx { T::tri }
+    {}
+  };
 
   export struct e_buffer : public clay::buffer<edge>, no::no {
     using clay::buffer<edge>::buffer;
