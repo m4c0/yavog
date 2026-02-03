@@ -73,40 +73,10 @@ export namespace cube {
     static constexpr const auto & pos = ::pos;
     static constexpr const auto & vtx = ::vtx;
     static constexpr const auto & tri = ::tri;
+    static constexpr const auto & edg = ::edg;
   };
 
   struct shadow_v_buffer : public ofs::e_buffer {
-    shadow_v_buffer() : e_buffer { 12 } {
-      auto map = this->map();
-      for (auto [m, n] : edg) {
-        ofs::edge e {
-          .vtx_a = pos[m],
-          .vtx_b = pos[n],
-        };
-        for (auto [ia, ib, ic] : ::tri) {
-          auto va = vtx[ia];
-          auto vb = vtx[ib];
-          auto vc = vtx[ic];
-
-          if (va.id == m && vb.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (vb.id == m && vc.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (vc.id == m && va.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (va.id == n && vb.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          } else if (vb.id == n && vc.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          } else if (vc.id == n && va.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          }
-        }
-        map += {};
-        e.nrm_a.w = 1; map += e;
-        e.nrm_a.w = 2; map += e;
-      }
-    }
   };
 
   struct i_buffer : clay::buffer<ofs::inst>, no::no {
@@ -117,7 +87,6 @@ export namespace cube {
   class drawer : public ofs::drawer {
     ofs::buffers bufs { cube::t {} };
     i_buffer insts {};
-    shadow_v_buffer shdvtx {};
 
   public:
     [[nodiscard]] auto map() { return insts.map(); }
@@ -132,7 +101,7 @@ export namespace cube {
       });
     }
     void edges(vee::command_buffer cb) override {
-      vee::cmd_bind_vertex_buffers(cb, 0, *shdvtx, 0);
+      vee::cmd_bind_vertex_buffers(cb, 0, *bufs.edg, 0);
       vee::cmd_draw(cb, {
         .vcount = 36,
         .icount = insts.count(),

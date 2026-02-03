@@ -46,17 +46,17 @@ constexpr const models::tri tri[] {
   { 12, 11, 10 }, { 11, 12, 13 },
   { 14, 15, 16 }, { 17, 16, 15 },
 };
+constexpr const models::edge edg[] {
+  { 5, 3 }, { 3, 1 }, { 1, 5 },
+  { 0, 2 }, { 2, 4 }, { 4, 0 },
+  { 2, 3 }, { 5, 4 }, { 0, 1 },
+};
 
 export namespace prism {
   struct t {
     static constexpr const auto & pos = ::pos;
     static constexpr const auto & vtx = ::vtx;
     static constexpr const auto & tri = ::tri;
-  };
-
-  struct e_buffer : public ofs::e_buffer {
-    e_buffer() : ofs::e_buffer { 36 } {
-      auto m = map();
-    }
+    static constexpr const auto & edg = ::edg;
   };
 }

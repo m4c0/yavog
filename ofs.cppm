@@ -59,25 +59,51 @@ namespace ofs {
       };
     }
   };
+  export struct e_buffer : clay::buffer<edge>, no::no {
+    template<unsigned N>
+    e_buffer(const auto & t, const models::edge (&edg)[N]) : clay::buffer<edge> { N } {
+      auto map = this->map();
+      for (auto [m, n] : edg) {
+        ofs::edge e {
+          .vtx_a = t.pos[m],
+          .vtx_b = t.pos[n],
+        };
+        for (auto [ia, ib, ic] : t.tri) {
+          auto va = t.vtx[ia];
+          auto vb = t.vtx[ib];
+          auto vc = t.vtx[ic];
+
+          if (va.id == m && vb.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (vb.id == m && vc.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (vc.id == m && va.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (va.id == n && vb.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          } else if (vb.id == n && vc.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          } else if (vc.id == n && va.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          }
+        }
+        map += {};
+        e.nrm_a.w = 1; map += e;
+        e.nrm_a.w = 2; map += e;
+      }
+    }
+  };
   export struct buffers {
     v_buffer vtx;
     ix_buffer idx;
+    e_buffer edg;
 
     template<typename T>
     explicit buffers(T) :
       vtx { T::vtx, T::pos }
     , idx { T::tri }
+    , edg { T {}, T::edg }
     {}
-  };
-
-  export struct e_buffer : public clay::buffer<edge>, no::no {
-    using clay::buffer<edge>::buffer;
-
-    void tri(auto & m, edge e) {
-      m += {};
-      e.nrm_a.w = 1; m += e;
-      e.nrm_a.w = 2; m += e;
-    }
   };
 
   struct colour : no::no {
