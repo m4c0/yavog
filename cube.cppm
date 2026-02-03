@@ -62,6 +62,11 @@ constexpr const models::tri tri[] {
   { 16, 17, 18 }, { 19, 18, 17 }, // Left
   { 20, 21, 22 }, { 23, 22, 21 }, // Right
 };
+constexpr const models::edge edg[] {
+  { 0, 2 }, { 2, 6 }, { 6, 4 }, { 4, 0 },
+  { 5, 7 }, { 7, 3 }, { 3, 1 }, { 1, 5 },
+  { 0, 1 }, { 2, 3 }, { 4, 5 }, { 6, 7 },
+};
 
 export namespace cube {
   struct t {
@@ -71,24 +76,36 @@ export namespace cube {
   };
 
   struct shadow_v_buffer : public ofs::e_buffer {
-    shadow_v_buffer() : e_buffer { 36 } {
-      auto m = map();
+    shadow_v_buffer() : e_buffer { 12 } {
+      auto map = this->map();
+      for (auto [m, n] : edg) {
+        ofs::edge e {
+          .vtx_a = pos[m],
+          .vtx_b = pos[n],
+        };
+        for (auto [ia, ib, ic] : ::tri) {
+          auto va = vtx[ia];
+          auto vb = vtx[ib];
+          auto vc = vtx[ic];
 
-      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, pos[6], pos[4] });
-      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, pos[0], pos[2] });
-      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, pos[2], pos[6] });
-      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, pos[4], pos[0] });
-
-      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, pos[5], pos[7] });
-      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, pos[3], pos[1] });
-      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, pos[7], pos[3] });
-      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, pos[1], pos[5] });
-
-      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, pos[7], pos[6] });
-      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, pos[2], pos[3] });
-
-      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, pos[4], pos[5] });
-      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, pos[1], pos[0] });
+          if (va.id == m && vb.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (vb.id == m && vc.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (vc.id == m && va.id == n) {
+            e.nrm_b = { va.normal, 0 };
+          } else if (va.id == n && vb.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          } else if (vb.id == n && vc.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          } else if (vc.id == n && va.id == m) {
+            e.nrm_a = { vb.normal, 0 };
+          }
+        }
+        map += {};
+        e.nrm_a.w = 1; map += e;
+        e.nrm_a.w = 2; map += e;
+      }
     }
   };
 

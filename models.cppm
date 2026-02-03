@@ -10,4 +10,7 @@ namespace models {
   export struct tri {
     unsigned short a, b, c;
   };
+  export struct edge {
+    unsigned short a, b;
+  };
 }
