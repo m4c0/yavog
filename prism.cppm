@@ -56,4 +56,10 @@ export namespace prism {
       m += {{ 14, 15, 16 }}; m += {{ 17, 16, 15 }};
     }
   };
+
+  struct e_buffer : public ofs::e_buffer {
+    e_buffer() : ofs::e_buffer { 36 } {
+      auto m = map();
+    }
+  };
 }

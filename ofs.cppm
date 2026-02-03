@@ -47,6 +47,12 @@ namespace ofs {
   };
   export struct e_buffer : public clay::buffer<edge>, no::no {
     using clay::buffer<edge>::buffer;
+
+    void tri(auto & m, edge e) {
+      m += {};
+      e.nrm_a.w = 1; m += e;
+      e.nrm_a.w = 2; m += e;
+    }
   };
 
   export struct tri { uint16_t x[3]; };

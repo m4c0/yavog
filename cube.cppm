@@ -77,27 +77,21 @@ export namespace cube {
     shadow_v_buffer() : e_buffer { 36 } {
       auto m = map();
 
-      const auto tri = [&](ofs::edge e) {
-        m += {};
-        e.nrm_a.w = 1; m += e;
-        e.nrm_a.w = 2; m += e;
-      };
+      tri(m, { {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtxes[6], vtxes[4] });
+      tri(m, { {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtxes[0], vtxes[2] });
+      tri(m, { {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtxes[2], vtxes[6] });
+      tri(m, { {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtxes[4], vtxes[0] });
 
-      tri({ {  0,  0,  1, 0 }, { -1,  0,  0, 0 }, vtxes[6], vtxes[4] });
-      tri({ {  0,  0,  1, 0 }, {  1,  0,  0, 0 }, vtxes[0], vtxes[2] });
-      tri({ {  0,  0,  1, 0 }, {  0, -1,  0, 0 }, vtxes[2], vtxes[6] });
-      tri({ {  0,  0,  1, 0 }, {  0,  1,  0, 0 }, vtxes[4], vtxes[0] });
+      tri(m, { {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtxes[5], vtxes[7] });
+      tri(m, { {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtxes[3], vtxes[1] });
+      tri(m, { {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtxes[7], vtxes[3] });
+      tri(m, { {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtxes[1], vtxes[5] });
 
-      tri({ {  0,  0, -1, 0 }, { -1,  0,  0, 0 }, vtxes[5], vtxes[7] });
-      tri({ {  0,  0, -1, 0 }, {  1,  0,  0, 0 }, vtxes[3], vtxes[1] });
-      tri({ {  0,  0, -1, 0 }, {  0, -1,  0, 0 }, vtxes[7], vtxes[3] });
-      tri({ {  0,  0, -1, 0 }, {  0,  1,  0, 0 }, vtxes[1], vtxes[5] });
+      tri(m, { {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[7], vtxes[6] });
+      tri(m, { {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[2], vtxes[3] });
 
-      tri({ {  0, -1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[7], vtxes[6] });
-      tri({ {  0, -1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[2], vtxes[3] });
-
-      tri({ {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[4], vtxes[5] });
-      tri({ {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[1], vtxes[0] });
+      tri(m, { {  0,  1,  0, 0 }, { -1,  0,  0, 0 }, vtxes[4], vtxes[5] });
+      tri(m, { {  0,  1,  0, 0 }, {  1,  0,  0, 0 }, vtxes[1], vtxes[0] });
     }
   };
 
