@@ -96,7 +96,13 @@ scene_drawer::scene_drawer() {
 }
 #endif
 
-struct app_stuff : vinyl::base_app_stuff {
+struct app_stuff {
+  voo::device_and_queue dq { "poc-model", casein::native_ptr, {
+    .feats {
+      .independentBlend = true,
+      .samplerAnisotropy = true,
+    },
+  }};
   scene_drawer scene {};
 
 #ifndef CUBE_EXAMPLE
@@ -105,8 +111,6 @@ struct app_stuff : vinyl::base_app_stuff {
   post::pipeline post { dq, false };
 #endif
   ofs::pipeline ofs {};
-
-  app_stuff() : base_app_stuff { "poc-mcish" } {}
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -213,4 +217,6 @@ extern "C" void casein_init() {
     silog::infof("Sun vector: %-.3f, %-.3f, %-.3f", x, y, z);
     g_sun_spd = 0;
   });
+
+  casein::window_title = "poc-model";
 }
