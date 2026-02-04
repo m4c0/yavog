@@ -9,10 +9,6 @@ layout(push_constant) uniform upc {
 
 const float near =   0.01;
 
-float backface(vec3 n) {
-  return step(0, dot(n, pc.light.xyz));
-}
-
 // Hamilton Product
 vec4 ham(vec4 q1, vec4 q2) {
   float a1 = q1.w; float b1 = q1.x; float c1 = q1.y; float d1 = q1.z;
@@ -25,12 +21,18 @@ vec4 ham(vec4 q1, vec4 q2) {
   qr.z = a1 * d2 + b1 * c2 - c1 * b2 + d1 * a2;
   return qr;
 }
-vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
-  // TODO: apply xy * -1
-  // TODO: apply rotation to normals
+vec3 qrot(vec3 p, vec4 q) {
   // H(R', H(R, P))
-  vec4 p = ham(ham(i_rot, vec4(pos.xyz, 0)), vec4(-i_rot.xyz, i_rot.w));
-  return vec4(p.xyz, pos.w) + vec4(i_pos, 0);
+  return ham(ham(q, vec4(p, 0)), vec4(-q.xyz, q.w)).xyz;
+}
+
+float backface(vec3 n, vec4 rot) {
+  return step(0, dot(qrot(n, rot), pc.light.xyz));
+}
+
+vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
+  // TODO: apply rotation to normals
+  return vec4(qrot(pos.xyz, i_rot), pos.w) + vec4(i_pos, 0);
 }
 
 vec3 proj(vec4 pos) {
