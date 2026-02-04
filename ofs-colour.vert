@@ -13,6 +13,7 @@ layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
+vec3 qrot(vec3, vec4);
 vec4 modl(vec4, vec3, vec4);
 vec3 proj(vec4);
 
@@ -20,5 +21,5 @@ void main() {
   f_pos = proj(modl(pos, i_pos, i_rot));
   f_uv = uv;
   f_txtid = int(txtid);
-  f_normal = normal;
+  f_normal = qrot(normal, i_rot);
 }
