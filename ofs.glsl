@@ -13,6 +13,9 @@ float backface(vec3 n) {
   return step(0, dot(n, pc.light.xyz));
 }
 
+vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
+  return pos + vec4(i_pos, 0);
+}
 vec3 proj(vec4 pos) {
   float f = 1.0 / tan(radians(pc.fov_deg) / 2.0);
 
