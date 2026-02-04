@@ -7,6 +7,7 @@ layout(location = 1) in vec4 nrm_b;
 layout(location = 2) in vec4 vtx_a;
 layout(location = 3) in vec4 vtx_b;
 layout(location = 4) in vec3 i_pos;
+layout(location = 5) in vec4 i_rot;
 
 float backface(vec3 n);
 vec3 proj(vec4 pos);

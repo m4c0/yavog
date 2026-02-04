@@ -28,6 +28,7 @@ namespace ofs {
   export struct inst {
     dotz::vec3 pos;
     float txtid;
+    dotz::vec4 rot { 0, 0, 0, 1 };
   };
   export struct edge {
     dotz::vec4 nrm_a;
@@ -159,6 +160,7 @@ namespace ofs {
         vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
         vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
       },
     });
 
@@ -190,6 +192,7 @@ namespace ofs {
         vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_a)),
         vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_b)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
       },
     });
 
@@ -219,6 +222,7 @@ namespace ofs {
         vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
         vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
       },
     });
 
@@ -250,6 +254,7 @@ namespace ofs {
         vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
         vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
         vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
       },
     });
 
