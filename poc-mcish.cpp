@@ -85,7 +85,7 @@ scene_drawer::scene_drawer() {
   n += {
     .pos { 2, 0, 5 },
     .txtid = static_cast<float>(txt_ids[1]),
-    .rot { 0, 0, 1, 0 },
+    .rot { 0, 1, 0, 0 },
   };
 }
 #else

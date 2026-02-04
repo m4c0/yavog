@@ -15,11 +15,14 @@ float backface(vec3 n) {
 
 // Hamilton Product
 vec4 ham(vec4 q1, vec4 q2) {
+  float a1 = q1.w; float b1 = q1.x; float c1 = q1.y; float d1 = q1.z;
+  float a2 = q2.w; float b2 = q2.x; float c2 = q2.y; float d2 = q2.z;
+
   vec4 qr;
-  qr.x = (q1.w * q2.x) + (q1.x * q2.w) + (q1.y * q2.z) - (q1.z * q2.y);
-  qr.y = (q1.w * q2.y) - (q1.x * q2.z) + (q1.y * q2.w) + (q1.z * q2.x);
-  qr.z = (q1.w * q2.z) + (q1.x * q2.y) - (q1.y * q2.x) + (q1.z * q2.w);
-  qr.w = (q1.w * q2.w) - (q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z);
+  qr.w = a1 * a2 - b1 * b2 - c1 * c2 - d1 * d2; 
+  qr.x = a1 * b2 + b1 * a2 + c1 * d2 - d1 * c2;
+  qr.y = a1 * c2 - b1 * d2 + c1 * a2 + d1 * b2;
+  qr.z = a1 * d2 + b1 * c2 - c1 * b2 + d1 * a2;
   return qr;
 }
 vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
