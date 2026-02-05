@@ -59,15 +59,24 @@ namespace ofs {
       (push(m, T {}), ...);
     }
   };
-  export struct ix_buffer : clay::ix_buffer<uint16_t> {
-    template<unsigned N>
-    ix_buffer(const models::tri (&tri)[N]) : clay::ix_buffer<uint16_t> { N * 3 } {
-      auto m = map();
-      for (auto [a, b, c] : tri) {
+
+  export class ix_buffer : public clay::ix_buffer<uint16_t> {
+    template<typename T>
+    void push(auto & m, T) {
+      for (auto [a, b, c] : T::tri) {
         m += a; m += b; m += c;
       };
     }
+
+  public:
+    template<typename... T> ix_buffer(T...) : 
+      clay::ix_buffer<uint16_t> { size(T::tri...) * 3 }
+    {
+      auto m = map();
+      (push(m, T {}), ...);
+    }
   };
+
   export struct e_buffer : clay::buffer<edge>, no::no {
     template<unsigned N>
     e_buffer(const auto & t, const models::edge (&edg)[N]) : clay::buffer<edge> { N } {
@@ -119,7 +128,7 @@ namespace ofs {
     template<typename T>
     explicit buffers(T, unsigned i_count) :
       vtx { T {} }
-    , idx { T::tri }
+    , idx { T {} }
     , edg { T {}, T::edg }
     , ins { i_count }
     {}

@@ -31,7 +31,8 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  ofs::v_buffer vtx { cube::t {}, prism::t {} };
+  ofs::v_buffer  vtx { cube::t {}, prism::t {} };
+  ofs::ix_buffer idx { cube::t {}, prism::t {} };
 
   ofs::buffers cube { cube::t {}, 128 * 128 * 2 };
   ofs::buffers prism { prism::t {}, 16 };
