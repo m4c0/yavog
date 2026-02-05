@@ -44,11 +44,19 @@ namespace ofs {
     float far;
   };
 
-  export struct v_buffer : public clay::buffer<vtx>, no::no {
-    template<unsigned N, unsigned M>
-    v_buffer(const models::vtx (&vtx)[N], const dotz::vec4 (&pos)[M]) : buffer { N } {
+  template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
+  consteval unsigned size(auto &... as) { return (size1(as) + ...); }
+
+  export class v_buffer : public clay::buffer<vtx>, no::no {
+    template<typename T>
+    void push(auto & m, T) {
+      for (auto v : T::vtx) m += { .pos = T::pos[v.id], .uv = v.uv, .normal = v.normal };
+    }
+
+  public:
+    template<typename... T> v_buffer(T...) : buffer { size(T::pos...) } {
       auto m = map();
-      for (auto v : vtx) m += { .pos = pos[v.id], .uv = v.uv, .normal = v.normal };
+      (push(m, T {}), ...);
     }
   };
   export struct ix_buffer : clay::ix_buffer<uint16_t> {
@@ -110,7 +118,7 @@ namespace ofs {
 
     template<typename T>
     explicit buffers(T, unsigned i_count) :
-      vtx { T::vtx, T::pos }
+      vtx { T {} }
     , idx { T::tri }
     , edg { T {}, T::edg }
     , ins { i_count }
