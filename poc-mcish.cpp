@@ -33,6 +33,7 @@ class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
   ofs::v_buffer  vtx { cube::t {}, prism::t {} };
   ofs::ix_buffer idx { cube::t {}, prism::t {} };
+  ofs::e_buffer  edg { cube::t {}, prism::t {} };
 
   ofs::buffers cube { cube::t {}, 128 * 128 * 2 };
   ofs::buffers prism { prism::t {}, 16 };

@@ -77,19 +77,17 @@ namespace ofs {
     }
   };
 
-  export struct e_buffer : clay::buffer<edge>, no::no {
-    template<unsigned N>
-    e_buffer(const auto & t, const models::edge (&edg)[N]) : clay::buffer<edge> { N } {
-      auto map = this->map();
-      for (auto [m, n] : edg) {
+  export class e_buffer : public clay::buffer<edge>, no::no {
+    template<typename T> void push(auto & map, T) {
+      for (auto [m, n] : T::edg) {
         ofs::edge e {
-          .vtx_a = t.pos[m],
-          .vtx_b = t.pos[n],
+          .vtx_a = T::pos[m],
+          .vtx_b = T::pos[n],
         };
-        for (auto [ia, ib, ic] : t.tri) {
-          auto va = t.vtx[ia];
-          auto vb = t.vtx[ib];
-          auto vc = t.vtx[ic];
+        for (auto [ia, ib, ic] : T::tri) {
+          auto va = T::vtx[ia];
+          auto vb = T::vtx[ib];
+          auto vc = T::vtx[ic];
 
           if (va.id == m && vb.id == n) {
             e.nrm_b = { va.normal, 0 };
@@ -110,6 +108,12 @@ namespace ofs {
         e.nrm_a.w = 2; map += e;
       }
     }
+  public:
+    template<typename... T>
+    e_buffer(T...) : clay::buffer<edge> { size(T::edg...) } {
+      auto m = map();
+      (push(m, T {}), ...);
+    }
   };
   export struct i_buffer : clay::buffer<ofs::inst>, no::no {
     using clay::buffer<ofs::inst>::buffer;
@@ -129,7 +133,7 @@ namespace ofs {
     explicit buffers(T, unsigned i_count) :
       vtx { T {} }
     , idx { T {} }
-    , edg { T {}, T::edg }
+    , edg { T {} }
     , ins { i_count }
     {}
 
