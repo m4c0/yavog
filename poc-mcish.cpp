@@ -157,10 +157,6 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) },
   };
-  m += {
-    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
-    .rot { 0, 1, 0, 0 },
-  };
   mdls.push(mdls[prism::t()], m.count());
 
   // Cubes
@@ -178,6 +174,14 @@ scene_drawer::scene_drawer() {
     .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
   mdls.push(mdls[cube::t()], m.count());
+
+  // More prisms
+  m += {
+    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
+    .rot { 0, 1, 0, 0 },
+  };
+  mdls.push(mdls[prism::t()], m.count());
+
 }
 #else
 scene_drawer::scene_drawer() {
