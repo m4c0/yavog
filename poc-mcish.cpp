@@ -106,12 +106,10 @@ scene_drawer::scene_drawer() {
   auto m = ins.map();
   // Prisms
   m += {
-    .pos { 4, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[1]),
+    .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) },
   };
   m += {
-    .pos { 2, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[1]),
+    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
   vc += {
@@ -136,14 +134,12 @@ scene_drawer::scene_drawer() {
       if (n == 3) continue;
 
       m += {
-        .pos { x - 64, -2, y },
-        .txtid = static_cast<float>(txt_ids[n]),
+        .pos { x - 64, -2, y, static_cast<float>(txt_ids[n]) },
       };
     }
   }
   m += {
-    .pos { 3, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[0]),
+    .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
   vc += {
     .indexCount = mdls[m_cube].i_count,

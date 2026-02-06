@@ -30,6 +30,28 @@ namespace ofs {
     virtual void edges(VkCommandBuffer cb) = 0;
   };
 
+  template<typename T> auto binding() { return vee::vertex_input_bind(sizeof(T)); }
+  template<> auto binding<buffers::inst>() { return vee::vertex_input_bind_per_instance(sizeof(buffers::inst)); }
+  template<typename... T> auto bindings() {
+    return hai::view<VkVertexInputBindingDescription> { binding<T>()... };
+  }
+
+  template<typename T> auto attr(unsigned b, dotz::vec2 (T::*m)) {
+    return vee::vertex_attribute_vec2(b, traits::offset_of(m));
+  }
+  template<typename T> auto attr(unsigned b, dotz::vec3 (T::*m)) {
+    return vee::vertex_attribute_vec3(b, traits::offset_of(m));
+  }
+  template<typename T> auto attr(unsigned b, dotz::vec4 (T::*m)) {
+    return vee::vertex_attribute_vec4(b, traits::offset_of(m));
+  }
+  auto attr(auto (buffers::vtx::*m)) { return attr(0, m); }
+  auto attr(auto (buffers::inst::*m)) { return attr(1, m); }
+  auto attr(auto (buffers::edge::*m)) { return attr(0, m); }
+  auto attrs(auto... ms) {
+    return hai::view<VkVertexInputAttributeDescription> { attr(ms)... };
+  }
+
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
@@ -42,14 +64,14 @@ namespace ofs {
         vee::colour_blend_none(),
         vee::colour_blend_none(),
       },
-      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
-      .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
-      },
+      .bindings = bindings<buffers::vtx, buffers::inst>(),
+      .attributes = attrs(
+        &buffers::vtx::pos,
+        &buffers::vtx::uv,
+        &buffers::vtx::normal,
+        &buffers::inst::pos,
+        &buffers::inst::rot
+      ),
     });
 
     colour() {
@@ -70,15 +92,15 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .bindings = buffers::bindings<buffers::edge, buffers::inst>(),
-      .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_b)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::vtx_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::vtx_b)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
-      },
+      .bindings = bindings<buffers::edge, buffers::inst>(),
+      .attributes = attrs(
+        &buffers::edge::nrm_a,
+        &buffers::edge::nrm_b,
+        &buffers::edge::vtx_a,
+        &buffers::edge::vtx_b,
+        &buffers::inst::pos,
+        &buffers::inst::rot
+      ),
     });
 
     shadow() {
@@ -99,13 +121,13 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
-      .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
-      },
+      .bindings = bindings<buffers::vtx, buffers::inst>(),
+      .attributes = attrs( 
+        &buffers::vtx::pos,
+        &buffers::vtx::normal,
+        &buffers::inst::pos,
+        &buffers::inst::rot
+      ),
     });
 
     shcaps() {
@@ -127,14 +149,14 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
-      .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
-      },
+      .bindings = bindings<buffers::vtx, buffers::inst>(),
+      .attributes = attrs(
+        &buffers::vtx::pos,
+        &buffers::vtx::uv,
+        &buffers::vtx::normal,
+        &buffers::inst::pos,
+        &buffers::inst::rot
+      ),
     });
 
     lights() {
