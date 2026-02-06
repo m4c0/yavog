@@ -73,6 +73,33 @@ scene_drawer::scene_drawer() {
     tmap.load(t131),
   };
 
+  enum {
+    m_cube,
+    m_prism,
+  };
+  struct {
+    unsigned i_count;
+    unsigned first_i;
+    int v_offset;
+    unsigned v_count;
+    unsigned first_v;
+  } mdls[] {
+    {
+      .i_count = ofs::size(cube::t::tri) * 3,
+      .first_i = 0,
+      .v_offset = 0,
+      .v_count = ofs::size(cube::t::edg) * 3,
+      .first_v = 0,
+    },
+    {
+      .i_count = ofs::size(prism::t::tri) * 3,
+      .first_i = ofs::size(cube::t::tri) * 3,
+      .v_offset = ofs::size(cube::t::vtx),
+      .v_count = ofs::size(prism::t::edg) * 3,
+      .first_v = ofs::size(cube::t::edg) * 3,
+    },
+  };
+
   auto vc = vtx_cmd.map();
   auto ec = edg_cmd.map();
 
@@ -88,16 +115,16 @@ scene_drawer::scene_drawer() {
     .rot { 0, 1, 0, 0 },
   };
   vc += {
-    .indexCount = ofs::size(prism::t::tri) * 3,
+    .indexCount = mdls[m_prism].i_count,
     .instanceCount = m.count(),
-    .firstIndex = ofs::size(cube::t::tri) * 3,
-    .vertexOffset = ofs::size(cube::t::vtx),
+    .firstIndex = mdls[m_prism].first_i,
+    .vertexOffset = mdls[m_prism].v_offset,
     .firstInstance = 0,
   };
   ec += {
-    .vertexCount = ofs::size(prism::t::edg) * 3,
+    .vertexCount = mdls[m_prism].v_count,
     .instanceCount = m.count(),
-    .firstVertex = ofs::size(cube::t::edg) * 3,
+    .firstVertex = mdls[m_prism].first_v,
     .firstInstance = 0,
   };
   auto p_count = m.count();
@@ -119,18 +146,19 @@ scene_drawer::scene_drawer() {
     .txtid = static_cast<float>(txt_ids[0]),
   };
   vc += {
-    .indexCount = ofs::size(cube::t::tri) * 3,
+    .indexCount = mdls[m_cube].i_count,
     .instanceCount = m.count() - p_count,
-    .firstIndex = 0,
-    .vertexOffset = 0,
+    .firstIndex = mdls[m_cube].first_i,
+    .vertexOffset = mdls[m_cube].v_offset,
     .firstInstance = p_count,
   };
   ec += {
-    .vertexCount = ofs::size(cube::t::edg) * 3,
+    .vertexCount = mdls[m_cube].v_count,
     .instanceCount = m.count() - p_count,
-    .firstVertex = 0,
+    .firstVertex = mdls[m_cube].first_v,
     .firstInstance = p_count,
   };
+  p_count = m.count();
 }
 #else
 scene_drawer::scene_drawer() {
