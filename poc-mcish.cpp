@@ -187,12 +187,13 @@ scene_drawer::scene_drawer() {
 scene_drawer::scene_drawer() {
   float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
 
-  auto m = cube.map();
-  m += { .pos { -1,  0, 4 }, .txtid = txt_id };
-  m += { .pos {  1,  0, 4 }, .txtid = txt_id };
-  m += { .pos { -1,  0, 2 }, .txtid = txt_id };
-  m += { .pos {  1,  0, 2 }, .txtid = txt_id };
-  m += { .pos {  0, -1, 3 }, .txtid = txt_id };
+  auto m = ins.map();
+  m += { .pos { -1,  0, 4, txt_id } };
+  m += { .pos {  1,  0, 4, txt_id } };
+  m += { .pos { -1,  0, 2, txt_id } };
+  m += { .pos {  1,  0, 2, txt_id } };
+  m += { .pos {  0, -1, 3, txt_id } };
+  mdls.push(mdls[cube::t()], m.count());
 }
 #endif
 
