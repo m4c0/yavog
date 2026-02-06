@@ -29,6 +29,24 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
+struct model_cmd {
+  unsigned i_count;
+  unsigned first_i;
+  int v_offset;
+  unsigned v_count;
+  unsigned e_count;
+  unsigned first_e;
+
+  template<typename T> static model_cmd of(T) {
+    return {
+      .i_count = buffers::size(T::tri) * 3,
+      .v_count = buffers::size(T::vtx),
+      .e_count = buffers::size(T::edg) * 3,
+    };
+  }
+};
+
+
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
   buffers::v_buffer  vtx { cube::t {}, prism::t {} };
@@ -77,28 +95,13 @@ scene_drawer::scene_drawer() {
     m_cube,
     m_prism,
   };
-  struct {
-    unsigned i_count;
-    unsigned first_i;
-    int v_offset;
-    unsigned v_count;
-    unsigned first_v;
-  } mdls[] {
-    {
-      .i_count = buffers::size(cube::t::tri) * 3,
-      .first_i = 0,
-      .v_offset = 0,
-      .v_count = buffers::size(cube::t::edg) * 3,
-      .first_v = 0,
-    },
-    {
-      .i_count = buffers::size(prism::t::tri) * 3,
-      .first_i = buffers::size(cube::t::tri) * 3,
-      .v_offset = buffers::size(cube::t::vtx),
-      .v_count = buffers::size(prism::t::edg) * 3,
-      .first_v = buffers::size(cube::t::edg) * 3,
-    },
+  model_cmd mdls[] {
+    model_cmd::of(cube::t {}),
+    model_cmd::of(prism::t {}),
   };
+  mdls[1].first_i  = mdls[0].first_i  + mdls[0].i_count;
+  mdls[1].v_offset = mdls[0].v_offset + mdls[0].v_count;
+  mdls[1].first_e  = mdls[0].first_e  + mdls[0].e_count;
 
   auto vc = vtx_cmd.map();
   auto ec = edg_cmd.map();
@@ -120,9 +123,9 @@ scene_drawer::scene_drawer() {
     .firstInstance = 0,
   };
   ec += {
-    .vertexCount = mdls[m_prism].v_count,
+    .vertexCount = mdls[m_prism].e_count,
     .instanceCount = m.count(),
-    .firstVertex = mdls[m_prism].first_v,
+    .firstVertex = mdls[m_prism].first_e,
     .firstInstance = 0,
   };
   auto p_count = m.count();
@@ -149,9 +152,9 @@ scene_drawer::scene_drawer() {
     .firstInstance = p_count,
   };
   ec += {
-    .vertexCount = mdls[m_cube].v_count,
+    .vertexCount = mdls[m_cube].e_count,
     .instanceCount = m.count() - p_count,
-    .firstVertex = mdls[m_cube].first_v,
+    .firstVertex = mdls[m_cube].first_e,
     .firstInstance = p_count,
   };
   p_count = m.count();
