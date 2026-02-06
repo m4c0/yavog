@@ -54,17 +54,10 @@ struct model_cmd {
     };
   }
 };
+
 class model_cmds {
-  static constexpr const auto max = 16;
-  buffers::buffer<VkDrawIndexedIndirectCommand> m_vtx { max };
-  buffers::buffer<VkDrawIndirectCommand> m_edg { max };
-
-  voo::memiter<VkDrawIndexedIndirectCommand> m_vc = m_vtx.map();
-  voo::memiter<VkDrawIndirectCommand> m_ec = m_edg.map();
-
   hai::varray<model_cmd> m_mdls;
   model_cmd m_last {};
-  unsigned m_count {};
 
   template<typename T> void cmd(T) {
     auto m = model_cmd::of(T {});
@@ -88,35 +81,33 @@ public:
     for (auto m : m_mdls) if (m.id == T::id) return m;
     return {};
   }
+};
 
-  void push(model_cmd m, unsigned count) {
-    m_vc += {
+struct scene_builder {
+  voo::memiter<VkDrawIndexedIndirectCommand> vc;
+  voo::memiter<VkDrawIndirectCommand> ec;
+  voo::memiter<buffers::inst> inst;
+  unsigned count {};
+
+  void push(model_cmd m) {
+    vc += {
       .indexCount = m.i_count,
-      .instanceCount = count - m_count,
+      .instanceCount = inst.count() - count,
       .firstIndex = m.first_i,
       .vertexOffset = m.v_offset,
-      .firstInstance = m_count,
+      .firstInstance = count,
     };
-    m_ec += {
+    ec += {
       .vertexCount = m.e_count,
-      .instanceCount = count - m_count,
+      .instanceCount = inst.count() - count,
       .firstVertex = m.first_e,
-      .firstInstance = m_count,
+      .firstInstance = count,
     };
 
-    m_count = count;
+    count = inst.count();
   }
 
-  void faces(vee::command_buffer cb) const {
-    for (auto i = 0; i < m_vtx.count(); i++) {
-      vee::cmd_draw_indexed_indirect(cb, *m_vtx, i, 1);
-    }
-  }
-  void edges(vee::command_buffer cb) const {
-    for (auto i = 0; i < m_edg.count(); i++) {
-      vee::cmd_draw_indirect(cb, *m_edg, i, 1);
-    }
-  }
+  void operator+=(buffers::inst i) { inst += i; }
 };
 
 class scene_drawer : public ofs::drawer {
@@ -125,6 +116,10 @@ class scene_drawer : public ofs::drawer {
   buffers::ix_buffer idx { cube::t {}, prism::t {} };
   buffers::e_buffer  edg { cube::t {}, prism::t {} };
   model_cmds        mdls { cube::t {}, prism::t {} };
+
+  static constexpr const auto max = 16;
+  buffers::buffer<VkDrawIndexedIndirectCommand> vcmd { max };
+  buffers::buffer<VkDrawIndirectCommand> ecmd { max };
 
   buffers::buffer<buffers::inst> ins { 128 * 128 * 2 };
 
@@ -137,16 +132,26 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
     vee::cmd_bind_index_buffer_u16(cb, *idx);
-    mdls.faces(cb);
+    for (auto i = 0; i < vcmd.count(); i++) {
+      vee::cmd_draw_indexed_indirect(cb, *vcmd, i, 1);
+    }
   }
   void edges(vee::command_buffer cb) override {
     vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-    mdls.edges(cb);
+    for (auto i = 0; i < ecmd.count(); i++) {
+      vee::cmd_draw_indirect(cb, *ecmd, i, 1);
+    }
   }
 };
 
 scene_drawer::scene_drawer() {
+  scene_builder m {
+    .vc = vcmd.map(),
+    .ec = ecmd.map(),
+    .inst = ins.map(),
+  };
+
 #ifndef CUBE_EXAMPLE
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
   static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
@@ -158,12 +163,11 @@ scene_drawer::scene_drawer() {
     tmap.load(t131),
   };
 
-  auto m = ins.map();
   // Prisms
   m += {
     .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) },
   };
-  mdls.push(mdls[prism::t()], m.count());
+  m.push(mdls[prism::t()]);
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -179,24 +183,22 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
-  mdls.push(mdls[cube::t()], m.count());
+  m.push(mdls[cube::t()]);
 
   // More prisms
   m += {
     .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
-  mdls.push(mdls[prism::t()], m.count());
+  m.push(mdls[prism::t()]);
 #else
   float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
-
-  auto m = ins.map();
   m += { .pos { -1,  0, 4, txt_id } };
   m += { .pos {  1,  0, 4, txt_id } };
   m += { .pos { -1,  0, 2, txt_id } };
   m += { .pos {  1,  0, 2, txt_id } };
   m += { .pos {  0, -1, 3, txt_id } };
-  mdls.push(mdls[cube::t()], m.count());
+  m.push(mdls[cube::t()]);
 #endif
 }
 
