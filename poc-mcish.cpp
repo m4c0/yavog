@@ -5,6 +5,7 @@ import buffers;
 import casein;
 import cube;
 import dotz;
+import embedded;
 import hai;
 import ofs;
 import prism;
@@ -35,122 +36,22 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-struct model_cmd {
-  unsigned id;
-  unsigned i_count;
-  unsigned first_i;
-  int v_offset;
-  unsigned v_count;
-  unsigned e_count;
-  unsigned first_e;
-
-  template<typename T> static model_cmd of(T) {
-    return {
-      .id = T::id,
-
-      .i_count = buffers::size(T::tri) * 3,
-      .v_count = buffers::size(T::vtx),
-      .e_count = buffers::size(T::edg) * 3,
-    };
-  }
-};
-
-class model_cmds {
-  hai::varray<model_cmd> m_mdls;
-  model_cmd m_last {};
-
-  template<typename T> void cmd(T) {
-    auto m = model_cmd::of(T {});
-
-    m.first_i  = m_last.first_i  + m_last.i_count;
-    m.v_offset = m_last.v_offset + m_last.v_count;
-    m.first_e  = m_last.first_e  + m_last.e_count;
-
-    m_last = m;
-    m_mdls.push_back(m);
-  }
-
-public:
-  template<typename... T>
-  model_cmds(T...) : m_mdls { sizeof...(T) } {
-    (cmd(T {}), ...);
-  }
-
-  template<typename T>
-  [[nodiscard]] constexpr model_cmd operator[](T) const {
-    for (auto m : m_mdls) if (m.id == T::id) return m;
-    return {};
-  }
-};
-
-struct scene_builder {
-  voo::memiter<VkDrawIndexedIndirectCommand> vc;
-  voo::memiter<VkDrawIndirectCommand> ec;
-  voo::memiter<buffers::inst> inst;
-  unsigned count {};
-
-  void push(model_cmd m) {
-    vc += {
-      .indexCount = m.i_count,
-      .instanceCount = inst.count() - count,
-      .firstIndex = m.first_i,
-      .vertexOffset = m.v_offset,
-      .firstInstance = count,
-    };
-    ec += {
-      .vertexCount = m.e_count,
-      .instanceCount = inst.count() - count,
-      .firstVertex = m.first_e,
-      .firstInstance = count,
-    };
-
-    count = inst.count();
-  }
-
-  void operator+=(buffers::inst i) { inst += i; }
-};
-
 class scene_drawer : public ofs::drawer {
-  texmap::cache tmap {};
-  buffers::v_buffer  vtx { cube::t {}, prism::t {} };
-  buffers::ix_buffer idx { cube::t {}, prism::t {} };
-  buffers::e_buffer  edg { cube::t {}, prism::t {} };
-  model_cmds        mdls { cube::t {}, prism::t {} };
-
-  static constexpr const auto max = 16;
-  buffers::buffer<VkDrawIndexedIndirectCommand> vcmd { max };
-  buffers::buffer<VkDrawIndirectCommand> ecmd { max };
-
-  buffers::buffer<buffers::inst> ins { 128 * 128 * 2 };
+  embedded::drawer embed { cube::t {}, prism::t {} };
 
 public:
   scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
-
-    vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
-    vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-    vee::cmd_bind_index_buffer_u16(cb, *idx);
-    for (auto i = 0; i < vcmd.count(); i++) {
-      vee::cmd_draw_indexed_indirect(cb, *vcmd, i, 1);
-    }
+    embed.faces(cb, pl);
   }
   void edges(vee::command_buffer cb) override {
-    vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
-    vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-    for (auto i = 0; i < ecmd.count(); i++) {
-      vee::cmd_draw_indirect(cb, *ecmd, i, 1);
-    }
+    embed.edges(cb);
   }
 };
 
 scene_drawer::scene_drawer() {
-  scene_builder m {
-    .vc = vcmd.map(),
-    .ec = ecmd.map(),
-    .inst = ins.map(),
-  };
+  embedded::builder m { embed };
 
 #ifndef CUBE_EXAMPLE
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
@@ -158,16 +59,16 @@ scene_drawer::scene_drawer() {
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
   unsigned txt_ids[] {
-    tmap.load(t040),
-    tmap.load(t101),
-    tmap.load(t131),
+    embed.texture(t040),
+    embed.texture(t101),
+    embed.texture(t131),
   };
 
   // Prisms
   m += {
     .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) },
   };
-  m.push(mdls[prism::t()]);
+  m.push(embed.model(prism::t {}));
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -183,14 +84,14 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
-  m.push(mdls[cube::t()]);
+  m.push(embed.model(cube::t {}));
 
   // More prisms
   m += {
     .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
-  m.push(mdls[prism::t()]);
+  m.push(embed.model(prism::t {}));
 #else
   float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
   m += { .pos { -1,  0, 4, txt_id } };
@@ -198,7 +99,7 @@ scene_drawer::scene_drawer() {
   m += { .pos { -1,  0, 2, txt_id } };
   m += { .pos {  1,  0, 2, txt_id } };
   m += { .pos {  0, -1, 3, txt_id } };
-  m.push(mdls[cube::t()]);
+  m.push(embed.model(prism::t {}));
 #endif
 }
 
