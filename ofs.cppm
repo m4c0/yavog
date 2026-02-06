@@ -10,33 +10,14 @@
 #pragma leco add_shader "ofs-shcaps.vert"
 export module ofs;
 import :common;
+import buffers;
 import hai;
 import models;
 import texmap;
 import traits;
 import voo;
 
-using namespace traits::ints;
-using namespace wagen;
-
 namespace ofs {
-  export struct vtx {
-    dotz::vec4 pos;
-    dotz::vec2 uv;
-    dotz::vec3 normal;
-  };
-  export struct inst {
-    dotz::vec3 pos;
-    float txtid;
-    dotz::vec4 rot { 0, 0, 0, 1 };
-  };
-  export struct edge {
-    dotz::vec4 nrm_a;
-    dotz::vec4 nrm_b;
-    dotz::vec4 vtx_a;
-    dotz::vec4 vtx_b;
-  };
-
   export struct upc {
     dotz::vec4 light;
     float aspect;
@@ -44,150 +25,9 @@ namespace ofs {
     float far;
   };
 
-  export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
-  export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
-
-  template<typename T> VkBufferUsageFlagBits usage() {
-    return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-  }
-  template<> VkBufferUsageFlagBits usage<uint16_t>() {
-    return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-  }
-  template<> VkBufferUsageFlagBits usage<VkDrawIndexedIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-  }
-  template<> VkBufferUsageFlagBits usage<VkDrawIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-  }
-
-  export template<typename T> class buffer : no::no {
-    voo::bound_buffer m_buf;
-
-    unsigned m_count {};
-  public:
-    explicit buffer(unsigned max) :
-      m_buf { voo::bound_buffer::create_from_host(max * sizeof(T), usage<T>()) }
-    {}
-
-    [[nodiscard]] constexpr auto operator*() const { return *m_buf.buffer; }
-    [[nodiscard]] constexpr auto count() const { return m_count; }
-
-    [[nodiscard]] auto map() {
-      return voo::memiter<T> { *m_buf.memory, &m_count };
-    }
-  };
-
-  export class v_buffer : public buffer<vtx> {
-    template<typename T>
-    void push(auto & m, T) {
-      for (auto v : T::vtx) m += { .pos = T::pos[v.id], .uv = v.uv, .normal = v.normal };
-    }
-
-  public:
-    template<typename... T> v_buffer(T...) : buffer { size(T::pos...) } {
-      auto m = map();
-      (push(m, T {}), ...);
-    }
-  };
-
-  export class ix_buffer : public buffer<uint16_t> {
-    template<typename T>
-    void push(auto & m, T) {
-      for (auto [a, b, c] : T::tri) {
-        m += a; m += b; m += c;
-      };
-    }
-
-  public:
-    template<typename... T> ix_buffer(T...) : 
-      buffer<uint16_t> { size(T::tri...) * 3 }
-    {
-      auto m = map();
-      (push(m, T {}), ...);
-    }
-  };
-
-  export class e_buffer : public buffer<edge> {
-    template<typename T> void push(auto & map, T) {
-      for (auto [m, n] : T::edg) {
-        ofs::edge e {
-          .vtx_a = T::pos[m],
-          .vtx_b = T::pos[n],
-        };
-        for (auto [ia, ib, ic] : T::tri) {
-          auto va = T::vtx[ia];
-          auto vb = T::vtx[ib];
-          auto vc = T::vtx[ic];
-
-          if (va.id == m && vb.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (vb.id == m && vc.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (vc.id == m && va.id == n) {
-            e.nrm_b = { va.normal, 0 };
-          } else if (va.id == n && vb.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          } else if (vb.id == n && vc.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          } else if (vc.id == n && va.id == m) {
-            e.nrm_a = { vb.normal, 0 };
-          }
-        }
-        map += {};
-        e.nrm_a.w = 1; map += e;
-        e.nrm_a.w = 2; map += e;
-      }
-    }
-  public:
-    template<typename... T>
-    e_buffer(T...) : buffer<edge> { size(T::edg...) * 3 } {
-      auto m = map();
-      (push(m, T {}), ...);
-    }
-  };
-  export struct i_buffer : buffer<inst> {
-    using buffer<inst>::buffer;
-  };
-
   export struct drawer {
     virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
     virtual void edges(VkCommandBuffer cb) = 0;
-  };
-  export struct buffers : drawer {
-    v_buffer vtx;
-    ix_buffer idx;
-    e_buffer edg;
-    i_buffer ins;
-
-    template<typename T>
-    explicit buffers(T, unsigned i_count) :
-      vtx { T {} }
-    , idx { T {} }
-    , edg { T {} }
-    , ins { i_count }
-    {}
-
-    [[nodiscard]] auto map() { return ins.map(); }
-
-    void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-      if (ins.count() == 0) return;
-      vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-      vee::cmd_bind_index_buffer_u16(cb, *idx);
-      vee::cmd_draw_indexed(cb, {
-        .xcount = idx.count(),
-        .icount = ins.count(),
-      });
-    }
-    void edges(vee::command_buffer cb) override {
-      if (ins.count() == 0) return;
-      vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-      vee::cmd_draw(cb, {
-        .vcount = edg.count(),
-        .icount = ins.count(),
-      });
-    }
   };
 
   struct colour : no::no {
@@ -203,15 +43,15 @@ namespace ofs {
         vee::colour_blend_none(),
       },
       .bindings {
-        vee::vertex_input_bind(sizeof(vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(inst)),
+        vee::vertex_input_bind(sizeof(buffers::vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
       },
     });
 
@@ -234,16 +74,16 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings {
-        vee::vertex_input_bind(sizeof(edge)),
-        vee::vertex_input_bind_per_instance(sizeof(inst)),
+        vee::vertex_input_bind(sizeof(buffers::edge)),
+        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::nrm_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::nrm_b)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_a)),
-        vee::vertex_attribute_vec4(0, traits::offset_of(&edge::vtx_b)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_b)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::vtx_a)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::vtx_b)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
       },
     });
 
@@ -266,14 +106,14 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings {
-        vee::vertex_input_bind(sizeof(vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(inst)),
+        vee::vertex_input_bind(sizeof(buffers::vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
       },
     });
 
@@ -297,15 +137,15 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
       .bindings {
-        vee::vertex_input_bind(sizeof(vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(inst)),
+        vee::vertex_input_bind(sizeof(buffers::vtx)),
+        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
       },
       .attributes { 
-        vee::vertex_attribute_vec4(0, traits::offset_of(&vtx::pos)),
-        vee::vertex_attribute_vec2(0, traits::offset_of(&vtx::uv)),
-        vee::vertex_attribute_vec3(0, traits::offset_of(&vtx::normal)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
-        vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
+        vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
+        vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
+        vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::pos)),
+        vee::vertex_attribute_vec4(1, traits::offset_of(&buffers::inst::rot)),
       },
     });
 

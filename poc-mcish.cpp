@@ -1,8 +1,8 @@
 #pragma leco app
 #pragma leco add_resource_dir assets
 
+import buffers;
 import casein;
-import clay;
 import cube;
 import dotz;
 import hai;
@@ -31,13 +31,13 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
-  ofs::v_buffer  vtx { cube::t {}, prism::t {} };
-  ofs::ix_buffer idx { cube::t {}, prism::t {} };
-  ofs::e_buffer  edg { cube::t {}, prism::t {} };
+  buffers::v_buffer  vtx { cube::t {}, prism::t {} };
+  buffers::ix_buffer idx { cube::t {}, prism::t {} };
+  buffers::e_buffer  edg { cube::t {}, prism::t {} };
 
-  ofs::buffer<ofs::inst> ins { 128 * 128 * 2 };
-  ofs::buffer<VkDrawIndexedIndirectCommand> vtx_cmd { 2 };
-  ofs::buffer<VkDrawIndirectCommand> edg_cmd { 2 };
+  buffers::buffer<buffers::inst> ins { 128 * 128 * 2 };
+  buffers::buffer<VkDrawIndexedIndirectCommand> vtx_cmd { 2 };
+  buffers::buffer<VkDrawIndirectCommand> edg_cmd { 2 };
 
 public:
   scene_drawer();
@@ -85,18 +85,18 @@ scene_drawer::scene_drawer() {
     unsigned first_v;
   } mdls[] {
     {
-      .i_count = ofs::size(cube::t::tri) * 3,
+      .i_count = buffers::size(cube::t::tri) * 3,
       .first_i = 0,
       .v_offset = 0,
-      .v_count = ofs::size(cube::t::edg) * 3,
+      .v_count = buffers::size(cube::t::edg) * 3,
       .first_v = 0,
     },
     {
-      .i_count = ofs::size(prism::t::tri) * 3,
-      .first_i = ofs::size(cube::t::tri) * 3,
-      .v_offset = ofs::size(cube::t::vtx),
-      .v_count = ofs::size(prism::t::edg) * 3,
-      .first_v = ofs::size(cube::t::edg) * 3,
+      .i_count = buffers::size(prism::t::tri) * 3,
+      .first_i = buffers::size(cube::t::tri) * 3,
+      .v_offset = buffers::size(cube::t::vtx),
+      .v_count = buffers::size(prism::t::edg) * 3,
+      .first_v = buffers::size(cube::t::edg) * 3,
     },
   };
 

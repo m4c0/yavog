@@ -1,4 +1,4 @@
-#pragma leco app
+//#pragma leco app
 #pragma leco add_shader "poc-model.frag"
 #pragma leco add_shader "poc-model.vert"
 import casein;
