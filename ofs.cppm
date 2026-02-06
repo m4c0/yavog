@@ -44,8 +44,8 @@ namespace ofs {
     float far;
   };
 
-  template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
-  consteval unsigned size(auto &... as) { return (size1(as) + ...); }
+  export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
+  export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
 
   export class v_buffer : public clay::buffer<vtx>, no::no {
     template<typename T>
@@ -110,7 +110,7 @@ namespace ofs {
     }
   public:
     template<typename... T>
-    e_buffer(T...) : clay::buffer<edge> { size(T::edg...) } {
+    e_buffer(T...) : clay::buffer<edge> { size(T::edg...) * 3 } {
       auto m = map();
       (push(m, T {}), ...);
     }

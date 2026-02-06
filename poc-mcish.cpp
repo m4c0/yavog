@@ -34,21 +34,42 @@ class scene_drawer : public ofs::drawer {
   ofs::v_buffer  vtx { cube::t {}, prism::t {} };
   ofs::ix_buffer idx { cube::t {}, prism::t {} };
   ofs::e_buffer  edg { cube::t {}, prism::t {} };
-
-  ofs::buffers cube { cube::t {}, 128 * 128 * 2 };
-  ofs::buffers prism { prism::t {}, 16 };
+  ofs::i_buffer  ins { 128 * 128 * 2 };
 
 public:
   scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
-    cube.faces(cb, pl);
-    prism.faces(cb, pl);
+
+    vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
+    vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
+    vee::cmd_bind_index_buffer_u16(cb, *idx);
+    vee::cmd_draw_indexed(cb, {
+      .xcount = ofs::size(cube::t::tri) * 3,
+      .icount = ins.count() - 2, // TODO: take from "map"
+      .first_i = 2, // TODO: take from "map"
+    });
+    vee::cmd_draw_indexed(cb, {
+      .xcount = ofs::size(prism::t::tri) * 3,
+      .icount = 2,
+      .first_x = ofs::size(cube::t::tri) * 3,
+      .voffs   = ofs::size(cube::t::vtx),
+    });
   }
   void edges(vee::command_buffer cb) override {
-    cube.edges(cb);
-    prism.edges(cb);
+    vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
+    vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
+    vee::cmd_draw(cb, {
+      .vcount = ofs::size(cube::t::edg) * 3,
+      .icount = ins.count() - 2, // TODO: take from "map
+      .first_i = 2, // TODO: take from "map
+    });
+    vee::cmd_draw(cb, {
+      .vcount = ofs::size(prism::t::edg) * 3,
+      .icount = 2,
+      .first_v = ofs::size(cube::t::edg) * 3,
+    });
   }
 };
 
@@ -64,7 +85,19 @@ scene_drawer::scene_drawer() {
     tmap.load(t131),
   };
 
-  auto m = cube.map();
+  auto m = ins.map();
+  // Prisms
+  m += {
+    .pos { 4, 0, 5 },
+    .txtid = static_cast<float>(txt_ids[1]),
+  };
+  m += {
+    .pos { 2, 0, 5 },
+    .txtid = static_cast<float>(txt_ids[1]),
+    .rot { 0, 1, 0, 0 },
+  };
+
+  // Cubes
   for (auto x = 0; x < 128; x++) {
     for (auto y = 0; y < 128; y++) {
       unsigned n = (x + y) % 4;
@@ -79,17 +112,6 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5 },
     .txtid = static_cast<float>(txt_ids[0]),
-  };
-
-  auto n = prism.map();
-  n += {
-    .pos { 4, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[1]),
-  };
-  n += {
-    .pos { 2, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[1]),
-    .rot { 0, 1, 0, 0 },
   };
 }
 #else
