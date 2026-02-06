@@ -1,6 +1,6 @@
 export module ofs:common;
-import clay;
 import dotz;
+import jute;
 import no;
 import silog;
 import sv;
@@ -119,8 +119,8 @@ inline auto stencil(VkStencilOp stencil_op, VkCompareOp compare_op) {
   };
 }
 inline auto create_graphics_pipeline(sv shader, vee::gr_pipeline_params p) {
-  auto vert = clay::vert_shader(shader, [] {});
-  auto frag = clay::frag_shader(shader, [] {});
+  auto vert = voo::vert_shader(jute::fmt<"%s.vert.spv">(shader));
+  auto frag = voo::frag_shader(jute::fmt<"%s.frag.spv">(shader));
 
   auto rp = create_render_pass(max_sampling());
   p.render_pass = *rp;
