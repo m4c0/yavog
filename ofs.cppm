@@ -42,10 +42,7 @@ namespace ofs {
         vee::colour_blend_none(),
         vee::colour_blend_none(),
       },
-      .bindings {
-        vee::vertex_input_bind(sizeof(buffers::vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
-      },
+      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
         vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
@@ -73,10 +70,7 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .bindings {
-        vee::vertex_input_bind(sizeof(buffers::edge)),
-        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
-      },
+      .bindings = buffers::bindings<buffers::edge, buffers::inst>(),
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_a)),
         vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::edge::nrm_b)),
@@ -105,10 +99,7 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .bindings {
-        vee::vertex_input_bind(sizeof(buffers::vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
-      },
+      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
         vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
@@ -136,10 +127,7 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .bindings {
-        vee::vertex_input_bind(sizeof(buffers::vtx)),
-        vee::vertex_input_bind_per_instance(sizeof(buffers::inst)),
-      },
+      .bindings = buffers::bindings<buffers::vtx, buffers::inst>(),
       .attributes { 
         vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
         vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),

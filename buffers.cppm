@@ -1,5 +1,6 @@
 export module buffers;
 import dotz;
+import hai;
 import no;
 import traits;
 import voo;
@@ -12,18 +13,34 @@ namespace buffers {
     dotz::vec4 pos;
     dotz::vec2 uv;
     dotz::vec3 normal;
+
+    static consteval auto vtx_input_bind() {
+      return vee::vertex_input_bind(sizeof(vtx));
+    }
   };
   export struct inst {
     dotz::vec3 pos;
     float txtid;
     dotz::vec4 rot { 0, 0, 0, 1 };
+
+    static consteval auto vtx_input_bind() {
+      return vee::vertex_input_bind_per_instance(sizeof(inst));
+    }
   };
   export struct edge {
     dotz::vec4 nrm_a;
     dotz::vec4 nrm_b;
     dotz::vec4 vtx_a;
     dotz::vec4 vtx_b;
+
+    static consteval auto vtx_input_bind() {
+      return vee::vertex_input_bind(sizeof(edge));
+    }
   };
+
+  export template<typename... T> auto bindings() {
+    return hai::view<VkVertexInputBindingDescription> { T::vtx_input_bind()... };
+  }
 
   export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
   export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
@@ -129,5 +146,5 @@ namespace buffers {
   export struct i_buffer : buffer<inst> {
     using buffer<inst>::buffer;
   };
-
 }
+
