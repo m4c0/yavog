@@ -34,7 +34,9 @@ class scene_drawer : public ofs::drawer {
   ofs::v_buffer  vtx { cube::t {}, prism::t {} };
   ofs::ix_buffer idx { cube::t {}, prism::t {} };
   ofs::e_buffer  edg { cube::t {}, prism::t {} };
-  ofs::i_buffer  ins { 128 * 128 * 2 };
+
+  ofs::buffer<ofs::inst> ins { 128 * 128 * 2 };
+  ofs::buffer<VkDrawIndexedIndirectCommand> vtx_cmd { 2 };
 
 public:
   scene_drawer();
@@ -45,17 +47,9 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
     vee::cmd_bind_index_buffer_u16(cb, *idx);
-    vee::cmd_draw_indexed(cb, {
-      .xcount = ofs::size(cube::t::tri) * 3,
-      .icount = ins.count() - 2, // TODO: take from "map"
-      .first_i = 2, // TODO: take from "map"
-    });
-    vee::cmd_draw_indexed(cb, {
-      .xcount = ofs::size(prism::t::tri) * 3,
-      .icount = 2,
-      .first_x = ofs::size(cube::t::tri) * 3,
-      .voffs   = ofs::size(cube::t::vtx),
-    });
+    for (auto i = 0; i < vtx_cmd.count(); i++) {
+      vee::cmd_draw_indexed_indirect(cb, *vtx_cmd, i, 1);
+    }
   }
   void edges(vee::command_buffer cb) override {
     vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
@@ -85,6 +79,8 @@ scene_drawer::scene_drawer() {
     tmap.load(t131),
   };
 
+  auto vc = vtx_cmd.map();
+
   auto m = ins.map();
   // Prisms
   m += {
@@ -96,6 +92,14 @@ scene_drawer::scene_drawer() {
     .txtid = static_cast<float>(txt_ids[1]),
     .rot { 0, 1, 0, 0 },
   };
+  vc += {
+    .indexCount = ofs::size(prism::t::tri) * 3,
+    .instanceCount = m.count(),
+    .firstIndex = ofs::size(cube::t::tri) * 3,
+    .vertexOffset = ofs::size(cube::t::vtx),
+    .firstInstance = 0,
+  };
+  auto p_count = m.count();
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -112,6 +116,13 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5 },
     .txtid = static_cast<float>(txt_ids[0]),
+  };
+  vc += {
+    .indexCount = ofs::size(cube::t::tri) * 3,
+    .instanceCount = m.count() - p_count,
+    .firstIndex = 0,
+    .vertexOffset = 0,
+    .firstInstance = p_count,
   };
 }
 #else
