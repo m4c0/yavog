@@ -45,7 +45,57 @@ struct model_cmd {
     };
   }
 };
+class model_cmds {
+  static constexpr const auto max = 16;
+  buffers::buffer<VkDrawIndexedIndirectCommand> m_vtx { max };
+  buffers::buffer<VkDrawIndirectCommand> m_edg { max };
 
+  voo::memiter<VkDrawIndexedIndirectCommand> m_vc = m_vtx.map();
+  voo::memiter<VkDrawIndirectCommand> m_ec = m_edg.map();
+
+  model_cmd m_last {};
+  unsigned m_count {};
+
+public:
+  template<typename T> [[nodiscard]] auto cmd(T) {
+    auto m = model_cmd::of(T {});
+
+    m.first_i  = m_last.first_i  + m_last.i_count;
+    m.v_offset = m_last.v_offset + m_last.v_count;
+    m.first_e  = m_last.first_e  + m_last.e_count;
+
+    m_last = m;
+    return m;
+  }
+  void push(model_cmd m, unsigned count) {
+    m_vc += {
+      .indexCount = m.i_count,
+      .instanceCount = count - m_count,
+      .firstIndex = m.first_i,
+      .vertexOffset = m.v_offset,
+      .firstInstance = m_count,
+    };
+    m_ec += {
+      .vertexCount = m.e_count,
+      .instanceCount = count - m_count,
+      .firstVertex = m.first_e,
+      .firstInstance = m_count,
+    };
+
+    m_count = count;
+  }
+
+  void faces(vee::command_buffer cb) const {
+    for (auto i = 0; i < m_vtx.count(); i++) {
+      vee::cmd_draw_indexed_indirect(cb, *m_vtx, i, 1);
+    }
+  }
+  void edges(vee::command_buffer cb) const {
+    for (auto i = 0; i < m_edg.count(); i++) {
+      vee::cmd_draw_indirect(cb, *m_edg, i, 1);
+    }
+  }
+};
 
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
@@ -54,8 +104,7 @@ class scene_drawer : public ofs::drawer {
   buffers::e_buffer  edg { cube::t {}, prism::t {} };
 
   buffers::buffer<buffers::inst> ins { 128 * 128 * 2 };
-  buffers::buffer<VkDrawIndexedIndirectCommand> vtx_cmd { 2 };
-  buffers::buffer<VkDrawIndirectCommand> edg_cmd { 2 };
+  model_cmds mdls {};
 
 public:
   scene_drawer();
@@ -66,16 +115,12 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 0, *vtx, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
     vee::cmd_bind_index_buffer_u16(cb, *idx);
-    for (auto i = 0; i < vtx_cmd.count(); i++) {
-      vee::cmd_draw_indexed_indirect(cb, *vtx_cmd, i, 1);
-    }
+    mdls.faces(cb);
   }
   void edges(vee::command_buffer cb) override {
     vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-    for (auto i = 0; i < edg_cmd.count(); i++) {
-      vee::cmd_draw_indirect(cb, *edg_cmd, i, 1);
-    }
+    mdls.edges(cb);
   }
 };
 
@@ -90,21 +135,9 @@ scene_drawer::scene_drawer() {
     tmap.load(t101),
     tmap.load(t131),
   };
-
-  enum {
-    m_cube,
-    m_prism,
-  };
-  model_cmd mdls[] {
-    model_cmd::of(cube::t {}),
-    model_cmd::of(prism::t {}),
-  };
-  mdls[1].first_i  = mdls[0].first_i  + mdls[0].i_count;
-  mdls[1].v_offset = mdls[0].v_offset + mdls[0].v_count;
-  mdls[1].first_e  = mdls[0].first_e  + mdls[0].e_count;
-
-  auto vc = vtx_cmd.map();
-  auto ec = edg_cmd.map();
+  // Same order as v/e_buffer
+  auto mdl_cube = mdls.cmd(cube::t {});
+  auto mdl_prism = mdls.cmd(prism::t {});
 
   auto m = ins.map();
   // Prisms
@@ -115,20 +148,7 @@ scene_drawer::scene_drawer() {
     .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
-  vc += {
-    .indexCount = mdls[m_prism].i_count,
-    .instanceCount = m.count(),
-    .firstIndex = mdls[m_prism].first_i,
-    .vertexOffset = mdls[m_prism].v_offset,
-    .firstInstance = 0,
-  };
-  ec += {
-    .vertexCount = mdls[m_prism].e_count,
-    .instanceCount = m.count(),
-    .firstVertex = mdls[m_prism].first_e,
-    .firstInstance = 0,
-  };
-  auto p_count = m.count();
+  mdls.push(mdl_prism, m.count());
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -144,20 +164,7 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
-  vc += {
-    .indexCount = mdls[m_cube].i_count,
-    .instanceCount = m.count() - p_count,
-    .firstIndex = mdls[m_cube].first_i,
-    .vertexOffset = mdls[m_cube].v_offset,
-    .firstInstance = p_count,
-  };
-  ec += {
-    .vertexCount = mdls[m_cube].e_count,
-    .instanceCount = m.count() - p_count,
-    .firstVertex = mdls[m_cube].first_e,
-    .firstInstance = p_count,
-  };
-  p_count = m.count();
+  mdls.push(mdl_cube, m.count());
 }
 #else
 scene_drawer::scene_drawer() {
