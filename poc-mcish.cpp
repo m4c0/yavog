@@ -20,13 +20,13 @@ import vinyl;
 import voo;
 import wagen;
 
-//#define CUBE_EXAMPLE
+static enum {
+  e_cube,
+  e_shadowtest,
+  e_hills,
+} constexpr const example = e_shadowtest;
 
-#ifdef CUBE_EXAMPLE
-#define ENABLE_POST false
-#else
-#define ENABLE_POST true
-#endif
+static constexpr const bool enable_post = example != e_cube;
 
 using namespace wagen;
 
@@ -50,10 +50,7 @@ public:
   }
 };
 
-scene_drawer::scene_drawer() {
-  embedded::builder m { embed };
-
-#ifndef CUBE_EXAMPLE
+static void ex_shadow_test(embedded::drawer & embed) {
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
   static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
@@ -63,6 +60,8 @@ scene_drawer::scene_drawer() {
     embed.texture(t101),
     embed.texture(t131),
   };
+
+  embedded::builder m { embed };
 
   // Prisms
   m += { .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) } };
@@ -86,15 +85,29 @@ scene_drawer::scene_drawer() {
     .rot { 0, 1, 0, 0 },
   };
   m.push(embed.model(prism::t {}));
-#else
-  float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
+}
+
+static void ex_cube(embedded::drawer & embed) {
+  embedded::builder m { embed };
+
+  float txt_id = embed.texture("Tiles101_1K-JPG_Color.jpg");
   m += { .pos { -1,  0, 4, txt_id } };
   m += { .pos {  1,  0, 4, txt_id } };
   m += { .pos { -1,  0, 2, txt_id } };
   m += { .pos {  1,  0, 2, txt_id } };
   m += { .pos {  0, -1, 3, txt_id } };
   m.push(embed.model(prism::t {}));
-#endif
+}
+
+static void ex_hills(embedded::drawer & embed) {
+}
+
+scene_drawer::scene_drawer() {
+  switch (example) {
+    case e_cube:       ex_cube(embed);        break;
+    case e_shadowtest: ex_shadow_test(embed); break;
+    case e_hills:      ex_hills(embed);       break;
+  }
 }
 
 struct app_stuff {
@@ -106,7 +119,7 @@ struct app_stuff {
   }};
   scene_drawer scene {};
 
-  post::pipeline post { dq, ENABLE_POST };
+  post::pipeline post { dq, enable_post };
   ofs::pipeline ofs {};
 };
 struct ext_stuff {
