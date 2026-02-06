@@ -65,9 +65,7 @@ scene_drawer::scene_drawer() {
   };
 
   // Prisms
-  m += {
-    .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) },
-  };
+  m += { .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) } };
   m.push(embed.model(prism::t {}));
 
   // Cubes
@@ -76,14 +74,10 @@ scene_drawer::scene_drawer() {
       unsigned n = (x + y) % 4;
       if (n == 3) continue;
 
-      m += {
-        .pos { x - 64, -2, y, static_cast<float>(txt_ids[n]) },
-      };
+      m += { .pos { x - 64, -2, y, static_cast<float>(txt_ids[n]) } };
     }
   }
-  m += {
-    .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
-  };
+  m += { .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) } };
   m.push(embed.model(cube::t {}));
 
   // More prisms
