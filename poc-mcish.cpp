@@ -151,8 +151,6 @@ scene_drawer::scene_drawer() {
     tmap.load(t101),
     tmap.load(t131),
   };
-  auto mdl_prism = mdls[prism::t()];
-  auto mdl_cube = mdls[cube::t()];
 
   auto m = ins.map();
   // Prisms
@@ -163,7 +161,7 @@ scene_drawer::scene_drawer() {
     .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
-  mdls.push(mdl_prism, m.count());
+  mdls.push(mdls[prism::t()], m.count());
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -179,7 +177,7 @@ scene_drawer::scene_drawer() {
   m += {
     .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) },
   };
-  mdls.push(mdl_cube, m.count());
+  mdls.push(mdls[cube::t()], m.count());
 }
 #else
 scene_drawer::scene_drawer() {
