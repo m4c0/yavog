@@ -21,6 +21,12 @@ import wagen;
 
 //#define CUBE_EXAMPLE
 
+#ifdef CUBE_EXAMPLE
+#define ENABLE_POST false
+#else
+#define ENABLE_POST true
+#endif
+
 using namespace wagen;
 
 static constexpr const auto target_fps = 30.f;
@@ -140,8 +146,8 @@ public:
   }
 };
 
-#ifndef CUBE_EXAMPLE
 scene_drawer::scene_drawer() {
+#ifndef CUBE_EXAMPLE
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
   static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
@@ -181,10 +187,7 @@ scene_drawer::scene_drawer() {
     .rot { 0, 1, 0, 0 },
   };
   mdls.push(mdls[prism::t()], m.count());
-
-}
 #else
-scene_drawer::scene_drawer() {
   float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
 
   auto m = ins.map();
@@ -194,8 +197,8 @@ scene_drawer::scene_drawer() {
   m += { .pos {  1,  0, 2, txt_id } };
   m += { .pos {  0, -1, 3, txt_id } };
   mdls.push(mdls[cube::t()], m.count());
-}
 #endif
+}
 
 struct app_stuff {
   voo::device_and_queue dq { "poc-model", casein::native_ptr, {
@@ -206,11 +209,7 @@ struct app_stuff {
   }};
   scene_drawer scene {};
 
-#ifndef CUBE_EXAMPLE
-  post::pipeline post { dq };
-#else
-  post::pipeline post { dq, false };
-#endif
+  post::pipeline post { dq, ENABLE_POST };
   ofs::pipeline ofs {};
 };
 struct ext_stuff {
