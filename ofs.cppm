@@ -47,13 +47,26 @@ namespace ofs {
   export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
   export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
 
-  export template<typename T, auto U> class buffer : no::no {
+  template<typename T> VkBufferUsageFlagBits usage() {
+    return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  }
+  template<> VkBufferUsageFlagBits usage<uint16_t>() {
+    return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+  }
+  template<> VkBufferUsageFlagBits usage<VkDrawIndexedIndirectCommand>() {
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  }
+  template<> VkBufferUsageFlagBits usage<VkDrawIndirectCommand>() {
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  }
+
+  export template<typename T> class buffer : no::no {
     voo::bound_buffer m_buf;
 
     unsigned m_count {};
   public:
     explicit buffer(unsigned max) :
-      m_buf { voo::bound_buffer::create_from_host(max * sizeof(T), U) }
+      m_buf { voo::bound_buffer::create_from_host(max * sizeof(T), usage<T>()) }
     {}
 
     [[nodiscard]] constexpr auto operator*() const { return *m_buf.buffer; }
@@ -64,7 +77,7 @@ namespace ofs {
     }
   };
 
-  export class v_buffer : public buffer<vtx, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT> {
+  export class v_buffer : public buffer<vtx> {
     template<typename T>
     void push(auto & m, T) {
       for (auto v : T::vtx) m += { .pos = T::pos[v.id], .uv = v.uv, .normal = v.normal };
@@ -77,7 +90,7 @@ namespace ofs {
     }
   };
 
-  export class ix_buffer : public buffer<uint16_t, VK_BUFFER_USAGE_INDEX_BUFFER_BIT> {
+  export class ix_buffer : public buffer<uint16_t> {
     template<typename T>
     void push(auto & m, T) {
       for (auto [a, b, c] : T::tri) {
@@ -87,14 +100,14 @@ namespace ofs {
 
   public:
     template<typename... T> ix_buffer(T...) : 
-      buffer<uint16_t, VK_BUFFER_USAGE_INDEX_BUFFER_BIT> { size(T::tri...) * 3 }
+      buffer<uint16_t> { size(T::tri...) * 3 }
     {
       auto m = map();
       (push(m, T {}), ...);
     }
   };
 
-  export class e_buffer : public buffer<edge, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT> {
+  export class e_buffer : public buffer<edge> {
     template<typename T> void push(auto & map, T) {
       for (auto [m, n] : T::edg) {
         ofs::edge e {
@@ -127,13 +140,13 @@ namespace ofs {
     }
   public:
     template<typename... T>
-    e_buffer(T...) : buffer<edge, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT> { size(T::edg...) * 3 } {
+    e_buffer(T...) : buffer<edge> { size(T::edg...) * 3 } {
       auto m = map();
       (push(m, T {}), ...);
     }
   };
-  export struct i_buffer : buffer<inst, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT> {
-    using buffer<inst, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT>::buffer;
+  export struct i_buffer : buffer<inst> {
+    using buffer<inst>::buffer;
   };
 
   export struct drawer {
