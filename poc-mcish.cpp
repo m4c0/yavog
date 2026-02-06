@@ -24,7 +24,7 @@ static enum {
   e_cube,
   e_shadowtest,
   e_hills,
-} constexpr const example = e_shadowtest;
+} constexpr const example = e_hills;
 
 static constexpr const bool enable_post = example != e_cube;
 
@@ -100,6 +100,30 @@ static void ex_cube(embedded::drawer & embed) {
 }
 
 static void ex_hills(embedded::drawer & embed) {
+  embedded::builder m { embed };
+
+  float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
+  float dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
+
+  for (auto x = 0; x < 128; x++) {
+    for (auto y = 0; y < 128; y++) {
+      m += { .pos { x - 64, -2, y, dirt } };
+    }
+  }
+  for (auto x = 0; x < 3; x++) {
+    for (auto y = 0; y < 3; y++) {
+      m += { .pos { 2 + x, -1, 4 + y, grass } };
+    }
+  }
+  m.push(embed.model(cube::t {}));
+
+  for (auto x = 0; x < 3; x++) {
+    m += { .pos { 5, -1, 4 + x, grass } };
+    m += { .pos { 1, -1, 4 + x, grass }, .rot { 0, 1, 0, 0 } };
+    m += { .pos { 2 + x, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
+    m += { .pos { 2 + x, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
+  }
+  m.push(embed.model(prism::t {}));
 }
 
 scene_drawer::scene_drawer() {
