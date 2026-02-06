@@ -37,6 +37,7 @@ class scene_drawer : public ofs::drawer {
 
   ofs::buffer<ofs::inst> ins { 128 * 128 * 2 };
   ofs::buffer<VkDrawIndexedIndirectCommand> vtx_cmd { 2 };
+  ofs::buffer<VkDrawIndirectCommand> edg_cmd { 2 };
 
 public:
   scene_drawer();
@@ -54,16 +55,9 @@ public:
   void edges(vee::command_buffer cb) override {
     vee::cmd_bind_vertex_buffers(cb, 0, *edg, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, *ins, 0);
-    vee::cmd_draw(cb, {
-      .vcount = ofs::size(cube::t::edg) * 3,
-      .icount = ins.count() - 2, // TODO: take from "map
-      .first_i = 2, // TODO: take from "map
-    });
-    vee::cmd_draw(cb, {
-      .vcount = ofs::size(prism::t::edg) * 3,
-      .icount = 2,
-      .first_v = ofs::size(cube::t::edg) * 3,
-    });
+    for (auto i = 0; i < edg_cmd.count(); i++) {
+      vee::cmd_draw_indirect(cb, *edg_cmd, i, 1);
+    }
   }
 };
 
@@ -80,6 +74,7 @@ scene_drawer::scene_drawer() {
   };
 
   auto vc = vtx_cmd.map();
+  auto ec = edg_cmd.map();
 
   auto m = ins.map();
   // Prisms
@@ -97,6 +92,12 @@ scene_drawer::scene_drawer() {
     .instanceCount = m.count(),
     .firstIndex = ofs::size(cube::t::tri) * 3,
     .vertexOffset = ofs::size(cube::t::vtx),
+    .firstInstance = 0,
+  };
+  ec += {
+    .vertexCount = ofs::size(prism::t::edg) * 3,
+    .instanceCount = m.count(),
+    .firstVertex = ofs::size(cube::t::edg) * 3,
     .firstInstance = 0,
   };
   auto p_count = m.count();
@@ -122,6 +123,12 @@ scene_drawer::scene_drawer() {
     .instanceCount = m.count() - p_count,
     .firstIndex = 0,
     .vertexOffset = 0,
+    .firstInstance = p_count,
+  };
+  ec += {
+    .vertexCount = ofs::size(cube::t::edg) * 3,
+    .instanceCount = m.count() - p_count,
+    .firstVertex = 0,
     .firstInstance = p_count,
   };
 }
