@@ -70,6 +70,8 @@ constexpr const models::edge edg[] {
 
 export namespace cube {
   struct t {
+    static constexpr const auto id = 'cube';
+
     static constexpr const auto & pos = ::pos;
     static constexpr const auto & vtx = ::vtx;
     static constexpr const auto & tri = ::tri;

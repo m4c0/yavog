@@ -30,6 +30,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct model_cmd {
+  unsigned id;
   unsigned i_count;
   unsigned first_i;
   int v_offset;
@@ -39,6 +40,8 @@ struct model_cmd {
 
   template<typename T> static model_cmd of(T) {
     return {
+      .id = T::id,
+
       .i_count = buffers::size(T::tri) * 3,
       .v_count = buffers::size(T::vtx),
       .e_count = buffers::size(T::edg) * 3,
@@ -53,11 +56,11 @@ class model_cmds {
   voo::memiter<VkDrawIndexedIndirectCommand> m_vc = m_vtx.map();
   voo::memiter<VkDrawIndirectCommand> m_ec = m_edg.map();
 
+  hai::varray<model_cmd> m_mdls;
   model_cmd m_last {};
   unsigned m_count {};
 
-public:
-  template<typename T> [[nodiscard]] auto cmd(T) {
+  template<typename T> void cmd(T) {
     auto m = model_cmd::of(T {});
 
     m.first_i  = m_last.first_i  + m_last.i_count;
@@ -65,8 +68,21 @@ public:
     m.first_e  = m_last.first_e  + m_last.e_count;
 
     m_last = m;
-    return m;
+    m_mdls.push_back(m);
   }
+
+public:
+  template<typename... T>
+  model_cmds(T...) : m_mdls { sizeof...(T) } {
+    (cmd(T {}), ...);
+  }
+
+  template<typename T>
+  [[nodiscard]] constexpr model_cmd operator[](T) const {
+    for (auto m : m_mdls) if (m.id == T::id) return m;
+    return {};
+  }
+
   void push(model_cmd m, unsigned count) {
     m_vc += {
       .indexCount = m.i_count,
@@ -102,9 +118,9 @@ class scene_drawer : public ofs::drawer {
   buffers::v_buffer  vtx { cube::t {}, prism::t {} };
   buffers::ix_buffer idx { cube::t {}, prism::t {} };
   buffers::e_buffer  edg { cube::t {}, prism::t {} };
+  model_cmds        mdls { cube::t {}, prism::t {} };
 
   buffers::buffer<buffers::inst> ins { 128 * 128 * 2 };
-  model_cmds mdls {};
 
 public:
   scene_drawer();
@@ -135,9 +151,8 @@ scene_drawer::scene_drawer() {
     tmap.load(t101),
     tmap.load(t131),
   };
-  // Same order as v/e_buffer
-  auto mdl_cube = mdls.cmd(cube::t {});
-  auto mdl_prism = mdls.cmd(prism::t {});
+  auto mdl_prism = mdls[prism::t()];
+  auto mdl_cube = mdls[cube::t()];
 
   auto m = ins.map();
   // Prisms

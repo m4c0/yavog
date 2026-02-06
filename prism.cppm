@@ -54,6 +54,8 @@ constexpr const models::edge edg[] {
 
 export namespace prism {
   struct t {
+    static constexpr const auto id = 'prsm';
+
     static constexpr const auto & pos = ::pos;
     static constexpr const auto & vtx = ::vtx;
     static constexpr const auto & tri = ::tri;
