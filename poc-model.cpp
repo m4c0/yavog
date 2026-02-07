@@ -1,8 +1,8 @@
-//#pragma leco app
+#pragma leco app
 #pragma leco add_shader "poc-model.frag"
 #pragma leco add_shader "poc-model.vert"
 import casein;
-import clay;
+import buffers;
 import cube;
 import dotz;
 import hai;
@@ -41,7 +41,8 @@ static inline auto create_dq() {
 
 struct app_stuff {
   voo::device_and_queue dq = create_dq();
-  ofs::buffers bufs { prism::t {}, 16 };
+  buffers::v_buffer  vtx { cube::t {} };
+  buffers::ix_buffer idx { cube::t {} };
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
@@ -56,12 +57,12 @@ struct app_stuff {
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
     .bindings {
-      vee::vertex_input_bind(sizeof(ofs::vtx)),
+      vee::vertex_input_bind(sizeof(buffers::vtx)),
     },
     .attributes {
-      vee::vertex_attribute_vec4(0, traits::offset_of(&ofs::vtx::pos)),
-      vee::vertex_attribute_vec3(0, traits::offset_of(&ofs::vtx::normal)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&ofs::vtx::uv)),
+      vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
+      vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
+      vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
     },
   });
   vee::gr_pipeline faces_ppl = vee::create_graphics_pipeline({
@@ -73,12 +74,12 @@ struct app_stuff {
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
     .bindings {
-      vee::vertex_input_bind(sizeof(ofs::vtx)),
+      vee::vertex_input_bind(sizeof(buffers::vtx)),
     },
     .attributes {
-      vee::vertex_attribute_vec4(0, traits::offset_of(&ofs::vtx::pos)),
-      vee::vertex_attribute_vec3(0, traits::offset_of(&ofs::vtx::normal)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&ofs::vtx::uv)),
+      vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
+      vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
+      vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
     },
   });
 };
@@ -117,21 +118,21 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
-      vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->bufs.vtx, 0);
-      vee::cmd_bind_index_buffer_u16(cb, *vv::as()->bufs.idx);
+      vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
+      vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->faces_ppl);
 
       vkCmdSetPolygonModeEXT(cb, VK_POLYGON_MODE_FILL);
-      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count());
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 
       upc pc = g_pc;
       pc.explode *= 0.3;
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vkCmdSetPolygonModeEXT(cb, VK_POLYGON_MODE_LINE);
-      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count());
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->dots_ppl);
-      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count());
+      vee::cmd_draw_indexed(cb, vv::as()->idx.count());
     }
 
     vv::ss()->swc.queue_submit(cb);
