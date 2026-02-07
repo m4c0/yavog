@@ -65,7 +65,7 @@ namespace buffers {
     }
 
   public:
-    template<typename... T> v_buffer(T...) : buffer { size(T::pos...) } {
+    template<typename... T> v_buffer(T...) : buffer { size(T::vtx...) } {
       auto m = map();
       (push(m, T {}), ...);
     }
