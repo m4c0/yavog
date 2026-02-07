@@ -1,11 +1,6 @@
 export module cube;
 import dotz;
-import clay;
 import models;
-import no;
-import ofs;
-import traits;
-import voo;
 
 constexpr const dotz::vec4 pos[] {
   {  0.5,  0.5,  0.5, 1.0 }, // 0

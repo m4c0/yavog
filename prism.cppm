@@ -1,9 +1,6 @@
 export module prism;
-import clay;
 import dotz;
 import models;
-import no;
-import ofs;
 
 constexpr dotz::vec4 pos[] {
   {  0.5, -0.5,  0.5, 1.0 }, // 0
