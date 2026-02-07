@@ -131,3 +131,28 @@ namespace buffers {
   };
 }
 
+// Should be in this module due to a bug in clang on windows
+export namespace buffers::vk {
+  template<typename T> auto binding() { return vee::vertex_input_bind(sizeof(T)); }
+  template<> auto binding<buffers::inst>() { return vee::vertex_input_bind_per_instance(sizeof(buffers::inst)); }
+  template<typename... T> auto bindings() {
+    return hai::view<VkVertexInputBindingDescription> { binding<T>()... };
+  }
+
+  template<typename T> auto attr(unsigned b, dotz::vec2 (T::*m)) {
+    return vee::vertex_attribute_vec2(b, traits::offset_of(m));
+  }
+  template<typename T> auto attr(unsigned b, dotz::vec3 (T::*m)) {
+    return vee::vertex_attribute_vec3(b, traits::offset_of(m));
+  }
+  template<typename T> auto attr(unsigned b, dotz::vec4 (T::*m)) {
+    return vee::vertex_attribute_vec4(b, traits::offset_of(m));
+  }
+  auto attr(auto (buffers::vtx::*m)) { return attr(0, m); }
+  auto attr(auto (buffers::inst::*m)) { return attr(1, m); }
+  auto attr(auto (buffers::edge::*m)) { return attr(0, m); }
+  auto attrs(auto... ms) {
+    return hai::view<VkVertexInputAttributeDescription> { attr(ms)... };
+  }
+}
+
