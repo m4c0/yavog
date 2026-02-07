@@ -38,8 +38,8 @@ static inline auto create_dq() {
 
 struct app_stuff {
   voo::device_and_queue dq = create_dq();
-  buffers::v_buffer  vtx { models::cube::t {} };
-  buffers::ix_buffer idx { models::cube::t {} };
+  buffers::v_buffer  vtx { models::corner::t {} };
+  buffers::ix_buffer idx { models::corner::t {} };
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
