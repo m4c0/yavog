@@ -3,12 +3,11 @@
 
 import buffers;
 import casein;
-import cube;
 import dotz;
 import embedded;
 import hai;
+import models;
 import ofs;
-import prism;
 import post;
 import silog;
 import sitime;
@@ -37,7 +36,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  embedded::drawer embed { cube::t {}, prism::t {} };
+  embedded::drawer embed { models::cube::t {}, models::prism::t {} };
 
 public:
   scene_drawer();
@@ -65,7 +64,7 @@ static void ex_shadow_test(embedded::drawer & embed) {
 
   // Prisms
   m += { .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) } };
-  m.push(embed.model(prism::t {}));
+  m.push(embed.model(models::prism::t {}));
 
   // Cubes
   for (auto x = 0; x < 128; x++) {
@@ -77,14 +76,14 @@ static void ex_shadow_test(embedded::drawer & embed) {
     }
   }
   m += { .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) } };
-  m.push(embed.model(cube::t {}));
+  m.push(embed.model(models::cube::t {}));
 
   // More prisms
   m += {
     .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
   };
-  m.push(embed.model(prism::t {}));
+  m.push(embed.model(models::prism::t {}));
 }
 
 static void ex_cube(embedded::drawer & embed) {
@@ -96,7 +95,7 @@ static void ex_cube(embedded::drawer & embed) {
   m += { .pos { -1,  0, 2, txt_id } };
   m += { .pos {  1,  0, 2, txt_id } };
   m += { .pos {  0, -1, 3, txt_id } };
-  m.push(embed.model(prism::t {}));
+  m.push(embed.model(models::prism::t {}));
 }
 
 static void ex_hills(embedded::drawer & embed) {
@@ -115,7 +114,7 @@ static void ex_hills(embedded::drawer & embed) {
       m += { .pos { 2 + x, -1, 4 + y, grass } };
     }
   }
-  m.push(embed.model(cube::t {}));
+  m.push(embed.model(models::cube::t {}));
 
   for (auto x = 0; x < 3; x++) {
     m += { .pos { 5, -1, 4 + x, grass } };
@@ -123,7 +122,7 @@ static void ex_hills(embedded::drawer & embed) {
     m += { .pos { 2 + x, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
     m += { .pos { 2 + x, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
   }
-  m.push(embed.model(prism::t {}));
+  m.push(embed.model(models::prism::t {}));
 }
 
 scene_drawer::scene_drawer() {

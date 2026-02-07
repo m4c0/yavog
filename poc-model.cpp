@@ -3,9 +3,9 @@
 #pragma leco add_shader "poc-model.vert"
 import casein;
 import buffers;
-import cube;
 import dotz;
 import hai;
+import models;
 import traits;
 import vinyl;
 import voo;
@@ -38,8 +38,8 @@ static inline auto create_dq() {
 
 struct app_stuff {
   voo::device_and_queue dq = create_dq();
-  buffers::v_buffer  vtx { cube::t {} };
-  buffers::ix_buffer idx { cube::t {} };
+  buffers::v_buffer  vtx { models::cube::t {} };
+  buffers::ix_buffer idx { models::cube::t {} };
 
   vee::render_pass rp = voo::single_att_render_pass(dq);
 

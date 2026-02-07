@@ -1,8 +1,8 @@
-export module cube;
+export module models:cube;
+import :common;
 import dotz;
-import models;
 
-constexpr const dotz::vec4 pos[] {
+static constexpr const dotz::vec4 pos[] {
   {  0.5,  0.5,  0.5, 1.0 }, // 0
   {  0.5,  0.5, -0.5, 1.0 }, // 1
   {  0.5, -0.5,  0.5, 1.0 }, // 2
@@ -13,7 +13,7 @@ constexpr const dotz::vec4 pos[] {
   { -0.5, -0.5,  0.5, 1.0 }, // 6
   { -0.5, -0.5, -0.5, 1.0 }, // 7
 };
-constexpr const models::vtx vtx[] {
+static constexpr const models::vtx vtx[] {
   { .id = 6, .uv { 1, 0 }, .normal { 0, 0, 1 } },
   { .id = 2, .uv { 0, 0 }, .normal { 0, 0, 1 } },
   { .id = 4, .uv { 1, 1 }, .normal { 0, 0, 1 } },
@@ -49,7 +49,7 @@ constexpr const models::vtx vtx[] {
   { .id = 2, .uv { 0, 0 }, .normal { 1, 0, 0 } },
   { .id = 0, .uv { 0, 1 }, .normal { 1, 0, 0 } },
 };
-constexpr const models::tri tri[] {
+static constexpr const models::tri tri[] {
   {  0,  1,  2 }, {  3,  2,  1 }, // Front
   {  4,  5,  6 }, {  7,  6,  5 }, // Back
   {  8,  9, 10 }, { 11, 10,  9 }, // Bottom
@@ -57,13 +57,13 @@ constexpr const models::tri tri[] {
   { 16, 17, 18 }, { 19, 18, 17 }, // Left
   { 20, 21, 22 }, { 23, 22, 21 }, // Right
 };
-constexpr const models::edge edg[] {
+static constexpr const models::edge edg[] {
   { 0, 2 }, { 2, 6 }, { 6, 4 }, { 4, 0 },
   { 5, 7 }, { 7, 3 }, { 3, 1 }, { 1, 5 },
   { 0, 1 }, { 2, 3 }, { 4, 5 }, { 6, 7 },
 };
 
-export namespace cube {
+export namespace models::cube {
   struct t {
     static constexpr const auto id = 'cube';
 
