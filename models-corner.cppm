@@ -10,21 +10,21 @@ static constexpr dotz::vec4 pos[] {
 };
 static constexpr const auto s = 0.5773502692; // sqrt(3) / 3
 static constexpr const models::vtx vtx[] {
-  { .id = 3, .uv { 0, 0 }, .normal {  0,  0, -1 } },
-  { .id = 1, .uv { 0, 0 }, .normal {  0,  0, -1 } },
-  { .id = 0, .uv { 0, 0 }, .normal {  0,  0, -1 } },
+  { .id = 3, .uv { 0, 1 }, .normal {  0,  0, -1 } },
+  { .id = 1, .uv { 1, 1 }, .normal {  0,  0, -1 } },
+  { .id = 0, .uv { 1, 0 }, .normal {  0,  0, -1 } },
 
-  { .id = 3, .uv { 0, 0 }, .normal { -1,  0,  0 } },
-  { .id = 2, .uv { 0, 0 }, .normal { -1,  0,  0 } },
-  { .id = 1, .uv { 0, 0 }, .normal { -1,  0,  0 } },
+  { .id = 3, .uv { 0, 1 }, .normal { -1,  0,  0 } },
+  { .id = 2, .uv { 1, 0 }, .normal { -1,  0,  0 } },
+  { .id = 1, .uv { 1, 1 }, .normal { -1,  0,  0 } },
 
-  { .id = 3, .uv { 0, 0 }, .normal {  0, -1,  0 } },
-  { .id = 0, .uv { 0, 0 }, .normal {  0, -1,  0 } },
-  { .id = 2, .uv { 0, 0 }, .normal {  0, -1,  0 } },
+  { .id = 3, .uv { 1, 1 }, .normal {  0, -1,  0 } },
+  { .id = 0, .uv { 1, 0 }, .normal {  0, -1,  0 } },
+  { .id = 2, .uv { 0, 1 }, .normal {  0, -1,  0 } },
 
-  { .id = 0, .uv { 0, 0 }, .normal {  s,  s,  s } },
-  { .id = 1, .uv { 0, 0 }, .normal {  s,  s,  s } },
-  { .id = 2, .uv { 0, 0 }, .normal {  s,  s,  s } },
+  { .id = 0, .uv { 1, 0 }, .normal {  s,  s,  s } },
+  { .id = 1, .uv { 1, 1 }, .normal {  s,  s,  s } },
+  { .id = 2, .uv { 0, 1 }, .normal {  s,  s,  s } },
 };
 static constexpr const models::tri tri[] {
   { 0,  1,  2 },
