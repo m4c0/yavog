@@ -36,7 +36,11 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  embedded::drawer embed { models::cube::t {}, models::prism::t {} };
+  embedded::drawer embed {
+    models::corner::t {},
+    models::cube::t {},
+    models::prism::t {},
+  };
 
 public:
   scene_drawer();
