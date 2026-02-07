@@ -127,6 +127,12 @@ static void ex_hills(embedded::drawer & embed) {
     m += { .pos { 2 + x, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
   }
   m.push(embed.model(models::prism::t {}));
+
+  m += { .pos { 5, -1, 7, grass } };
+  m += { .pos { 1, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
+  m += { .pos { 5, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
+  m += { .pos { 1, -1, 3, grass }, .rot { 0, 1, 0, 0 } };
+  m.push(embed.model(models::corner::t {}));
 }
 
 scene_drawer::scene_drawer() {
