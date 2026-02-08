@@ -36,7 +36,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  models::drawer embed {};
+  models::drawer embed { 128 * 128 * 16 };
 
 public:
   scene_drawer();

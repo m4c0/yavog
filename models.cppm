@@ -6,7 +6,8 @@ import embedded;
 
 namespace models {
   export struct drawer : embedded::drawer {
-    drawer() : embedded::drawer {
+    drawer(unsigned max_ins) : embedded::drawer {
+      max_ins,
       models::corner::t {},
       models::cube::t {},
       models::prism::t {},

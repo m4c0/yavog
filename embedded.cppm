@@ -66,16 +66,17 @@ namespace embedded {
     buffers::buffer<VkDrawIndexedIndirectCommand> m_vcmd { max };
     buffers::buffer<VkDrawIndirectCommand> m_ecmd { max };
 
-    buffers::buffer<buffers::inst> m_ins { 128 * 128 * 2 };
+    buffers::buffer<buffers::inst> m_ins;
 
     friend class builder;
 
   public:
-    template<typename... T> drawer(T...) :
+    template<typename... T> drawer(unsigned max_ins, T...) :
       m_vtx  { T {}... }
     , m_idx  { T {}... }
     , m_edg  { T {}... }
     , m_mdls { T {}... }
+    , m_ins  { max_ins }
     {}
 
     [[nodiscard]] auto model(auto t) { return m_mdls[t]; }
