@@ -14,8 +14,19 @@ layout(location = 2) out vec4 normal;
 
 const vec3 amb = vec3(0.2);
 
+const float uv_scale = 5;
+const float uv_exp = 2;
+
+vec4 txt(vec2 uv) { return texture(nonuniformEXT(txts[f_txtid]), uv); }
+vec4 tri_plane_txt() {
+  vec3 p = f_pos / uv_scale;
+  vec3 w = pow(abs(f_normal), vec3(uv_exp));
+  vec4 sum = txt(p.zy) * w.x + txt(p.xz) * w.y + txt(p.xy) * w.z;
+  return sum / (w.x + w.y + w.z);
+}
+
 void main() {
-  colour = texture(nonuniformEXT(txts[f_txtid]), f_uv) * vec4(amb, 1);
+  colour = tri_plane_txt() * vec4(amb, 1);
   position = vec4(f_pos, 1);
   normal = vec4(f_normal, 1);
 }
