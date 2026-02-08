@@ -36,11 +36,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  embedded::drawer embed {
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
+  models::drawer embed {};
 
 public:
   scene_drawer();
@@ -53,7 +49,7 @@ public:
   }
 };
 
-static void ex_shadow_test(embedded::drawer & embed) {
+static void ex_shadow_test(models::drawer & embed) {
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
   static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
@@ -64,7 +60,7 @@ static void ex_shadow_test(embedded::drawer & embed) {
     embed.texture(t131),
   };
 
-  embedded::builder m { embed };
+  auto m = embed.builder();
 
   // Prisms
   m += { .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) } };
@@ -90,8 +86,8 @@ static void ex_shadow_test(embedded::drawer & embed) {
   m.push(embed.model(models::prism::t {}));
 }
 
-static void ex_cube(embedded::drawer & embed) {
-  embedded::builder m { embed };
+static void ex_cube(models::drawer & embed) {
+  auto m = embed.builder();
 
   float txt_id = embed.texture("Tiles101_1K-JPG_Color.jpg");
   m += { .pos { -1,  0, 4, txt_id } };
@@ -102,8 +98,8 @@ static void ex_cube(embedded::drawer & embed) {
   m.push(embed.model(models::prism::t {}));
 }
 
-static void ex_hills(embedded::drawer & embed) {
-  embedded::builder m { embed };
+static void ex_hills(models::drawer & embed) {
+  auto m = embed.builder();
 
   float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
   float dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
