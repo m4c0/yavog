@@ -21,11 +21,12 @@ import wagen;
 
 static enum {
   e_cube,
+  e_sizedcubes,
   e_shadowtest,
   e_hills,
-} constexpr const example = e_hills;
+} constexpr const example = e_sizedcubes;
 
-static constexpr const bool enable_post = example != e_cube;
+static constexpr const bool enable_post = example > e_sizedcubes;
 
 using namespace wagen;
 
@@ -98,6 +99,21 @@ static void ex_cube(models::drawer & embed) {
   m.push(embed.model(models::prism::t {}));
 }
 
+static void ex_sizedcubes(models::drawer & embed) {
+  auto m = embed.builder();
+
+  float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
+  m += { .pos { 0, -2.1, 4, grass } };
+
+  float dirt = embed.texture("Ground105_1K-JPG_Color.jpg");
+  m += { .pos {  1, -2, 4, dirt } };
+  m += { .pos { -1, -2, 4, dirt } };
+  m += { .pos {  0, -2, 3, dirt } };
+  m += { .pos {  0, -2, 5, dirt } };
+
+  m.push(embed.model(models::cube::t {}));
+}
+
 static void ex_hills(models::drawer & embed) {
   auto m = embed.builder();
 
@@ -134,6 +150,7 @@ static void ex_hills(models::drawer & embed) {
 scene_drawer::scene_drawer() {
   switch (example) {
     case e_cube:       ex_cube(embed);        break;
+    case e_sizedcubes: ex_sizedcubes(embed);  break;
     case e_shadowtest: ex_shadow_test(embed); break;
     case e_hills:      ex_hills(embed);       break;
   }
