@@ -106,10 +106,10 @@ static void ex_sizedcubes(models::drawer & embed) {
   m += { .pos { 0, -2.1, 4, grass } };
 
   float dirt = embed.texture("Ground105_1K-JPG_Color.jpg");
-  m += { .pos {  1, -2, 4, dirt }, .size { 2, 2 } };
-  m += { .pos { -1, -2, 4, dirt }, .size { 2, 2 } };
-  m += { .pos {  0, -2, 3, dirt }, .size { 2, 2 } };
-  m += { .pos {  0, -2, 5, dirt }, .size { 2, 2 } };
+  m += { .pos {  1.0, -2, 3.5, dirt }, .size { 1, 1, 2 } };
+  m += { .pos { -1.0, -2, 4.5, dirt }, .size { 1, 1, 2 } };
+  m += { .pos {  0.5, -2, 5.0, dirt }, .size { 2, 1, 1 } };
+  m += { .pos { -0.5, -2, 3.0, dirt }, .size { 2, 1, 1 } };
 
   m.push(embed.model(models::cube::t {}));
 }

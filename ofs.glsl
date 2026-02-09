@@ -10,7 +10,7 @@ layout(push_constant) uniform upc {
 layout(location = 0, component = 0) in vec3 i_pos;
 layout(location = 0, component = 3) in float i_txtid;
 layout(location = 1) in vec4 i_rot;
-layout(location = 2) in vec2 i_size;
+layout(location = 2) in vec3 i_size;
 
 const float near =   0.01;
 
@@ -46,7 +46,7 @@ vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
   return vec4(qrot(pos.xyz, i_rot), pos.w) + vec4(i_pos, 0);
 }
 vec4 i_modl(vec4 pos) {
-  return modl(pos, i_pos, i_rot);
+  return modl(pos * vec4(i_size, 1), i_pos, i_rot);
 }
 
 vec3 proj(vec4 pos) {
