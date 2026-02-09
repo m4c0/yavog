@@ -152,8 +152,9 @@ export namespace buffers::vk {
   auto attr(auto (buffers::vtx::*m)) { return attr(0, m); }
   auto attr(auto (buffers::inst::*m)) { return attr(1, m); }
   auto attr(auto (buffers::edge::*m)) { return attr(0, m); }
-  auto attrs(auto... ms) {
-    return hai::view<VkVertexInputAttributeDescription> { attr(ms)... };
-  }
+
+  struct attrs : hai::view<VkVertexInputAttributeDescription> {
+    explicit attrs(auto... ms) : view { attr(ms)... } {}
+  };
 }
 

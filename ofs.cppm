@@ -43,14 +43,14 @@ namespace ofs {
         vee::colour_blend_none(),
       },
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs(
+      .attributes = buffers::vk::attrs {
         &buffers::vtx::pos,
         &buffers::vtx::uv,
         &buffers::vtx::normal,
         &buffers::inst::pos,
         &buffers::inst::rot,
-        &buffers::inst::size
-      ),
+        &buffers::inst::size,
+      },
     });
 
     colour() {
@@ -72,15 +72,15 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings = buffers::vk::bindings<buffers::edge, buffers::inst>(),
-      .attributes = buffers::vk::attrs(
+      .attributes = buffers::vk::attrs {
         &buffers::edge::nrm_a,
         &buffers::edge::nrm_b,
         &buffers::edge::vtx_a,
         &buffers::edge::vtx_b,
         &buffers::inst::pos,
         &buffers::inst::rot,
-        &buffers::inst::size
-      ),
+        &buffers::inst::size,
+      },
     });
 
     shadow() {
@@ -102,13 +102,13 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs( 
+      .attributes = buffers::vk::attrs {
         &buffers::vtx::pos,
         &buffers::vtx::normal,
         &buffers::inst::pos,
         &buffers::inst::rot,
-        &buffers::inst::size
-      ),
+        &buffers::inst::size,
+      },
     });
 
     shcaps() {
@@ -131,14 +131,14 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs(
+      .attributes = buffers::vk::attrs {
         &buffers::vtx::pos,
         &buffers::vtx::uv,
         &buffers::vtx::normal,
         &buffers::inst::pos,
         &buffers::inst::rot,
         &buffers::inst::size
-      ),
+      },
     });
 
     lights() {
