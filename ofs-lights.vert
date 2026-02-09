@@ -4,23 +4,20 @@
 layout(location = 3) in vec4 pos;
 layout(location = 4) in vec2 uv;
 layout(location = 5) in vec3 normal;
-layout(location = 0, component = 0) in vec3 i_pos;
 layout(location = 0, component = 3) in float txtid;
-layout(location = 1) in vec4 i_rot;
-layout(location = 2) in vec2 i_size;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
-vec3 qrot(vec3, vec4);
-vec4 modl(vec4, vec3, vec4);
-vec3 proj(vec4);
+vec3  i_qrot(vec3);
+vec4  i_modl(vec4);
+vec3  proj(vec4 pos);
 
 void main() {
-  f_pos = proj(modl(pos, i_pos, i_rot));
+  f_pos = proj(i_modl(pos));
   f_uv = uv;
   f_txtid = int(txtid);
-  f_normal = qrot(normal, i_rot);
+  f_normal = i_qrot(normal);
 }
