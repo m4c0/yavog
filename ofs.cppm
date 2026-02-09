@@ -44,12 +44,12 @@ namespace ofs {
       },
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
       .attributes = buffers::vk::attrs {
-        &buffers::vtx::pos,
-        &buffers::vtx::uv,
-        &buffers::vtx::normal,
         &buffers::inst::pos,
         &buffers::inst::rot,
         &buffers::inst::size,
+        &buffers::vtx::pos,
+        &buffers::vtx::uv,
+        &buffers::vtx::normal,
       },
     });
 
@@ -73,13 +73,13 @@ namespace ofs {
       }),
       .bindings = buffers::vk::bindings<buffers::edge, buffers::inst>(),
       .attributes = buffers::vk::attrs {
+        &buffers::inst::pos,
+        &buffers::inst::rot,
+        &buffers::inst::size,
         &buffers::edge::nrm_a,
         &buffers::edge::nrm_b,
         &buffers::edge::vtx_a,
         &buffers::edge::vtx_b,
-        &buffers::inst::pos,
-        &buffers::inst::rot,
-        &buffers::inst::size,
       },
     });
 
@@ -103,11 +103,11 @@ namespace ofs {
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
       .attributes = buffers::vk::attrs {
-        &buffers::vtx::pos,
-        &buffers::vtx::normal,
         &buffers::inst::pos,
         &buffers::inst::rot,
         &buffers::inst::size,
+        &buffers::vtx::pos,
+        &buffers::vtx::normal,
       },
     });
 
@@ -132,12 +132,12 @@ namespace ofs {
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
       .attributes = buffers::vk::attrs {
+        &buffers::inst::pos,
+        &buffers::inst::rot,
+        &buffers::inst::size,
         &buffers::vtx::pos,
         &buffers::vtx::uv,
         &buffers::vtx::normal,
-        &buffers::inst::pos,
-        &buffers::inst::rot,
-        &buffers::inst::size
       },
     });
 
