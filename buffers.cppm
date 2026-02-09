@@ -17,6 +17,7 @@ namespace buffers {
   export struct inst {
     dotz::vec4 pos; // pos(3) + txtid
     dotz::vec4 rot { 0, 0, 0, 1 };
+    dotz::vec2 size { 1, 1 };
   };
   export struct edge {
     dotz::vec4 nrm_a;

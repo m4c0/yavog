@@ -7,6 +7,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3, component = 0) in vec3 i_pos;
 layout(location = 3, component = 3) in float txtid;
 layout(location = 4) in vec4 i_rot;
+layout(location = 5) in vec2 i_size;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;

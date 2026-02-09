@@ -5,6 +5,7 @@ layout(location = 0) in vec4 pos;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec3 i_pos;
 layout(location = 3) in vec4 i_rot;
+layout(location = 4) in vec2 i_size;
 
 float backface(vec3 n, vec4 rot);
 vec4 modl(vec4, vec3, vec4);

@@ -48,7 +48,8 @@ namespace ofs {
         &buffers::vtx::uv,
         &buffers::vtx::normal,
         &buffers::inst::pos,
-        &buffers::inst::rot
+        &buffers::inst::rot,
+        &buffers::inst::size
       ),
     });
 
@@ -77,7 +78,8 @@ namespace ofs {
         &buffers::edge::vtx_a,
         &buffers::edge::vtx_b,
         &buffers::inst::pos,
-        &buffers::inst::rot
+        &buffers::inst::rot,
+        &buffers::inst::size
       ),
     });
 
@@ -104,7 +106,8 @@ namespace ofs {
         &buffers::vtx::pos,
         &buffers::vtx::normal,
         &buffers::inst::pos,
-        &buffers::inst::rot
+        &buffers::inst::rot,
+        &buffers::inst::size
       ),
     });
 
@@ -133,7 +136,8 @@ namespace ofs {
         &buffers::vtx::uv,
         &buffers::vtx::normal,
         &buffers::inst::pos,
-        &buffers::inst::rot
+        &buffers::inst::rot,
+        &buffers::inst::size
       ),
     });
 
