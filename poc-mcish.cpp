@@ -24,7 +24,7 @@ static enum {
   e_sizedcubes,
   e_shadowtest,
   e_hills,
-} constexpr const example = e_sizedcubes;
+} constexpr const example = e_hills;
 
 static constexpr const bool enable_post = example > e_sizedcubes;
 
@@ -110,7 +110,6 @@ static void ex_sizedcubes(models::drawer & embed) {
   m += { .pos { -1.0, -2, 4.5, dirt }, .size { 1, 1, 2 } };
   m += { .pos {  0.5, -2, 5.0, dirt }, .size { 2, 1, 1 } };
   m += { .pos { -0.5, -2, 3.0, dirt }, .size { 2, 1, 1 } };
-
   m.push(embed.model(models::cube::t {}));
 }
 
@@ -121,23 +120,17 @@ static void ex_hills(models::drawer & embed) {
   float dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
 
   for (auto x = 0; x < 128; x++) {
-    for (auto y = 0; y < 128; y++) {
-      m += { .pos { x - 64, -2, y, dirt } };
-    }
+    //for (auto y = 0; y < 128; y++) {
+      m += { .pos { x - 64, -2, 0, dirt }, .size { 1, 1, 256 } };
+    //}
   }
-  for (auto x = 0; x < 3; x++) {
-    for (auto y = 0; y < 3; y++) {
-      m += { .pos { 2 + x, -1, 4 + y, grass } };
-    }
-  }
+  m += { .pos { 3, -1, 5, grass }, .size { 3, 1, 3 } };
   m.push(embed.model(models::cube::t {}));
 
-  for (auto x = 0; x < 3; x++) {
-    m += { .pos { 5, -1, 4 + x, grass } };
-    m += { .pos { 1, -1, 4 + x, grass }, .rot { 0, 1, 0, 0 } };
-    m += { .pos { 2 + x, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
-    m += { .pos { 2 + x, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
-  }
+  m += { .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
+  m += { .pos { 1, -1, 5, grass }, .rot { 0, 1, 0, 0 }, .size { 1, 1, 3 } };
+  m += { .pos { 3, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
+  m += { .pos { 3, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
   m.push(embed.model(models::prism::t {}));
 
   m += { .pos { 5, -1, 7, grass } };
