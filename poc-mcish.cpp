@@ -3,6 +3,7 @@
 
 import buffers;
 import casein;
+import chunk;
 import dotz;
 import embedded;
 import hai;
@@ -114,18 +115,23 @@ static void ex_sizedcubes(models::drawer & embed) {
 }
 
 static void ex_hills(models::drawer & embed) {
+  chunk::t ch {};
   auto m = embed.builder();
 
   float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
-  float dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
 
-  for (auto x = 0; x < 128; x++) {
-    //for (auto y = 0; y < 128; y++) {
-      m += { .pos { x - 64, -2, 0, dirt }, .size { 1, 1, 256 } };
-    //}
+  for (auto x = 0; x < 32; x++) {
+    for (auto y = 0; y < 16; y++) {
+      for (auto z = 0; z < 32; z++) {
+        ch.at({ x, y, z }) = { .txt = "Ground105_1K-JPG_Color.jpg" };
+      }
+    }
   }
-  m += { .pos { 3, -1, 5, grass }, .size { 3, 1, 3 } };
-  m.push(embed.model(models::cube::t {}));
+  for (auto x = 0; x < 3; x++) {
+    for (auto y = 0; y < 3; y++) {
+      ch.at({ 5 + x, 16, 5 + y }) = { .txt = "Ground037_1K-JPG_Color.jpg" };
+    }
+  }
 
   m += { .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
   m += { .pos { 1, -1, 5, grass }, .rot { 0, 1, 0, 0 }, .size { 1, 1, 3 } };
