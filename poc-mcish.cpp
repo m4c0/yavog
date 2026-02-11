@@ -147,21 +147,21 @@ static void ex_chunks(models::drawer & embed) {
   auto m = embed.builder();
 
   using enum chunk::model;
-  constexpr const auto dirt  = "Ground105_1K-JPG_Color.jpg"_sv;
-  constexpr const auto grass = "Ground037_1K-JPG_Color.jpg"_sv;
+  auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
+  auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
 
   constexpr const auto mm = chunk::minmax;
 
   for (auto x = -mm; x <= mm; x++) {
     for (auto y = -mm; y < -2; y++) {
       for (auto z = -mm; z <= mm; z++) {
-        ch.at({ x, y, z }) = { .txt = dirt };
+        ch.at({ x, y, z }) = chunk::block { .mdl = cube, .txt = dirt };
       }
     }
   }
   for (auto x = -1; x <= 1; x++) {
     for (auto y = -1; y <= 1; y++) {
-      ch.at({ 3 + x, -1, 5 + y }) = { .txt = grass };
+      ch.at({ 3 + x, -1, 5 + y }) = chunk::block { .mdl = cube, .txt = grass };
     }
   }
 

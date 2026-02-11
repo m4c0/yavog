@@ -10,6 +10,7 @@ namespace chunk {
   static inline constexpr const auto blk_size = len * len * len;
 
   export enum class model {
+    none,
     corner,
     cube,
     prism,
@@ -17,8 +18,8 @@ namespace chunk {
 
   export struct block {
     dotz::vec4 rot { 0, 0, 0, 1 };
-    model mdl = model::cube;
-    sv txt;
+    model mdl = model::none;
+    unsigned txt;
   };
   
   export class t {
@@ -31,14 +32,21 @@ namespace chunk {
       if (p.x >= len || p.y >= len || p.z >= len) throw 0;
       return m_data[p.x + p.y * len + p.z * len * len];
     }
+    [[nodiscard]] auto & at(dotz::ivec3 p) const {
+      p = p + minmax;
+      if (p.x < 0 || p.y < 0 || p.z < 0) throw 0;
+      if (p.x >= len || p.y >= len || p.z >= len) throw 0;
+      return m_data[p.x + p.y * len + p.z * len * len];
+    }
 
     void build(embedded::builder & m, model mdl, dotz::vec3 c) const {
       for (auto x = 0; x < len; x++) {
         for (auto y = 0; y < len; y++) {
           for (auto z = 0; z < len; z++) {
-            auto p = dotz::vec3 { x, y, z } - minmax;
+            auto p = dotz::ivec3 { x, y, z } - minmax;
+            auto d = at(p);
             m += {
-              .pos { p - c + 0.5, 1 },
+              .pos { p - c + 0.5, d.txt },
             };
           }
         }
