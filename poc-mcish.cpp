@@ -150,16 +150,18 @@ static void ex_chunks(models::drawer & embed) {
   constexpr const auto dirt  = "Ground105_1K-JPG_Color.jpg"_sv;
   constexpr const auto grass = "Ground037_1K-JPG_Color.jpg"_sv;
 
-  for (auto x = 0; x < 32; x++) {
-    for (auto y = 0; y < 16; y++) {
-      for (auto z = 0; z < 32; z++) {
+  constexpr const auto mm = chunk::minmax;
+
+  for (auto x = -mm; x <= mm; x++) {
+    for (auto y = -mm; y < -2; y++) {
+      for (auto z = -mm; z <= mm; z++) {
         ch.at({ x, y, z }) = { .txt = dirt };
       }
     }
   }
-  for (auto x = 0; x < 3; x++) {
-    for (auto y = 0; y < 3; y++) {
-      ch.at({ 5 + x, 16, 5 + y }) = { .txt = grass };
+  for (auto x = -1; x <= 1; x++) {
+    for (auto y = -1; y <= 1; y++) {
+      ch.at({ 3 + x, -1, 5 + y }) = { .txt = grass };
     }
   }
 
