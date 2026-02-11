@@ -45,6 +45,7 @@ namespace chunk {
           for (auto z = 0; z < len; z++) {
             auto p = dotz::ivec3 { x, y, z } - minmax;
             auto d = at(p);
+            if (d.mdl != mdl) continue;
             m += {
               .pos { p - c + 0.5, d.txt },
             };
