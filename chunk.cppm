@@ -40,14 +40,15 @@ namespace chunk {
     }
 
     void build(embedded::builder & m, model mdl, dotz::vec3 c) const {
-      for (auto x = 0; x < len; x++) {
-        for (auto y = 0; y < len; y++) {
-          for (auto z = 0; z < len; z++) {
-            auto p = dotz::ivec3 { x, y, z } - minmax;
+      for (auto x = -minmax; x <= minmax; x++) {
+        for (auto y = -minmax; y <= minmax; y++) {
+          for (auto z = -minmax; z <= minmax; z++) {
+            auto p = dotz::ivec3 { x, y, z };
             auto d = at(p);
             if (d.mdl != mdl) continue;
             m += {
-              .pos { p - c + 0.5, d.txt },
+              .pos { p - c, d.txt },
+              .rot = d.rot,
             };
           }
         }
