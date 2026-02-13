@@ -26,11 +26,11 @@ namespace chunk {
     hai::array<block> m_data { blk_size };
 
   public:
-    [[nodiscard]] auto & at(dotz::ivec3 p) {
+    void set(dotz::ivec3 p, block b) {
       p = p + minmax;
       if (p.x < 0 || p.y < 0 || p.z < 0) throw 0;
       if (p.x >= len || p.y >= len || p.z >= len) throw 0;
-      return m_data[p.x + p.y * len + p.z * len * len];
+      m_data[p.x + p.y * len + p.z * len * len] = b;
     }
     [[nodiscard]] auto & at(dotz::ivec3 p) const {
       p = p + minmax;

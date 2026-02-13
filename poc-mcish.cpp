@@ -144,7 +144,6 @@ static void ex_hills(models::drawer & embed) {
 
 static void ex_chunks(models::drawer & embed) {
   chunk::t ch {};
-  auto m = embed.builder();
 
   using enum chunk::model;
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
@@ -155,17 +154,19 @@ static void ex_chunks(models::drawer & embed) {
   for (auto x = -mm; x <= mm; x++) {
     for (auto y = -mm; y < -2; y++) {
       for (auto z = -mm; z <= mm; z++) {
-        ch.at({ x, y, z }) = chunk::block { .mdl = cube, .txt = dirt };
+        ch.set({ x, y, z }, { .mdl = cube, .txt = dirt });
       }
     }
   }
   for (auto x = -1; x <= 1; x++) {
     for (auto y = -1; y <= 1; y++) {
-      ch.at({ 3 + x, -1, 5 + y }) = chunk::block { .mdl = cube, .txt = grass };
+      ch.set({ 3 + x, -1, 5 + y }, { .mdl = cube, .txt = grass });
     }
   }
 
+  auto m = embed.builder();
   ch.build(m, cube, {});
+  m.push(embed.model(models::cube::t {}));
 
   //m += { .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
   //m += { .pos { 1, -1, 5, grass }, .rot { 0, 1, 0, 0 }, .size { 1, 1, 3 } };
