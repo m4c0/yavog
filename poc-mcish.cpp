@@ -152,33 +152,36 @@ static void ex_chunks(models::drawer & embed) {
   constexpr const auto mm = chunk::minmax;
 
   for (auto x = -mm; x <= mm; x++) {
-    for (auto y = -mm; y < -2; y++) {
+    for (auto y = -mm; y <= -2; y++) {
       for (auto z = -mm; z <= mm; z++) {
         ch.set({ x, y, z }, { .mdl = cube, .txt = dirt });
       }
     }
   }
+  const dotz::vec4 r90 { 0, 0.7071, 0, 0.7071 };
+  const dotz::vec4 r180 { 0, 1, 0, 0 };
+  const dotz::vec4 r270 { 0, -0.7071, 0, 0.7071 };
   for (auto x = -1; x <= 1; x++) {
     for (auto y = -1; y <= 1; y++) {
       ch.set({ 3 + x, -1, 5 + y }, { .mdl = cube, .txt = grass });
     }
+    ch.set({ 5, -1, 5 + x }, {              .mdl = prism, .txt = grass });
+    ch.set({ 1, -1, 5 + x }, { .rot = r180, .mdl = prism, .txt = grass });
+    ch.set({ 3 + x, -1, 3 }, { .rot = r90,  .mdl = prism, .txt = grass });
+    ch.set({ 3 + x, -1, 7 }, { .rot = r270, .mdl = prism, .txt = grass });
   }
+  ch.set({ 5, -1, 7 }, {              .mdl = corner, .txt = grass });
+  ch.set({ 1, -1, 7 }, { .rot = r270, .mdl = corner, .txt = grass });
+  ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
+  ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
   auto m = embed.builder();
   ch.build(m, cube, {});
   m.push(embed.model(models::cube::t {}));
-
-  //m += { .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
-  //m += { .pos { 1, -1, 5, grass }, .rot { 0, 1, 0, 0 }, .size { 1, 1, 3 } };
-  //m += { .pos { 3, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
-  //m += { .pos { 3, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
-  //m.push(embed.model(models::prism::t {}));
-
-  //m += { .pos { 5, -1, 7, grass } };
-  //m += { .pos { 1, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
-  //m += { .pos { 5, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
-  //m += { .pos { 1, -1, 3, grass }, .rot { 0, 1, 0, 0 } };
-  //m.push(embed.model(models::corner::t {}));
+  ch.build(m, prism, {});
+  m.push(embed.model(models::prism::t {}));
+  ch.build(m, corner, {});
+  m.push(embed.model(models::corner::t {}));
 }
 
 scene_drawer::scene_drawer() {
