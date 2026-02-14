@@ -312,5 +312,5 @@ extern "C" void casein_init() {
     g_sun_spd = 0;
   });
 
-  casein::window_title = "poc-model";
+  casein::window_title = "poc-mcish";
 }
