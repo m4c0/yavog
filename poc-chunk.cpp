@@ -74,11 +74,11 @@ scene_drawer::scene_drawer() {
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
   auto m = embed.builder();
-  ch.build(m, cube, {});
+  ch.build(m, cube, { 0, 0, 32 });
   m.push(embed.model(models::cube::t {}));
-  ch.build(m, prism, {});
+  ch.build(m, prism, { 0, 0, 32 });
   m.push(embed.model(models::prism::t {}));
-  ch.build(m, corner, {});
+  ch.build(m, corner, { 0, 0, 32 });
   m.push(embed.model(models::corner::t {}));
 }
 
@@ -122,7 +122,7 @@ extern "C" void casein_init() {
       last = qp.write(cb, [&] {
         qp.write(timing::ppl_render, cb);
         vv::as()->ofs.render(cb, &vv::as()->scene, {
-          .light { 0, 0, 0, 0 },
+          .light { 0, -0.71, 0.71, 0 },
           .aspect = vv::ss()->swc.aspect(),
           .far = g_far_plane,
         });

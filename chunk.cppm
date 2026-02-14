@@ -47,7 +47,7 @@ namespace chunk {
             auto d = at(p);
             if (d.mdl != mdl) continue;
             m += {
-              .pos { p - c, d.txt },
+              .pos { p + c, d.txt },
               .rot = d.rot,
             };
           }
