@@ -1,6 +1,5 @@
 export module chunk;
 import dotz;
-import embedded;
 import hai;
 import sv;
 
@@ -39,7 +38,7 @@ namespace chunk {
       return m_data[p.x + p.y * len + p.z * len * len];
     }
 
-    void build(embedded::builder & m, model mdl, dotz::vec3 c) const {
+    void build(auto & m, model mdl, dotz::vec3 c) const {
       for (auto x = -minmax; x <= minmax; x++) {
         for (auto y = -minmax; y <= minmax; y++) {
           for (auto z = -minmax; z <= minmax; z++) {
