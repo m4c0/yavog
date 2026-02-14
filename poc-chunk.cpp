@@ -40,7 +40,7 @@ public:
     embed.edges(cb);
   }
 
-  void build();
+  void build(float mult = 1);
 };
 
 scene_drawer::scene_drawer() {
@@ -77,15 +77,15 @@ scene_drawer::scene_drawer() {
   build();
 }
 
-void scene_drawer::build() {
+void scene_drawer::build(float mult) {
   using enum chunk::model;
 
   auto m = embed.builder();
-  ch.build(m, cube, { 0, 0, 32 });
+  ch.build(m, cube, { 0, 0, 32 }, mult);
   m.push(embed.model(models::cube::t {}));
-  ch.build(m, prism, { 0, 0, 32 });
+  ch.build(m, prism, { 0, 0, 32 }, mult);
   m.push(embed.model(models::prism::t {}));
-  ch.build(m, corner, { 0, 0, 32 });
+  ch.build(m, corner, { 0, 0, 32 }, mult);
   m.push(embed.model(models::corner::t {}));
 }
 
@@ -166,10 +166,7 @@ extern "C" void casein_init() {
 
   casein::handle(casein::KEY_DOWN, casein::K_SPACE, [] {
     static bool explode = true;
-    if (explode) {
-    } else {
-    }
-    vv::as()->scene.build();
+    vv::as()->scene.build(explode ? 1.5 : 1.0);
     explode = !explode;
   });
 

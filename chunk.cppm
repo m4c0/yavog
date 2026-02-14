@@ -38,7 +38,7 @@ namespace chunk {
       return m_data[p.x + p.y * len + p.z * len * len];
     }
 
-    void build(auto & m, model mdl, dotz::vec3 c) const {
+    void build(auto & m, model mdl, dotz::vec3 c, float mult = 1) const {
       for (auto x = -minmax; x <= minmax; x++) {
         for (auto y = -minmax; y <= minmax; y++) {
           for (auto z = -minmax; z <= minmax; z++) {
@@ -46,7 +46,7 @@ namespace chunk {
             auto d = at(p);
             if (d.mdl != mdl) continue;
             m += {
-              .pos { p + c, d.txt },
+              .pos { dotz::vec3 { p } * mult + c, d.txt },
               .rot = d.rot,
             };
           }
