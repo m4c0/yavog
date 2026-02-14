@@ -20,6 +20,11 @@ namespace chunk {
     model mdl = model::none;
     unsigned txt;
   };
+  struct inst : block {
+    dotz::vec3 pos {};
+    dotz::vec3 size { 1 };
+    bool set = false;
+  };
   
   export class t {
     hai::array<block> m_data { blk_size };
@@ -41,15 +46,37 @@ namespace chunk {
     void build(auto & m, model mdl, dotz::vec3 c, float mult = 1) const {
       for (auto x = -minmax; x <= minmax; x++) {
         for (auto y = -minmax; y <= minmax; y++) {
+          inst i {};
+          const auto stamp = [&](int dd) {
+            if (!i.set) return;
+            m += {
+              .pos { dotz::vec3 { i.pos } * mult + c, i.txt },
+              .rot = i.rot,
+              .size = i.size,
+            };
+            i = {};
+          };
+
           for (auto z = -minmax; z <= minmax; z++) {
             auto p = dotz::ivec3 { x, y, z };
-            auto d = at(p);
-            if (d.mdl != mdl) continue;
-            m += {
-              .pos { dotz::vec3 { p } * mult + c, d.txt },
-              .rot = d.rot,
-            };
+            inst d { at(p), p };
+            if (d.mdl != mdl) {
+              stamp(0);
+              continue;
+            }
+            if (!i.set) {
+              i = d;
+              i.set = true;
+              continue;
+            }
+            if (dotz::sq_length(i.rot - d.rot) < 0.0001 && i.txt == d.txt && i.mdl == d.mdl) {
+              i.pos.z += 0.5;
+              i.size.z += 1.0;
+              continue;
+            }
+            stamp(1);
           }
+          stamp(2);
         }
       }
     }
