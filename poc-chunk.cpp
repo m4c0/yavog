@@ -28,6 +28,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   models::drawer embed { 128 * 128 * 16 };
+  chunk::t ch {};
 
 public:
   scene_drawer();
@@ -38,11 +39,11 @@ public:
   void edges(vee::command_buffer cb) override {
     embed.edges(cb);
   }
+
+  void build();
 };
 
 scene_drawer::scene_drawer() {
-  chunk::t ch {};
-
   using enum chunk::model;
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
   auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
@@ -72,6 +73,12 @@ scene_drawer::scene_drawer() {
   ch.set({ 1, -1, 7 }, { .rot = r270, .mdl = corner, .txt = grass });
   ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
+
+  build();
+}
+
+void scene_drawer::build() {
+  using enum chunk::model;
 
   auto m = embed.builder();
   ch.build(m, cube, { 0, 0, 32 });
@@ -128,14 +135,7 @@ extern "C" void casein_init() {
         });
 
         qp.write(timing::ppl_post, cb);
-#ifndef CUBE_EXAMPLE
-        vv::as()->post.render(cb, vv::ss()->swc, {
-          .fog { 0.4, 0.6, 0.8, 2 },
-          .far = g_far_plane,
-        });
-#else
         vv::as()->post.render(cb, vv::ss()->swc, {});
-#endif
       });
     }
     vv::ss()->swc.queue_submit(cb);
@@ -163,6 +163,15 @@ extern "C" void casein_init() {
 
   casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { });
   casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { });
+
+  casein::handle(casein::KEY_DOWN, casein::K_SPACE, [] {
+    static bool explode = true;
+    if (explode) {
+    } else {
+    }
+    vv::as()->scene.build();
+    explode = !explode;
+  });
 
   casein::window_title = "poc-chunk";
 }
