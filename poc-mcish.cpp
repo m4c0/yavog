@@ -177,6 +177,11 @@ static void ex_chunks(models::drawer & embed) {
 
   auto m = embed.builder();
   ch.build(m, cube, {});
+  ch.build(m, cube, { chunk::len, 0, chunk::len });
+  ch.build(m, cube, { 0, 0, chunk::len });
+  ch.build(m, cube, { -chunk::len, 0, chunk::len });
+  ch.build(m, cube, { chunk::len, 0, 0 });
+  ch.build(m, cube, { -chunk::len, 0, 0 });
   m.push(embed.model(models::cube::t {}));
   ch.build(m, prism, {});
   m.push(embed.model(models::prism::t {}));
