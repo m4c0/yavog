@@ -27,6 +27,14 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
+struct inst {
+  dotz::vec4 rot;
+  dotz::vec3 pos;
+  float mdl;
+  dotz::vec3 size;
+  float txt;
+};
+
 class scene_drawer : public ofs::drawer {
   models::drawer embed { 128 * 128 * 16 };
   chunk::t ch {};
@@ -43,6 +51,10 @@ class scene_drawer : public ofs::drawer {
   vee::pipeline_layout pl = vee::create_pipeline_layout(*dsl);
   vee::c_pipeline ppl = vee::create_compute_pipeline(*pl, *voo::comp_shader("chunk.comp.spv"), "main");
   voo::single_cb scb {};
+
+  static constexpr const unsigned count = chunk::len * chunk::len * chunk::len;
+  voo::bound_buffer host = voo::bound_buffer::create_from_host(count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  voo::bound_buffer local = voo::bound_buffer::create_from_device_local(count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
 public:
   scene_drawer();
@@ -69,6 +81,7 @@ public:
     {
       voo::cmd_buf_one_time_submit ots { cb };
       vee::cmd_bind_c_pipeline(cb, *ppl);
+      vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset);
       vee::cmd_dispatch(cb, chunk::len, chunk::len, 1);
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
@@ -79,6 +92,9 @@ scene_drawer::scene_drawer() {
   using enum chunk::model;
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
   auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
+
+  vee::update_descriptor_set(dset, 0, *host.buffer);
+  vee::update_descriptor_set(dset, 1, *local.buffer);
 
   constexpr const auto mm = chunk::minmax;
 
