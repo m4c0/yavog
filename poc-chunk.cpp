@@ -1,4 +1,5 @@
 #pragma leco app
+#pragma leco add_shader "chunk.comp"
 #pragma leco add_resource_dir assets
 
 import buffers;
@@ -30,6 +31,10 @@ class scene_drawer : public ofs::drawer {
   models::drawer embed { 128 * 128 * 16 };
   chunk::t ch {};
 
+  vee::pipeline_layout pl = vee::create_pipeline_layout();
+  vee::c_pipeline ppl = vee::create_compute_pipeline(*pl, *voo::comp_shader("chunk.comp.spv"), "main");
+  voo::single_cb scb {};
+
 public:
   scene_drawer();
 
@@ -50,6 +55,14 @@ public:
     m.push(embed.model(models::prism::t {}));
     ch.build(m, corner, { 0, 0, 32 }, mult);
     m.push(embed.model(models::corner::t {}));
+
+    auto cb = scb.cb();
+    {
+      voo::cmd_buf_one_time_submit ots { cb };
+      vee::cmd_bind_c_pipeline(cb, *ppl);
+      vee::cmd_dispatch(cb, 1, 1, 1);
+    }
+    voo::queue::universal()->submit({ .command_buffer = cb });
   }
 };
 
