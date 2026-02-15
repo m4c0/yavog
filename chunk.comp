@@ -1,4 +1,24 @@
 #version 450
 
+struct inst {
+  vec4 rot;
+  vec4 pos;  // pos.xyz + mdl
+  vec4 size; // size.xyz + txt
+};
+
+layout(constant_id = 0) const int k_len = 31;
+
+layout(binding = 0) readonly buffer buf_0 {
+  inst host[];
+};
+layout(binding = 1) buffer buf_1 {
+  inst local[];
+};
+
 void main() {
+  uvec3 gid = gl_GlobalInvocationID;
+  uint id = gid.x * k_len + gid.y * k_len * k_len;
+  for (int i = 0; i < k_len; i++) { 
+    local[id + i] = host[id + i];
+  }
 }

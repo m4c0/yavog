@@ -31,7 +31,16 @@ class scene_drawer : public ofs::drawer {
   models::drawer embed { 128 * 128 * 16 };
   chunk::t ch {};
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout();
+  vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
+    vee::dsl_compute_storage(),
+    vee::dsl_compute_storage(),
+  });
+  vee::descriptor_pool dpool = vee::create_descriptor_pool(1, {
+    vee::storage_buffer(2),
+  });
+  vee::descriptor_set dset = vee::allocate_descriptor_set(*dpool, *dsl);
+
+  vee::pipeline_layout pl = vee::create_pipeline_layout(*dsl);
   vee::c_pipeline ppl = vee::create_compute_pipeline(*pl, *voo::comp_shader("chunk.comp.spv"), "main");
   voo::single_cb scb {};
 
@@ -60,7 +69,7 @@ public:
     {
       voo::cmd_buf_one_time_submit ots { cb };
       vee::cmd_bind_c_pipeline(cb, *ppl);
-      vee::cmd_dispatch(cb, 1, 1, 1);
+      vee::cmd_dispatch(cb, chunk::len, chunk::len, 1);
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
   }
