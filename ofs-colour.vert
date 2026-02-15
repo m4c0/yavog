@@ -4,7 +4,7 @@
 layout(location = 3) in vec4 pos;
 layout(location = 4) in vec2 uv;
 layout(location = 5) in vec3 normal;
-layout(location = 0, component = 3) in float txtid;
+layout(location = 0, component = 3) in float i_txtid;
 
 layout(location = 0) out vec2 f_uv;
 layout(location = 1) out uint f_txtid;
@@ -18,6 +18,6 @@ vec3  proj(vec4 pos);
 void main() {
   f_pos = proj(i_modl(pos));
   f_uv = uv;
-  f_txtid = int(txtid);
+  f_txtid = int(i_txtid);
   f_normal = i_qrot(normal);
 }
