@@ -40,7 +40,17 @@ public:
     embed.edges(cb);
   }
 
-  void build(float mult = 1);
+  void build(float mult = 1) {
+    using enum chunk::model;
+
+    auto m = embed.builder();
+    ch.build(m, cube, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::cube::t {}));
+    ch.build(m, prism, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::prism::t {}));
+    ch.build(m, corner, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::corner::t {}));
+  }
 };
 
 scene_drawer::scene_drawer() {
@@ -75,18 +85,6 @@ scene_drawer::scene_drawer() {
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
   build();
-}
-
-void scene_drawer::build(float mult) {
-  using enum chunk::model;
-
-  auto m = embed.builder();
-  ch.build(m, cube, { 0, 0, 32 }, mult);
-  m.push(embed.model(models::cube::t {}));
-  ch.build(m, prism, { 0, 0, 32 }, mult);
-  m.push(embed.model(models::prism::t {}));
-  ch.build(m, corner, { 0, 0, 32 }, mult);
-  m.push(embed.model(models::corner::t {}));
 }
 
 struct app_stuff {
