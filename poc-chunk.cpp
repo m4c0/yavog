@@ -53,7 +53,7 @@ class scene_drawer : public ofs::drawer {
   voo::single_cb scb {};
 
   static constexpr const unsigned count = chunk::len * chunk::len * chunk::len;
-  voo::bound_buffer host = voo::bound_buffer::create_from_host(count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  buffers::buffer<buffers::tmp_inst> host { count };
   voo::bound_buffer local = voo::bound_buffer::create_from_device_local(count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
 public:
@@ -67,8 +67,12 @@ public:
   }
 
   void build(float mult = 1) {
-    using enum chunk::model;
+    {
+      auto m = host.map();
+      ch.copy(m, { 0, 0, 32 }, mult);
+    }
 
+    using enum chunk::model;
     auto m = embed.builder();
     ch.build(m, cube, { 0, 0, 32 }, mult);
     m.push(embed.model(models::cube::t {}));
@@ -93,7 +97,7 @@ scene_drawer::scene_drawer() {
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
   auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
 
-  vee::update_descriptor_set(dset, 0, *host.buffer);
+  vee::update_descriptor_set(dset, 0, *host);
   vee::update_descriptor_set(dset, 1, *local.buffer);
 
   constexpr const auto mm = chunk::minmax;

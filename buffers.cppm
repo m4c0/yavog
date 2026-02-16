@@ -25,12 +25,22 @@ namespace buffers {
     dotz::vec4 vtx_a;
     dotz::vec4 vtx_b;
   };
+  export struct tmp_inst {
+    dotz::vec4 rot;
+    dotz::vec3 pos;
+    float mdl;
+    dotz::vec3 size;
+    float txt;
+  };
 
   export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
   export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
 
   template<typename T> VkBufferUsageFlagBits usage() {
     return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  }
+  template<> VkBufferUsageFlagBits usage<tmp_inst>() {
+    return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
   template<> VkBufferUsageFlagBits usage<uint16_t>() {
     return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
@@ -126,9 +136,6 @@ namespace buffers {
       auto m = map();
       (push(m, T {}), ...);
     }
-  };
-  export struct i_buffer : buffer<inst> {
-    using buffer<inst>::buffer;
   };
 }
 
