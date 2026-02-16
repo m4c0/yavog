@@ -84,9 +84,18 @@ public:
     auto cb = scb.cb();
     {
       voo::cmd_buf_one_time_submit ots { cb };
+
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+          vee::buffer_memory_barrier(*host, VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
+
       vee::cmd_bind_c_pipeline(cb, *ppl);
       vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset);
       vee::cmd_dispatch(cb, chunk::len, chunk::len, 1);
+
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+          vee::buffer_memory_barrier(*local.buffer, VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
   }
