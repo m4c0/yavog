@@ -18,7 +18,19 @@ layout(binding = 1) buffer buf_1 {
 void main() {
   uvec3 gid = gl_GlobalInvocationID;
   uint id = gid.x * k_len + gid.y * k_len * k_len;
-  for (int i = 0; i < k_len; i++) { 
-    local[id + i] = host[id + i];
+
+  uint tgt = id;
+  local[id] = host[id];
+
+  for (int i = 1; i < k_len; i++) { 
+    inst h = host[id + i];
+    if (length(host[tgt].rot - h.rot) < 0.001 &&
+        length(host[tgt].pos - h.pos) < 0.001 &&
+        length(host[tgt].size - h.size) < 0.001) {
+      local[tgt].pos.z += 0.5;
+      local[tgt].size.z += 1.0;
+    } else {
+      tgt = id + i;
+    }
   }
 }
