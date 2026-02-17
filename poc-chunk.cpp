@@ -54,7 +54,7 @@ class scene_drawer : public ofs::drawer {
 
   static constexpr const unsigned count = chunk::len * chunk::len * chunk::len;
   buffers::buffer<buffers::tmp_inst> host { count };
-  voo::bound_buffer local = voo::bound_buffer::create_from_device_local(count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  voo::bound_buffer local = voo::bound_buffer::create_from_device_local(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
 public:
   scene_drawer();
