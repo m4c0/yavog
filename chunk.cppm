@@ -68,8 +68,8 @@ namespace chunk {
           const auto stamp = [&](int dd) {
             if (!i.set) return;
             m += {
-              .pos { dotz::vec3 { i.pos } * mult + c, i.txt },
               .rot = i.rot,
+              .pos { dotz::vec3 { i.pos } * mult + c, i.txt },
               .size = i.size,
             };
             i = {};

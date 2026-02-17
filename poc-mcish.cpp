@@ -83,8 +83,8 @@ static void ex_shadow_test(models::drawer & embed) {
 
   // More prisms
   m += {
-    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
     .rot { 0, 1, 0, 0 },
+    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
   };
   m.push(embed.model(models::prism::t {}));
 }
@@ -129,16 +129,16 @@ static void ex_hills(models::drawer & embed) {
   m += { .pos { 3, -1, 5, grass }, .size { 3, 1, 3 } };
   m.push(embed.model(models::cube::t {}));
 
-  m += { .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
-  m += { .pos { 1, -1, 5, grass }, .rot { 0, 1, 0, 0 }, .size { 1, 1, 3 } };
-  m += { .pos { 3, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
-  m += { .pos { 3, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 }, .size { 1, 1, 3 } };
+  m += {                                 .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
+  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 5, grass }, .size { 1, 1, 3 } };
+  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 3, -1, 3, grass }, .size { 1, 1, 3 } };
+  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 3, -1, 7, grass }, .size { 1, 1, 3 } };
   m.push(embed.model(models::prism::t {}));
 
-  m += { .pos { 5, -1, 7, grass } };
-  m += { .pos { 1, -1, 7, grass }, .rot { 0, -0.7071, 0, 0.7071 } };
-  m += { .pos { 5, -1, 3, grass }, .rot { 0, 0.7071, 0, 0.7071 } };
-  m += { .pos { 1, -1, 3, grass }, .rot { 0, 1, 0, 0 } };
+  m += {                                 .pos { 5, -1, 7, grass } };
+  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 1, -1, 7, grass } };
+  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 5, -1, 3, grass } };
+  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 3, grass } };
   m.push(embed.model(models::corner::t {}));
 }
 
