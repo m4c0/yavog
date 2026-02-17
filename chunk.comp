@@ -27,17 +27,16 @@ uint idx(uvec3 i) {
   uvec3 p = i + gl_GlobalInvocationID;
   return p.x + p.y * k_len + p.z * k_len * k_len;
 }
-uvec3 merge(uvec3 a3, uvec3 b3) {
+uvec3 merge(uvec3 a3, uvec3 b3, uint n) {
   uint a = idx(a3);
-  uint b = idx(b3);
-  if (b > 0 && same(a, b)) {
-    local[a].pos.z += 0.5;
-    local[a].size.z += 1.0;
-    local[b].size = vec4(0);
+  uint b = idx(b3 * n);
+  if (same(a, b)) {
+    local[a].pos.xyz += 0.5 * b3;
+    local[a].size.xyz += 1.0 * b3;
+    local[b].pos.w = 0;
     return a3;
   } else {
-    local[a] = host[b];
-    return b3;
+    return b3 * n;
   }
 }
 
@@ -49,22 +48,22 @@ void copy() {
 
 void compact_z() {
   uvec3 tgt = uvec3(0);
-  for (int z = 0; z < k_len; z++) { 
-    tgt = merge(tgt, uvec3(0, 0, 1));
+  for (int z = 1; z < k_len; z++) { 
+    tgt = merge(tgt, uvec3(0, 0, 1), z);
   }
 }
 
 void compact_y() {
   uvec3 tgt = uvec3(0);
-  for (int y = 0; y < k_len; y++) { 
-    tgt = merge(tgt, uvec3(0, 1, 0));
+  for (int y = 1; y < k_len; y++) { 
+    tgt = merge(tgt, uvec3(0, 1, 0), y);
   }
 }
 
 void compact_x() {
   uvec3 tgt = uvec3(0);
-  for (int x = 0; x < k_len; x++) { 
-    tgt = merge(tgt, uvec3(1, 0, 0));
+  for (int x = 1; x < k_len; x++) { 
+    tgt = merge(tgt, uvec3(1, 0, 0), x);
   }
 }
 
