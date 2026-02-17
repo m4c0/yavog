@@ -29,6 +29,7 @@ void main() {
         length(host[tgt].size - h.size) < 0.001) {
       local[tgt].pos.z += 0.5;
       local[tgt].size.z += 1.0;
+      local[id + i].size = vec4(0);
     } else {
       tgt = id + i;
     }
