@@ -15,23 +15,58 @@ layout(binding = 1) buffer buf_1 {
   inst local[];
 };
 
-void main() {
-  uvec3 gid = gl_GlobalInvocationID;
-  uint id = gid.x * k_len + gid.y * k_len * k_len;
-
-  uint tgt = id;
-  local[id] = host[id];
-
-  for (int i = 1; i < k_len; i++) { 
-    inst h = host[id + i];
-    if (length(host[tgt].rot - h.rot) < 0.001 &&
-        length(host[tgt].pos - h.pos) < 0.001 &&
-        length(host[tgt].size - h.size) < 0.001) {
-      local[tgt].pos.z += 0.5;
-      local[tgt].size.z += 1.0;
-      local[id + i].size = vec4(0);
-    } else {
-      tgt = id + i;
-    }
+bool same(uint a, uint b) {
+  inst aa = host[a];
+  inst bb = host[b];
+  return
+    length(aa.rot - bb.rot) < 0.001 &&
+    length(aa.size - bb.size) < 0.001 &&
+    abs(aa.pos.w - bb.pos.w) < 0.001;
+}
+uint idx(uvec3 i) {
+  uvec3 p = i + gl_GlobalInvocationID;
+  return p.x + p.y * k_len + p.z * k_len * k_len;
+}
+uvec3 merge(uvec3 a3, uvec3 b3) {
+  uint a = idx(a3);
+  uint b = idx(b3);
+  if (b > 0 && same(a, b)) {
+    local[a].pos.z += 0.5;
+    local[a].size.z += 1.0;
+    local[b].size = vec4(0);
+    return a3;
+  } else {
+    local[a] = host[b];
+    return b3;
   }
+}
+
+void compact_z() {
+  uvec3 tgt = uvec3(0);
+  for (int z = 0; z < k_len; z++) { 
+    tgt = merge(tgt, uvec3(0, 0, 1));
+  }
+}
+
+void compact_y() {
+  uvec3 tgt = uvec3(0);
+  for (int y = 0; y < k_len; y++) { 
+    tgt = merge(tgt, uvec3(0, 1, 0));
+  }
+}
+
+void compact_x() {
+  uvec3 tgt = uvec3(0);
+  for (int x = 0; x < k_len; x++) { 
+    tgt = merge(tgt, uvec3(1, 0, 0));
+  }
+}
+
+// TODO: filter compacts by model (ex: prism only in Z, etc)
+void main() {
+  compact_z();
+  barrier();
+  compact_y();
+  barrier();
+  compact_x();
 }
