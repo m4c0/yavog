@@ -44,9 +44,9 @@ namespace chunk {
     }
 
     void copy(auto & m, dotz::vec3 c, float mult = 1) const {
-      for (auto x = -minmax; x <= minmax; x++) {
+      for (auto z = -minmax; z <= minmax; z++) {
         for (auto y = -minmax; y <= minmax; y++) {
-          for (auto z = -minmax; z <= minmax; z++) {
+          for (auto x = -minmax; x <= minmax; x++) {
             dotz::ivec3 p { x, y, z };
             auto i = at(p);
             m += {
