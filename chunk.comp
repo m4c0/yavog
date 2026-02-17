@@ -41,6 +41,12 @@ uvec3 merge(uvec3 a3, uvec3 b3) {
   }
 }
 
+void copy() {
+  for (int z = 0; z < k_len; z++) { 
+    local[idx(uvec3(0, 0, z))] = host[idx(uvec3(0, 0, z))];
+  }
+}
+
 void compact_z() {
   uvec3 tgt = uvec3(0);
   for (int z = 0; z < k_len; z++) { 
@@ -64,6 +70,7 @@ void compact_x() {
 
 // TODO: filter compacts by model (ex: prism only in Z, etc)
 void main() {
+  copy();
   compact_z();
   barrier();
   compact_y();
