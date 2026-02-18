@@ -43,18 +43,19 @@ class scene_drawer : public ofs::drawer {
     vee::dsl_compute_storage(),
     vee::dsl_compute_storage(),
   });
-  vee::descriptor_pool dpool = vee::create_descriptor_pool(1, {
-    vee::storage_buffer(2),
+  vee::descriptor_pool dpool = vee::create_descriptor_pool(2, {
+    vee::storage_buffer(4),
   });
-  vee::descriptor_set dset = vee::allocate_descriptor_set(*dpool, *dsl);
+  vee::descriptor_set dset0 = vee::allocate_descriptor_set(*dpool, *dsl);
+  vee::descriptor_set dset1 = vee::allocate_descriptor_set(*dpool, *dsl);
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout(*dsl);
+  vee::pipeline_layout pl = vee::create_pipeline_layout(*dsl, vee::compute_push_constant_range<dotz::ivec3>());
   vee::c_pipeline ppl = vee::create_compute_pipeline(*pl, *voo::comp_shader("chunk.comp.spv"), "main");
   voo::single_cb scb {};
 
   static constexpr const unsigned count = chunk::len * chunk::len * chunk::len;
   buffers::buffer<buffers::tmp_inst> host { count };
-  voo::bound_buffer local = voo::bound_buffer::create_from_device_local(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  voo::bound_buffer local = voo::bound_buffer::create_from_host(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
 public:
   scene_drawer();
@@ -83,6 +84,10 @@ public:
 
     auto cb = scb.cb();
     {
+      constexpr const dotz::ivec3 ivec3_x { 1, 0, 0 };
+      constexpr const dotz::ivec3 ivec3_y { 0, 1, 0 };
+      constexpr const dotz::ivec3 ivec3_z { 0, 0, 1 };
+
       voo::cmd_buf_one_time_submit ots { cb };
 
       vee::cmd_pipeline_barrier(cb,
@@ -90,8 +95,16 @@ public:
           vee::buffer_memory_barrier(*host, VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
 
       vee::cmd_bind_c_pipeline(cb, *ppl);
-      vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset);
+      vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset0);
+      vee::cmd_push_compute_constants(cb, *pl, &ivec3_z);
       vee::cmd_dispatch(cb, chunk::len, chunk::len, 1);
+
+      vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset1);
+      vee::cmd_push_compute_constants(cb, *pl, &ivec3_y);
+      vee::cmd_dispatch(cb, chunk::len, 1, chunk::len);
+
+      vee::cmd_push_compute_constants(cb, *pl, &ivec3_x);
+      vee::cmd_dispatch(cb, 1, chunk::len, chunk::len);
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
@@ -106,8 +119,11 @@ scene_drawer::scene_drawer() {
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
   auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
 
-  vee::update_descriptor_set(dset, 0, *host);
-  vee::update_descriptor_set(dset, 1, *local.buffer);
+  vee::update_descriptor_set(dset0, 0, *host);
+  vee::update_descriptor_set(dset0, 1, *local.buffer);
+
+  vee::update_descriptor_set(dset1, 0, *local.buffer);
+  vee::update_descriptor_set(dset1, 1, *local.buffer);
 
   constexpr const auto mm = chunk::minmax;
 

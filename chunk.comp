@@ -8,18 +8,22 @@ struct inst {
 
 layout(constant_id = 0) const int k_len = 31;
 
+layout(push_constant) uniform upc {
+  uvec3 n;
+} pc;
+
 layout(binding = 0) readonly buffer buf_0 {
-  inst host[];
+  inst from[];
 };
 layout(binding = 1) buffer buf_1 {
-  inst local[];
+  inst to[];
 };
 
 bool same(inst aa, uint b) {
   // TODO: filter compacts by model (ex: prism only in Z, etc)
   if (aa.pos.w != 2) return false; // only cubes for now
 
-  inst bb = local[b];
+  inst bb = from[b];
   return
     length(aa.rot - bb.rot) < 0.001 &&
     length(aa.size - bb.size) < 0.001 &&
@@ -28,65 +32,21 @@ bool same(inst aa, uint b) {
 uint idx(uvec3 p) {
   return p.x + p.y * k_len + p.z * k_len * k_len;
 }
-void merge(uint a, uint b, uvec3 n) {
-  local[a].pos.xyz += 0.5 * n;
-  local[a].size.xyz += 1.0 * n;
-  local[b].pos.w = 0;
-}
-
-void copy() {
-  for (int z = 0; z < k_len; z++) { 
-    uint i = idx(uvec3(gl_GlobalInvocationID.xy, z));
-    local[i] = host[i];
-  }
-}
-
-void compact_z() {
-  uint tgt = idx(uvec3(gl_GlobalInvocationID.xy, 0));
-  inst orig = local[tgt];
-  for (int z = 1; z < k_len; z++) { 
-    uint nxt = idx(uvec3(gl_GlobalInvocationID.xy, z));
-    if (same(orig, nxt)) merge(tgt, nxt, uvec3(0, 0, 1));
-    else {
-      tgt = nxt;
-      orig = local[tgt];
-    }
-  }
-}
-
-void compact_y() {
-  uint tgt = idx(uvec3(gl_GlobalInvocationID.x, 0, gl_GlobalInvocationID.y));
-  inst orig = local[tgt];
-  //for (int y = 1; y < k_len; y++) { 
-  for (int y = 1; y < 1; y++) { 
-    uint nxt = idx(uvec3(gl_GlobalInvocationID.x, y, gl_GlobalInvocationID.y));
-    if (same(orig, nxt)) merge(tgt, nxt, uvec3(0, 1, 0));
-    else {
-      tgt = nxt;
-      orig = local[tgt];
-    }
-  }
-}
-
-void compact_x() {
-  uint tgt = idx(uvec3(0, gl_GlobalInvocationID.xy));
-  inst orig = local[tgt];
-  //for (int x = 1; x < k_len; x++) { 
-  for (int x = 1; x < 1; x++) { 
-    uint nxt = idx(uvec3(x, gl_GlobalInvocationID.xy));
-    if (same(orig, nxt)) merge(tgt, nxt, uvec3(1, 0, 0));
-    else {
-      tgt = nxt;
-      orig = local[tgt];
-    }
-  }
+void merge(uint a, uint b) {
+  to[a].pos.xyz += 0.5 * pc.n;
+  to[a].size.xyz += 1.0 * pc.n;
+  to[b] = inst(vec4(0), vec4(0), vec4(0));
 }
 
 void main() {
-  copy();
-  compact_z();
-  barrier();
-  compact_y();
-  barrier();
-  compact_x();
+  uint tgt = idx(gl_GlobalInvocationID);
+  inst orig = to[tgt] = from[tgt];
+  for (int i = 1; i < k_len; i++) { 
+    uint nxt = idx(gl_GlobalInvocationID + pc.n * i);
+    if (same(orig, nxt)) merge(tgt, nxt);
+    else {
+      tgt = nxt;
+      orig = to[tgt] = from[tgt];
+    }
+  }
 }
