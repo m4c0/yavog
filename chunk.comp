@@ -22,10 +22,17 @@ layout(binding = 1) buffer buf_1 {
 
 vec3 qrot(vec3 p, vec4 q);
 
-bool same(inst aa, uint b) {
-  // TODO: filter compacts by model (ex: prism only in Z, etc)
-  if (aa.pos.w != 2) return false; // only cubes for now
+bool valid(inst aa) {
+  if (aa.pos.w == 2) return true; // Cube is always fine
 
+  if (aa.pos.w == 3) { // Prism only on Z
+    vec3 r = qrot(pc.n, aa.rot);
+    return length(abs(r) - vec3(0, 0, 1)) < 0.001;
+  }
+
+  return false;
+}
+bool same(inst aa, uint b) {
   inst bb = from[b];
   return
     length(aa.rot - bb.rot) < 0.001 &&
@@ -46,7 +53,7 @@ void main() {
   inst orig = to[tgt] = from[tgt];
   for (int i = 1; i < k_len; i++) { 
     uint nxt = idx(gl_GlobalInvocationID + pc.n * i);
-    if (same(orig, nxt)) merge(tgt, nxt);
+    if (valid(orig) && same(orig, nxt)) merge(tgt, nxt);
     else {
       tgt = nxt;
       orig = to[tgt] = from[tgt];
