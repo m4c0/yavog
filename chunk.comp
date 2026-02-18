@@ -1,4 +1,5 @@
 #version 450
+#pragma leco include "quaternions.glsl"
 
 struct inst {
   vec4 rot;
@@ -18,6 +19,8 @@ layout(binding = 0) readonly buffer buf_0 {
 layout(binding = 1) buffer buf_1 {
   inst to[];
 };
+
+vec3 qrot(vec3 p, vec4 q);
 
 bool same(inst aa, uint b) {
   // TODO: filter compacts by model (ex: prism only in Z, etc)
