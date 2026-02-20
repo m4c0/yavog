@@ -1,0 +1,57 @@
+#pragma leco add_shader "chunk-compact.comp"
+export module chunk:compact;
+import :bitonic;
+import dotz;
+import voo;
+
+namespace chunk {
+  export class compact {
+    static constexpr const dotz::ivec3 ivec3_x { 1, 0, 0 };
+    static constexpr const dotz::ivec3 ivec3_y { 0, 1, 0 };
+    static constexpr const dotz::ivec3 ivec3_z { 0, 0, 1 };
+
+    vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
+      vee::dsl_compute_storage(),
+      vee::dsl_compute_storage(),
+    });
+    vee::descriptor_pool m_dpool = vee::create_descriptor_pool(3, {
+      vee::storage_buffer(6),
+    });
+    vee::descriptor_set m_dset_hl = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+    vee::descriptor_set m_dset01 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+    vee::descriptor_set m_dset10 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
+    vee::c_pipeline m_ppl = vee::create_compute_pipeline(*m_pl, *voo::comp_shader("chunk-compact.comp.spv"), "main");
+
+    bitonic m_bit { m_dset01, m_dset10 };
+  public:
+    compact(VkBuffer host, VkBuffer local0, VkBuffer local1) {
+      vee::update_descriptor_set(m_dset_hl, 0, host);
+      vee::update_descriptor_set(m_dset_hl, 1, local0);
+
+      vee::update_descriptor_set(m_dset01, 0, local0);
+      vee::update_descriptor_set(m_dset01, 1, local1);
+
+      vee::update_descriptor_set(m_dset10, 0, local1);
+      vee::update_descriptor_set(m_dset10, 1, local0);
+    }
+
+    bool cmd(vee::command_buffer cb, unsigned len) {
+      vee::cmd_bind_c_pipeline(cb, *m_ppl);
+      vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset_hl);
+      vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_z);
+      vee::cmd_dispatch(cb, len, len, 1);
+
+      vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset01);
+      vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_y);
+      vee::cmd_dispatch(cb, len, 1, len);
+
+      vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset10);
+      vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_x);
+      vee::cmd_dispatch(cb, 1, len, len);
+
+      return m_bit.cmd(cb, len * len * len);
+    }
+  };
+}

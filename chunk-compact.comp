@@ -43,9 +43,6 @@ uint idx(uvec3 p) {
   return p.x + p.y * k_len + p.z * k_len * k_len;
 }
 void merge(uint a, uint b) {
-  to[a].pos.xyz += 0.5 * pc.n;
-  to[a].size.xyz += 1.0 * pc.n;
-  to[b] = inst(vec4(0), vec4(0), vec4(0));
 }
 
 void main() {
@@ -53,8 +50,11 @@ void main() {
   inst orig = to[tgt] = from[tgt];
   for (int i = 1; i < k_len; i++) { 
     uint nxt = idx(gl_GlobalInvocationID + pc.n * i);
-    if (valid(orig) && same(orig, nxt)) merge(tgt, nxt);
-    else {
+    if (valid(orig) && same(orig, nxt)) {
+      to[tgt].pos.xyz += 0.5 * pc.n;
+      to[tgt].size.xyz += 1.0 * pc.n;
+      to[nxt] = inst(vec4(0), vec4(0), vec4(0));
+    } else {
       tgt = nxt;
       orig = to[tgt] = from[tgt];
     }
