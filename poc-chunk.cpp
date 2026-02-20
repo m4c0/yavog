@@ -26,14 +26,6 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-struct inst {
-  dotz::vec4 rot;
-  dotz::vec3 pos;
-  float mdl;
-  dotz::vec3 size;
-  float txt;
-};
-
 class scene_drawer : public ofs::drawer {
   models::drawer embed { 128 * 128 * 16 };
   chunk::t ch {};
@@ -43,8 +35,8 @@ class scene_drawer : public ofs::drawer {
   static_assert(chunk::len <= 32);
   static constexpr const unsigned count = 32 * 32 * 32; // PoT padding
   buffers::buffer<buffers::tmp_inst> host { count };
-  voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-  voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+  voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
   chunk::compact ccomp { *host, *local0.buffer, *local1.buffer };
 
