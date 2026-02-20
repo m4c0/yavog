@@ -72,13 +72,13 @@ public:
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-          vee::buffer_memory_barrier(*host, VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
+          vee::memory_barrier(0, 0));
 
       use_0 = ccomp.cmd(cb, 32);
 
       vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-          vee::buffer_memory_barrier(*local0.buffer, VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
+          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
+          vee::memory_barrier(0, 0));
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
   }
