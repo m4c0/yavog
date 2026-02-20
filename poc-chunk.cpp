@@ -38,7 +38,7 @@ class scene_drawer : public ofs::drawer {
   voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-  chunk::compact ccomp { *host, *local0.buffer, *local1.buffer };
+  chunk::compact ccomp { 32, *host, *local0.buffer, *local1.buffer };
 
 public:
   scene_drawer();
@@ -56,15 +56,6 @@ public:
       ch.copy(m, { 0, 0, 32 }, mult);
     }
 
-    using enum chunk::model;
-    auto m = embed.builder();
-    ch.build(m, cube, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::cube::t {}));
-    ch.build(m, prism, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::prism::t {}));
-    ch.build(m, corner, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::corner::t {}));
-
     bool use_0 = true;
     auto cb = scb.cb();
     {
@@ -74,13 +65,21 @@ public:
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
-      use_0 = ccomp.cmd(cb, 32);
+      use_0 = ccomp.cmd(cb);
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
           vee::memory_barrier(0, 0));
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
+    using enum chunk::model;
+    auto m = embed.builder();
+    ch.build(m, cube, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::cube::t {}));
+    ch.build(m, prism, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::prism::t {}));
+    ch.build(m, corner, { 0, 0, 32 }, mult);
+    m.push(embed.model(models::corner::t {}));
   }
 };
 

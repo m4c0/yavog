@@ -21,12 +21,21 @@ namespace chunk {
     vee::descriptor_set m_dset01 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
     vee::descriptor_set m_dset10 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
-    vee::c_pipeline m_ppl = vee::create_compute_pipeline(*m_pl, *voo::comp_shader("chunk-compact.comp.spv"), "main");
-
     bitonic m_bit { m_dset01, m_dset10 };
+
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
+    vee::c_pipeline m_ppl;
+    unsigned m_len;
+
   public:
-    compact(VkBuffer host, VkBuffer local0, VkBuffer local1) {
+    compact(unsigned len, VkBuffer host, VkBuffer local0, VkBuffer local1) :
+      m_ppl {
+        vee::create_compute_pipeline(
+            *m_pl, *voo::comp_shader("chunk-compact.comp.spv"),
+            "main", vee::specialisation_info { 99, len })
+      }
+    , m_len { len }
+    {
       vee::update_descriptor_set(m_dset_hl, 0, host);
       vee::update_descriptor_set(m_dset_hl, 1, local0);
 
@@ -37,21 +46,21 @@ namespace chunk {
       vee::update_descriptor_set(m_dset10, 1, local0);
     }
 
-    bool cmd(vee::command_buffer cb, unsigned len) {
+    bool cmd(vee::command_buffer cb) {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);
       vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset_hl);
       vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_z);
-      vee::cmd_dispatch(cb, len, len, 1);
+      vee::cmd_dispatch(cb, m_len, m_len, 1);
 
       vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset01);
       vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_y);
-      vee::cmd_dispatch(cb, len, 1, len);
+      vee::cmd_dispatch(cb, m_len, 1, m_len);
 
       vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset10);
       vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_x);
-      vee::cmd_dispatch(cb, 1, len, len);
+      vee::cmd_dispatch(cb, 1, m_len, m_len);
 
-      return m_bit.cmd(cb, len * len * len);
+      return m_bit.cmd(cb, m_len * m_len * m_len);
     }
   };
 }

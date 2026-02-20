@@ -7,7 +7,7 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
-layout(constant_id = 0) const int k_len = 31;
+layout(constant_id = 99) const int k_len = 31;
 
 layout(push_constant) uniform upc {
   uvec3 n;
@@ -41,8 +41,6 @@ bool same(inst aa, uint b) {
 }
 uint idx(uvec3 p) {
   return p.x + p.y * k_len + p.z * k_len * k_len;
-}
-void merge(uint a, uint b) {
 }
 
 void main() {
