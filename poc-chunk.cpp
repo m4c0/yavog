@@ -32,13 +32,15 @@ class scene_drawer : public ofs::drawer {
 
   voo::single_cb scb {};
 
-  static_assert(chunk::len <= 32);
-  static constexpr const unsigned count = 32 * 32 * 32; // PoT padding
+  static constexpr const unsigned len = 32; // PoT padding
+  static constexpr const unsigned count = len * len * len; // PoT padding
+  static_assert(chunk::len <= len);
+
   buffers::buffer<buffers::tmp_inst> host { count };
   voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-  chunk::compact ccomp { 32, *host, *local0.buffer, *local1.buffer };
+  chunk::compact ccomp { len, *host, *local0.buffer, *local1.buffer };
 
 public:
   scene_drawer();
@@ -53,7 +55,7 @@ public:
   void build(float mult = 1) {
     {
       auto m = host.map();
-      ch.copy(m, { 0, 0, 32 }, mult);
+      ch.copy(m, { 0, 0, 32 }, len);
     }
 
     bool use_0 = true;

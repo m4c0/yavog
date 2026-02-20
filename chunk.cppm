@@ -45,15 +45,19 @@ namespace chunk {
       return m_data[p.x + p.y * len + p.z * len * len];
     }
 
-    void copy(auto & m, dotz::vec3 c, float mult = 1) const {
+    void copy(auto & m, dotz::vec3 c, unsigned len) const {
       for (auto z = -minmax; z <= minmax; z++) {
+        auto pz = (z + minmax) * len * len;
         for (auto y = -minmax; y <= minmax; y++) {
+          auto py = (y + minmax) * len;
           for (auto x = -minmax; x <= minmax; x++) {
+            auto px = x + minmax;
+
             dotz::ivec3 p { x, y, z };
             auto i = at(p);
-            m += {
+            m[pz + py + px] = {
               .rot = i.rot,
-              .pos = dotz::vec3 { p } * mult + c,
+              .pos = dotz::vec3 { p } + c,
               .mdl = static_cast<float>(i.mdl),
               .size { 1 },
               .txt = static_cast<float>(i.txt),
