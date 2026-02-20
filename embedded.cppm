@@ -62,9 +62,8 @@ namespace embedded {
     buffers::e_buffer  m_edg;
     model_cmds m_mdls;
 
-    static constexpr const auto max = 16;
-    buffers::buffer<VkDrawIndexedIndirectCommand> m_vcmd { max };
-    buffers::buffer<VkDrawIndirectCommand> m_ecmd { max };
+    buffers::buffer<VkDrawIndexedIndirectCommand> m_vcmd;
+    buffers::buffer<VkDrawIndirectCommand> m_ecmd;
 
     buffers::buffer<buffers::inst> m_ins;
 
@@ -76,8 +75,28 @@ namespace embedded {
     , m_idx  { T {}... }
     , m_edg  { T {}... }
     , m_mdls { T {}... }
+    , m_vcmd { sizeof...(T) + 1 }
+    , m_ecmd { sizeof...(T) + 1 }
     , m_ins  { max_ins }
-    {}
+    {
+      auto vc = m_vcmd.map();
+      auto ec = m_ecmd.map();
+      vc += {}; ec += {}; // "none"
+
+      const model_cmds mdls { T {}... };
+      const auto push = [&](model_cmd m) {
+        vc += {
+          .indexCount = m.i_count,
+          .firstIndex = m.first_i,
+          .vertexOffset = m.v_offset,
+        };
+        ec += {
+          .vertexCount = m.e_count,
+          .firstVertex = m.first_e,
+        };
+      };
+      (push(mdls[T()]), ...);
+    }
 
     [[nodiscard]] auto model(auto t) { return m_mdls[t]; }
     [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
