@@ -60,6 +60,8 @@ class scene_drawer : public ofs::drawer {
   voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
+  chunk::bitonic cbit { dset01, dset10 };
+
 public:
   scene_drawer();
 
@@ -85,6 +87,7 @@ public:
     ch.build(m, corner, { 0, 0, 32 }, mult);
     m.push(embed.model(models::corner::t {}));
 
+    bool use_0 = true;
     auto cb = scb.cb();
     {
       static constexpr const dotz::ivec3 ivec3_x { 1, 0, 0 };
@@ -109,6 +112,8 @@ public:
       vee::cmd_bind_c_descriptor_set(cb, *pl, 0, dset10);
       vee::cmd_push_compute_constants(cb, *pl, &ivec3_x);
       vee::cmd_dispatch(cb, 1, chunk::len, chunk::len);
+
+      use_0 = cbit.cmd(cb, count);
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,

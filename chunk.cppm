@@ -1,4 +1,5 @@
 export module chunk;
+export import :bitonic;
 import dotz;
 import hai;
 import sv;

@@ -1,0 +1,60 @@
+#version 450
+
+layout(push_constant) uniform upc {
+  uint jump;
+  uint div;
+} pc;
+
+struct inst {
+  vec4 rot;
+  vec4 pos;  // pos.xyz + mdl
+  vec4 size; // size.xyz + txt
+};
+
+layout(binding = 0) readonly buffer buf_0 { inst inp[]; };
+layout(binding = 1) buffer buf_1 { inst res[]; };
+
+int cmp(vec4 a, vec4 b) {
+  // w first to cover "mdl" first  
+  if (a.w < b.w) return -1;
+  if (a.w > b.w) return 1;
+
+  if (a.x < b.x) return -1;
+  if (a.x > b.x) return 1;
+  if (a.y < b.y) return -1;
+  if (a.y > b.y) return 1;
+  if (a.z < b.z) return -1;
+  if (a.z > b.z) return 1;
+  return 0;
+}
+int cmp(inst a, inst b) {
+  int c = cmp(a.pos, b.pos);
+  if (c != 0) return c;
+
+  c = cmp(a.rot, b.rot);
+  if (c != 0) return c;
+
+  return cmp(a.size, b.size);
+}
+
+void main() {
+  uint id = gl_GlobalInvocationID.x;
+
+  uint dv = id / pc.div;
+  uint rs = id % pc.div;
+
+  uint ra = rs;
+  uint rb = (rs + pc.div / 2) % pc.div;
+
+  uint ia = dv * pc.div + ra;
+  uint ib = dv * pc.div + rb;
+
+  inst a = inp[ia];
+  inst b = inp[ib];
+  if (((id / pc.jump) % 2 == 1) ^^ (ia < ib)) {
+    res[id] = ia > ib ? a : b;//cmp(a, b) <= 0 ? a : b;
+  } else {
+    res[id] = ia < ib ? a : b;//cmp(a, b) >= 0 ? a : b;
+  }
+}
+
