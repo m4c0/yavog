@@ -1,6 +1,7 @@
 #pragma leco add_shader "chunk-compact.comp"
 export module chunk:compact;
 import :bitonic;
+import :count;
 import dotz;
 import voo;
 
@@ -22,6 +23,7 @@ namespace chunk {
     vee::descriptor_set m_dset10 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
     bitonic m_bit { m_dset01, m_dset10 };
+    count m_cc;
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
     vee::c_pipeline m_ppl;
@@ -29,7 +31,8 @@ namespace chunk {
 
   public:
     compact(unsigned len, VkBuffer host, VkBuffer local0, VkBuffer local1) :
-      m_ppl {
+      m_cc { host }
+    , m_ppl {
         vee::create_compute_pipeline(
             *m_pl, *voo::comp_shader("chunk-compact.comp.spv"),
             "main", vee::specialisation_info { 99, len })
@@ -59,6 +62,8 @@ namespace chunk {
       vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset10);
       vee::cmd_push_compute_constants(cb, *m_pl, &ivec3_x);
       vee::cmd_dispatch(cb, 1, m_len, m_len);
+
+      m_cc.cmd(cb, 2, m_len * m_len * m_len);
 
       return m_bit.cmd(cb, m_len * m_len * m_len);
     }
