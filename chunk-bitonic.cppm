@@ -15,9 +15,6 @@ namespace chunk {
       vee::dsl_compute_storage(),
       vee::dsl_compute_storage(),
     });
-    vee::descriptor_pool m_dpool = vee::create_descriptor_pool(2, {
-      vee::storage_buffer(4),
-    });
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<upc>());
     vee::c_pipeline m_ppl = vee::create_compute_pipeline(*m_pl, *voo::comp_shader("chunk-bitonic.comp.spv"), "main");
@@ -35,7 +32,17 @@ namespace chunk {
     {}
 
     /// Returns "true" if output will be on buffer "a"
-    bool cmd(vee::command_buffer cb) {
+    constexpr bool use_first_as_output() const {
+      bool res = true;
+      for (unsigned jump = 2; jump <= m_elems; jump <<= 1) {
+        for (unsigned div = jump; div >= 2; div >>= 1) {
+          res = !res;
+        }
+      }
+      return res;
+    }
+
+    void cmd(vee::command_buffer cb) {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);
 
       bool use01 = true;
@@ -48,7 +55,6 @@ namespace chunk {
           use01 = !use01;
         }
       }
-      return use01;
     }
   };
 }

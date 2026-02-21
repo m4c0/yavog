@@ -37,10 +37,8 @@ class scene_drawer : public ofs::drawer {
   static_assert(chunk::len <= len);
 
   buffers::buffer<buffers::tmp_inst> host { count };
-  voo::bound_buffer local0 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-  voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-  chunk::compact ccomp { len, *host, *local0.buffer, *local1.buffer };
+  chunk::compact ccomp { len, *host };
 
 public:
   scene_drawer();
@@ -59,7 +57,6 @@ public:
       ch.copy(m, { 0, 0, 32 }, len);
     }
 
-    bool use_0 = true;
     auto cb = scb.cb();
     {
       voo::cmd_buf_one_time_submit ots { cb };
@@ -68,7 +65,7 @@ public:
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
-      use_0 = ccomp.cmd(cb);
+      ccomp.cmd(cb);
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
@@ -80,7 +77,7 @@ public:
 
     silog::infof("%dms", w.millis());
     {
-      voo::memiter<buffers::inst> m { *(use_0 ? local0.memory : local1.memory) };
+      voo::memiter<buffers::inst> m { ccomp.output_memory() };
       for (auto i = 0; i < count; i++) {
         auto [px,py,pz,mdl] = m[i].pos;
         auto [sx,sy,sz] = m[i].size;
