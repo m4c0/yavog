@@ -37,20 +37,20 @@ namespace buffers {
   export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
   export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
 
-  template<typename T> VkBufferUsageFlagBits usage() {
+  template<typename T> VkBufferUsageFlags usage() {
     return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
   }
-  template<> VkBufferUsageFlagBits usage<tmp_inst>() {
+  template<> VkBufferUsageFlags usage<tmp_inst>() {
     return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
-  template<> VkBufferUsageFlagBits usage<uint16_t>() {
+  template<> VkBufferUsageFlags usage<uint16_t>() {
     return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
   }
-  template<> VkBufferUsageFlagBits usage<VkDrawIndexedIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  template<> VkBufferUsageFlags usage<VkDrawIndexedIndirectCommand>() {
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
-  template<> VkBufferUsageFlagBits usage<VkDrawIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  template<> VkBufferUsageFlags usage<VkDrawIndirectCommand>() {
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
 
   export template<typename T> class buffer : no::no {
