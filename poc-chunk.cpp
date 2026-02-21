@@ -53,6 +53,7 @@ public:
   }
 
   void build(float mult = 1) {
+    sitime::stopwatch w {};
     {
       auto m = host.map();
       ch.copy(m, { 0, 0, 32 }, len);
@@ -74,6 +75,20 @@ public:
           vee::memory_barrier(0, 0));
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
+
+    vee::device_wait_idle();
+
+    silog::infof("%dms", w.millis());
+    {
+      voo::memiter<buffers::inst> m { *(use_0 ? local0.memory : local1.memory) };
+      for (auto i = 0; i < count; i++) {
+        auto [px,py,pz,mdl] = m[i].pos;
+        auto [sx,sy,sz] = m[i].size;
+        if (mdl == 0) continue;
+        silog::infof("%8d -- %.1f,%.1f,%.1f -- %.1f,%.1f,%.1f -- %.0f", i, sx,sy,sz, px,py,pz, mdl);
+      }
+    }
+
     using enum chunk::model;
     auto m = embed.builder();
     ch.build(m, cube, { 0, 0, 32 }, mult);
