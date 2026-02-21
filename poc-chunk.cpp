@@ -38,7 +38,12 @@ class scene_drawer : public ofs::drawer {
 
   buffers::buffer<buffers::tmp_inst> host { count };
 
-  chunk::compact ccomp { len, *host };
+  chunk::compact ccomp {{
+    .len = len,
+    .host = *host,
+    .vcmd = embed.vcmd(),
+    .ecmd = embed.ecmd(),
+  }};
 
 public:
   scene_drawer();

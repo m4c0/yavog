@@ -13,9 +13,10 @@ namespace chunk {
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
       vee::dsl_compute_storage(),
       vee::dsl_compute_storage(),
+      vee::dsl_compute_storage(),
     });
-    vee::descriptor_pool m_dpool = vee::create_descriptor_pool(2, {
-      vee::storage_buffer(4),
+    vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
+      vee::storage_buffer(3),
     });
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<upc>());
@@ -24,9 +25,10 @@ namespace chunk {
     vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);;
 
   public:
-    explicit count(VkBuffer in, VkBuffer out) {
+    explicit count(VkBuffer in, VkBuffer out0, VkBuffer out1) {
       vee::update_descriptor_set(m_dset, 0, in);
-      vee::update_descriptor_set(m_dset, 1, out);
+      vee::update_descriptor_set(m_dset, 1, out0);
+      vee::update_descriptor_set(m_dset, 2, out1);
     }
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {
       upc pc { .mdl = static_cast<unsigned>(mdl) };

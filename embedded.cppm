@@ -101,6 +101,9 @@ namespace embedded {
     [[nodiscard]] auto model(auto t) { return m_mdls[t]; }
     [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
 
+    constexpr auto vcmd() const { return *m_vcmd; }
+    constexpr auto ecmd() const { return *m_ecmd; }
+
     void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) {
       if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, m_tmap.dset());
 

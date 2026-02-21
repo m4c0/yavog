@@ -37,27 +37,34 @@ namespace chunk {
     unsigned m_len;
 
   public:
-    compact(unsigned len, VkBuffer host) :
-      m_bit { m_dset01, m_dset10, len * len * len }
-    , m_cc { host, host }
+    struct param {
+      unsigned len;
+      VkBuffer host;
+      VkBuffer vcmd;
+      VkBuffer ecmd;
+    };
+
+    compact(const param & p) :
+      m_bit { m_dset01, m_dset10, p.len * p.len * p.len }
+    , m_cc { p.host, p.vcmd, p.ecmd }
     , m_local0 {
       voo::bound_buffer::create_from_host(
-          sizeof(inst) * len * len * len,
+          sizeof(inst) * p.len * p.len * p.len,
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
     }
     , m_local1 {
       voo::bound_buffer::create_from_host(
-          sizeof(inst) * len * len * len,
+          sizeof(inst) * p.len * p.len * p.len,
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
     }
     , m_ppl {
         vee::create_compute_pipeline(
             *m_pl, *voo::comp_shader("chunk-compact.comp.spv"),
-            "main", vee::specialisation_info { 99, len })
+            "main", vee::specialisation_info { 99, p.len })
       }
-    , m_len { len }
+    , m_len { p.len }
     {
-      vee::update_descriptor_set(m_dset_hl, 0, host);
+      vee::update_descriptor_set(m_dset_hl, 0, p.host);
       vee::update_descriptor_set(m_dset_hl, 1, *m_local0.buffer);
 
       vee::update_descriptor_set(m_dset01, 0, *m_local0.buffer);
