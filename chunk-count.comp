@@ -12,10 +12,14 @@ layout(push_constant) uniform upc {
 } pc;
 
 layout(binding = 0) readonly buffer buf_0 { inst inp[]; };
-layout(binding = 1) buffer buf_1 { uint res; };
+layout(binding = 1) buffer buf_1 { uint res0; };
+layout(binding = 2) buffer buf_2 { uint res1; };
 
 void main() {
   uint id = gl_GlobalInvocationID.x;
   uint val = subgroupAdd(inp[id].pos.w == pc.filt ? 1 : 0);
-  if (subgroupElect()) atomicAdd(res, val);
+  if (subgroupElect()) {
+    atomicAdd(res0, val);
+    atomicAdd(res1, val);
+  }
 }

@@ -1,5 +1,6 @@
 #pragma leco add_shader "chunk-count.comp"
 export module chunk:count;
+import traits;
 import voo;
 
 using namespace wagen;
@@ -27,8 +28,16 @@ namespace chunk {
   public:
     explicit count(VkBuffer in, VkBuffer out0, VkBuffer out1) {
       vee::update_descriptor_set(m_dset, 0, in);
-      vee::update_descriptor_set(m_dset, 1, out0);
-      vee::update_descriptor_set(m_dset, 2, out1);
+      vee::update_descriptor_set(m_dset, 1, VkDescriptorBufferInfo {
+        .buffer = out0,
+        .offset = traits::offset_of(&VkDrawIndexedIndirectCommand::instanceCount),
+        .range = 4,
+      });
+      vee::update_descriptor_set(m_dset, 2, VkDescriptorBufferInfo {
+        .buffer = out1,
+        .offset = traits::offset_of(&VkDrawIndirectCommand::instanceCount),
+        .range = 4,
+      });
     }
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {
       upc pc { .mdl = static_cast<unsigned>(mdl) };
