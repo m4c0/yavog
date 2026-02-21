@@ -25,22 +25,26 @@ namespace chunk {
     vee::descriptor_set m_dset_a;
     vee::descriptor_set m_dset_b;
 
+    unsigned m_elems;
+
   public:
-    bitonic(vee::descriptor_set da, vee::descriptor_set db) :
+    bitonic(vee::descriptor_set da, vee::descriptor_set db, unsigned elems) :
       m_dset_a { da }
-    , m_dset_b { db } {}
+    , m_dset_b { db }
+    , m_elems { elems }
+    {}
 
     /// Returns "true" if output will be on buffer "a"
-    bool cmd(vee::command_buffer cb, unsigned elems) {
+    bool cmd(vee::command_buffer cb) {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);
 
       bool use01 = true;
-      for (unsigned jump = 2; jump <= elems; jump <<= 1) {
+      for (unsigned jump = 2; jump <= m_elems; jump <<= 1) {
         for (unsigned div = jump; div >= 2; div >>= 1) {
           upc pc = { .jump = jump, .div = div };
           vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, use01 ? m_dset_a : m_dset_b);
           vee::cmd_push_compute_constants(cb, *m_pl, &pc);
-          vee::cmd_dispatch(cb, elems, 1, 1);
+          vee::cmd_dispatch(cb, m_elems, 1, 1);
           use01 = !use01;
         }
       }

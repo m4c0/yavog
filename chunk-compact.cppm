@@ -22,7 +22,7 @@ namespace chunk {
     vee::descriptor_set m_dset01 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
     vee::descriptor_set m_dset10 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
-    bitonic m_bit { m_dset01, m_dset10 };
+    bitonic m_bit;
     count m_cc;
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
@@ -31,7 +31,8 @@ namespace chunk {
 
   public:
     compact(unsigned len, VkBuffer host, VkBuffer local0, VkBuffer local1) :
-      m_cc { host }
+      m_bit { m_dset01, m_dset10, len * len * len }
+    , m_cc { host, nullptr }
     , m_ppl {
         vee::create_compute_pipeline(
             *m_pl, *voo::comp_shader("chunk-compact.comp.spv"),
@@ -65,7 +66,7 @@ namespace chunk {
 
       m_cc.cmd(cb, 2, m_len * m_len * m_len);
 
-      return m_bit.cmd(cb, m_len * m_len * m_len);
+      return m_bit.cmd(cb);
     }
   };
 }
