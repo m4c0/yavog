@@ -41,6 +41,7 @@ class scene_drawer : public ofs::drawer {
   voo::bound_buffer local1 = voo::bound_buffer::create_from_host(sizeof(buffers::inst) * count, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
   chunk::compact ccomp { len, *host, *local0.buffer, *local1.buffer };
+  chunk::count cc {};
 
 public:
   scene_drawer();

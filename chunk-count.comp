@@ -1,0 +1,21 @@
+#version 450
+#extension GL_KHR_shader_subgroup_arithmetic : require 
+
+struct inst {
+  vec4 rot;
+  vec4 pos;  // pos.xyz + mdl
+  vec4 size; // size.xyz + txt
+};
+
+layout(push_constant) uniform upc {
+  uint filt;
+} pc;
+
+layout(binding = 0) readonly buffer buf_0 { inst inp[]; };
+layout(binding = 1) buffer buf_1 { uint res; };
+
+void main() {
+  uint id = gl_GlobalInvocationID.x;
+  uint val = subgroupAdd(inp[id].pos.w == pc.filt ? 1 : 0);
+  if (subgroupElect()) atomicAdd(res, val);
+}
