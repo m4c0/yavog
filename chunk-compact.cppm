@@ -12,6 +12,9 @@ namespace chunk {
     static constexpr const dotz::ivec3 ivec3_y { 0, 1, 0 };
     static constexpr const dotz::ivec3 ivec3_z { 0, 0, 1 };
 
+    static constexpr const auto vcmd_size = sizeof(VkDrawIndexedIndirectCommand) * model_count;
+    static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
+
     struct inst {
       dotz::vec4 rot, pos, size;
     };
@@ -27,15 +30,20 @@ namespace chunk {
     vee::descriptor_set m_dset01 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
     vee::descriptor_set m_dset10 = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
-    bitonic m_bit;
-    count m_cc;
-
     voo::bound_buffer m_local0;
     voo::bound_buffer m_local1;
+    voo::bound_buffer m_vcmd = voo::bound_buffer::create_from_host(vcmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    voo::bound_buffer m_ecmd = voo::bound_buffer::create_from_host(ecmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
     vee::c_pipeline m_ppl;
     unsigned m_len;
+
+    VkBuffer m_vcmd_orig;
+    VkBuffer m_ecmd_orig;
+
+    bitonic m_bit;
+    count m_cc;
 
   public:
     struct param {
@@ -46,9 +54,7 @@ namespace chunk {
     };
 
     compact(const param & p) :
-      m_bit { m_dset01, m_dset10, p.len * p.len * p.len }
-    , m_cc { p.host, p.vcmd, p.ecmd }
-    , m_local0 {
+      m_local0 {
       voo::bound_buffer::create_from_host(
           sizeof(inst) * p.len * p.len * p.len,
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
@@ -64,6 +70,10 @@ namespace chunk {
             "main", vee::specialisation_info { 99, p.len })
       }
     , m_len { p.len }
+    , m_vcmd_orig { p.vcmd }
+    , m_ecmd_orig { p.ecmd }
+    , m_bit { m_dset01, m_dset10, p.len * p.len * p.len }
+    , m_cc { p.host, *m_vcmd.buffer, *m_ecmd.buffer }
     {
       vee::update_descriptor_set(m_dset_hl, 0, p.host);
       vee::update_descriptor_set(m_dset_hl, 1, *m_local0.buffer);
@@ -94,6 +104,9 @@ namespace chunk {
       vee::cmd_dispatch(cb, 1, m_len, m_len);
 
       m_bit.cmd(cb);
+
+      vee::cmd_copy_buffer(cb, m_vcmd_orig, *m_vcmd.buffer, vcmd_size);
+      vee::cmd_copy_buffer(cb, m_ecmd_orig, *m_ecmd.buffer, ecmd_size);
       //m_cc.cmd(cb, 2, m_len * m_len * m_len);
     }
   };
