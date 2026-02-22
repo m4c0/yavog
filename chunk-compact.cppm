@@ -85,8 +85,10 @@ namespace chunk {
       vee::update_descriptor_set(m_dset10, 1, *m_local0.buffer);
     }
 
+    constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
+    constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
     constexpr auto output_memory() const {
-      return *(m_bit.use_first_as_output() ? m_local0 : m_local1).memory;;
+      return *(m_bit.use_first_as_output() ? m_local0 : m_local1).memory;
     }
 
     void cmd(vee::command_buffer cb) {
@@ -107,7 +109,9 @@ namespace chunk {
 
       vee::cmd_copy_buffer(cb, m_vcmd_orig, *m_vcmd.buffer, vcmd_size);
       vee::cmd_copy_buffer(cb, m_ecmd_orig, *m_ecmd.buffer, ecmd_size);
-      m_cc.cmd(cb, 2, m_len * m_len * m_len);
+      for (auto i = 1; i < model_count; i++) {
+        m_cc.cmd(cb, i, m_len * m_len * m_len);
+      }
     }
   };
 }

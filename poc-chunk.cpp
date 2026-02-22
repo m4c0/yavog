@@ -90,6 +90,20 @@ public:
         silog::infof("%8d -- %.1f,%.1f,%.1f -- %.1f,%.1f,%.1f -- %.0f", i, sx,sy,sz, px,py,pz, mdl);
       }
     }
+    {
+      voo::memiter<VkDrawIndexedIndirectCommand> m { ccomp.vcmd_memory() };
+      silog::info("--------- vcmd");
+      for (auto i = 0; i < 4; i++) {
+        silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);
+      }
+    }
+    {
+      voo::memiter<VkDrawIndirectCommand> m { ccomp.ecmd_memory() };
+      silog::info("--------- ecmd");
+      for (auto i = 0; i < 4; i++) {
+        silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);
+      }
+    }
 
     using enum chunk::model;
     auto m = embed.builder();
