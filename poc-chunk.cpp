@@ -38,7 +38,7 @@ class scene_drawer : public ofs::drawer {
 
   buffers::buffer<buffers::tmp_inst> host { count };
 
-  chunk::compact ccomp {{
+  chunk::gpunator cgpu {{
     .len = len,
     .host = *host,
     .vcmd = embed.vcmd(),
@@ -49,17 +49,17 @@ public:
   scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-    vee::cmd_bind_vertex_buffers(cb, 1, ccomp.insts(), 0);
+    vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
     embed.faces(cb, pl);
       for (auto i = 0; i < 4; i++) {
-        vee::cmd_draw_indexed_indirect(cb, ccomp.vcmd(), i, 1);
+        vee::cmd_draw_indexed_indirect(cb, cgpu.vcmd(), i, 1);
       }
   }
   void edges(vee::command_buffer cb) override {
-    vee::cmd_bind_vertex_buffers(cb, 1, ccomp.insts(), 0);
+    vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
     embed.edges(cb);
       for (auto i = 0; i < 4; i++) {
-        vee::cmd_draw_indirect(cb, ccomp.ecmd(), i, 1);
+        vee::cmd_draw_indirect(cb, cgpu.ecmd(), i, 1);
       }
   }
 
@@ -78,7 +78,7 @@ public:
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
-      ccomp.cmd(cb);
+      cgpu.cmd(cb);
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
@@ -90,7 +90,7 @@ public:
 
     silog::infof("%dms", w.millis());
     {
-      voo::memiter<buffers::inst> m { ccomp.output_memory() };
+      voo::memiter<buffers::inst> m { cgpu.output_memory() };
       for (auto i = 0; i < count; i++) {
         auto [px,py,pz,mdl] = m[i].pos;
         auto [sx,sy,sz] = m[i].size;
@@ -99,14 +99,14 @@ public:
       }
     }
     {
-      voo::memiter<VkDrawIndexedIndirectCommand> m { ccomp.vcmd_memory() };
+      voo::memiter<VkDrawIndexedIndirectCommand> m { cgpu.vcmd_memory() };
       silog::info("--------- vcmd");
       for (auto i = 0; i < 4; i++) {
         silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);
       }
     }
     {
-      voo::memiter<VkDrawIndirectCommand> m { ccomp.ecmd_memory() };
+      voo::memiter<VkDrawIndirectCommand> m { cgpu.ecmd_memory() };
       silog::info("--------- ecmd");
       for (auto i = 0; i < 4; i++) {
         silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);

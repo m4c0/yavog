@@ -1,7 +1,5 @@
 export module chunk;
-export import :bitonic;
-export import :compact;
-export import :count;
+export import :gpunator;
 export import :objects;
 import dotz;
 import hai;
