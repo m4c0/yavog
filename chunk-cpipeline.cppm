@@ -49,7 +49,7 @@ namespace chunk {
     }
     void cmd_dispatch(vee::command_buffer cb, const U * pc, const unsigned (&bufs)[N], dotz::ivec3 n) {
       cmd_bind(cb, pc, bufs);
-      vee::cmd_dispatch(cb, n.x, n.y, n.y);
+      vee::cmd_dispatch(cb, n.x, n.y, n.z);
     }
   };
 }
