@@ -32,8 +32,8 @@ namespace chunk {
 
     voo::bound_buffer m_local0;
     voo::bound_buffer m_local1;
-    voo::bound_buffer m_vcmd = voo::bound_buffer::create_from_host(vcmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    voo::bound_buffer m_ecmd = voo::bound_buffer::create_from_host(ecmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    voo::bound_buffer m_vcmd = voo::bound_buffer::create_from_host(vcmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+    voo::bound_buffer m_ecmd = voo::bound_buffer::create_from_host(ecmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl, vee::compute_push_constant_range<dotz::ivec3>());
     vee::c_pipeline m_ppl;
@@ -61,12 +61,12 @@ namespace chunk {
       m_local0 {
       voo::bound_buffer::create_from_host(
           sizeof(inst) * p.len * p.len * p.len,
-          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
     }
     , m_local1 {
       voo::bound_buffer::create_from_host(
           sizeof(inst) * p.len * p.len * p.len,
-          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
     }
     , m_ppl {
         vee::create_compute_pipeline(
@@ -89,11 +89,13 @@ namespace chunk {
       vee::update_descriptor_set(m_dset10, 1, *m_local0.buffer);
     }
 
+    constexpr auto vcmd() const { return *m_vcmd.buffer; }
+    constexpr auto ecmd() const { return *m_ecmd.buffer; }
+    constexpr auto insts() const { return *output().buffer; }
+
     constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
     constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
-    constexpr auto output_memory() const {
-      return *output().memory;
-    }
+    constexpr auto output_memory() const { return *output().memory; }
 
     void cmd(vee::command_buffer cb) {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);

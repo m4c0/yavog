@@ -49,10 +49,18 @@ public:
   scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+    vee::cmd_bind_vertex_buffers(cb, 1, ccomp.insts(), 0);
     embed.faces(cb, pl);
+      for (auto i = 0; i < 4; i++) {
+        vee::cmd_draw_indexed_indirect(cb, ccomp.vcmd(), i, 1);
+      }
   }
   void edges(vee::command_buffer cb) override {
+    vee::cmd_bind_vertex_buffers(cb, 1, ccomp.insts(), 0);
     embed.edges(cb);
+      for (auto i = 0; i < 4; i++) {
+        vee::cmd_draw_indirect(cb, ccomp.ecmd(), i, 1);
+      }
   }
 
   void build(float mult = 1) {

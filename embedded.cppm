@@ -108,18 +108,10 @@ namespace embedded {
       if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, m_tmap.dset());
 
       vee::cmd_bind_vertex_buffers(cb, 0, *m_vtx, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *m_ins, 0);
       vee::cmd_bind_index_buffer_u16(cb, *m_idx);
-      for (auto i = 0; i < m_vcmd.count(); i++) {
-        vee::cmd_draw_indexed_indirect(cb, *m_vcmd, i, 1);
-      }
     }
     void edges(vee::command_buffer cb) {
       vee::cmd_bind_vertex_buffers(cb, 0, *m_edg, 0);
-      vee::cmd_bind_vertex_buffers(cb, 1, *m_ins, 0);
-      for (auto i = 0; i < m_ecmd.count(); i++) {
-        vee::cmd_draw_indirect(cb, *m_ecmd, i, 1);
-      }
     }
   };
 
