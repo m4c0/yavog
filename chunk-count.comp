@@ -26,9 +26,9 @@ layout(push_constant) uniform upc {
   uint filt;
 } pc;
 
-layout(binding = 0) readonly buffer buf_0 { inst inp[]; };
-layout(binding = 1) buffer buf_1 { VkDrawIndexedIndirectCommand vcmd[]; };
-layout(binding = 2) buffer buf_2 { VkDrawIndirectCommand ecmd[]; };
+layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
+layout(binding = 0, set = 1) buffer buf_1 { VkDrawIndexedIndirectCommand vcmd[]; };
+layout(binding = 0, set = 2) buffer buf_2 { VkDrawIndirectCommand ecmd[]; };
 
 void main() {
   uint id = gl_GlobalInvocationID.x;
