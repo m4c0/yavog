@@ -13,12 +13,8 @@ layout(push_constant) uniform upc {
   uvec3 n;
 } pc;
 
-layout(binding = 0) readonly buffer buf_0 {
-  inst from[];
-};
-layout(binding = 1) buffer buf_1 {
-  inst to[];
-};
+layout(binding = 0, set = 0) readonly buffer buf_0 { inst from[]; };
+layout(binding = 0, set = 1) buffer buf_1 { inst to[]; };
 
 vec3 qrot(vec3 p, vec4 q);
 

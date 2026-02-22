@@ -32,6 +32,15 @@ namespace chunk {
       }
     }
 
+    cpipeline(sv shader, const auto & si, const VkBuffer (&bufs)[M]) :
+      m_ppl { vee::create_compute_pipeline(*m_pl, *voo::comp_shader(shader), "main", si) }
+    {
+      for (auto i = 0; i < M; i++) {
+        m_dsets[i] = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+        vee::update_descriptor_set(m_dsets[i], 0, bufs[i]);
+      }
+    }
+
     void cmd_bind(vee::command_buffer cb, const U * pc, const unsigned (&bufs)[N]) {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);
       vee::cmd_push_compute_constants(cb, *m_pl, pc);
