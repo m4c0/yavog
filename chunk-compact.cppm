@@ -78,14 +78,9 @@ namespace chunk {
     constexpr auto output_memory() const { return *output().memory; }
 
     void cmd(vee::command_buffer cb) {
-      m_cp.cmd_bind(cb, &ivec3_z, { 0, 1 });
-      vee::cmd_dispatch(cb, m_len, m_len, 1);
-
-      m_cp.cmd_bind(cb, &ivec3_y, { 1, 2 });
-      vee::cmd_dispatch(cb, m_len, 1, m_len);
-
-      m_cp.cmd_bind(cb, &ivec3_x, { 2, 1 });
-      vee::cmd_dispatch(cb, 1, m_len, m_len);
+      m_cp.cmd_dispatch(cb, &ivec3_z, { 0, 1 }, { m_len, m_len, 1U });
+      m_cp.cmd_dispatch(cb, &ivec3_y, { 1, 2 }, { m_len, 1U, m_len });
+      m_cp.cmd_dispatch(cb, &ivec3_x, { 2, 1 }, { 1U, m_len, m_len });
 
       m_bit.cmd(cb);
 

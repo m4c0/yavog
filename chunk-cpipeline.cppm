@@ -1,4 +1,5 @@
 export module chunk:cpipeline;
+import dotz;
 import hai;
 import sv;
 import voo;
@@ -45,6 +46,10 @@ namespace chunk {
       vee::cmd_bind_c_pipeline(cb, *m_ppl);
       vee::cmd_push_compute_constants(cb, *m_pl, pc);
       for (auto i = 0; i < N; i++) vee::cmd_bind_c_descriptor_set(cb, *m_pl, i, m_dsets[bufs[i]]);
+    }
+    void cmd_dispatch(vee::command_buffer cb, const U * pc, const unsigned (&bufs)[N], dotz::ivec3 n) {
+      cmd_bind(cb, pc, bufs);
+      vee::cmd_dispatch(cb, n.x, n.y, n.y);
     }
   };
 }

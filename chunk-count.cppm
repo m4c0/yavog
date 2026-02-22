@@ -20,9 +20,7 @@ namespace chunk {
     {}
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {
       upc pc { .mdl = static_cast<unsigned>(mdl) };
-
-      m_cp.cmd_bind(cb, &pc, { 0, 1, 2 });
-      vee::cmd_dispatch(cb, elems, 1, 1);
+      m_cp.cmd_dispatch(cb, &pc, { 0, 1, 2 }, { elems, 1U, 1U });
     }
   };
 }

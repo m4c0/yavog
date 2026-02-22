@@ -37,9 +37,8 @@ namespace chunk {
       for (unsigned jump = 2; jump <= m_elems; jump <<= 1) {
         for (unsigned div = jump; div >= 2; div >>= 1) {
           upc pc = { .jump = jump, .div = div };
-          if (use01) m_cp.cmd_bind(cb, &pc, { 0, 1 });
-          else       m_cp.cmd_bind(cb, &pc, { 1, 0 });
-          vee::cmd_dispatch(cb, m_elems, 1, 1);
+          if (use01) m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { m_elems, 1U, 1U });
+          else       m_cp.cmd_dispatch(cb, &pc, { 1, 0 }, { m_elems, 1U, 1U });
           use01 = !use01;
         }
       }
