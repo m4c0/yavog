@@ -2,6 +2,7 @@ export module chunk;
 export import :bitonic;
 export import :compact;
 export import :count;
+export import :objects;
 import dotz;
 import hai;
 import sv;
@@ -10,13 +11,6 @@ namespace chunk {
   export inline constexpr const auto minmax = 15;
   export inline constexpr const auto len = minmax * 2 + 1;
   static inline constexpr const auto blk_size = len * len * len;
-
-  export enum class model : unsigned {
-    none = 0,
-    corner,
-    cube,
-    prism,
-  };
 
   export struct block {
     dotz::vec4 rot { 0, 0, 0, 1 };

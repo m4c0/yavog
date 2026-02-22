@@ -2,6 +2,7 @@
 export module chunk:compact;
 import :bitonic;
 import :count;
+import :objects;
 import dotz;
 import voo;
 
