@@ -11,8 +11,8 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
-layout(binding = 0) readonly buffer buf_0 { inst inp[]; };
-layout(binding = 1) buffer buf_1 { inst res[]; };
+layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
+layout(binding = 0, set = 1) buffer buf_1 { inst res[]; };
 
 int cmp(vec4 a, vec4 b) {
   // w first to cover "mdl" first, leaving "empty" spaces at the end  

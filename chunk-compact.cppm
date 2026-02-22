@@ -77,7 +77,7 @@ namespace chunk {
     , m_len { p.len }
     , m_vcmd_orig { p.vcmd }
     , m_ecmd_orig { p.ecmd }
-    , m_bit { m_dset01, m_dset10, p.len * p.len * p.len }
+    , m_bit { *m_local0.buffer, *m_local1.buffer, p.len * p.len * p.len }
     , m_cc { *output().buffer, *m_vcmd.buffer, *m_ecmd.buffer }
     {
       vee::update_descriptor_set(m_dset_hl, 0, p.host);
