@@ -107,7 +107,7 @@ namespace chunk {
 
       vee::cmd_copy_buffer(cb, m_vcmd_orig, *m_vcmd.buffer, vcmd_size);
       vee::cmd_copy_buffer(cb, m_ecmd_orig, *m_ecmd.buffer, ecmd_size);
-      //m_cc.cmd(cb, 2, m_len * m_len * m_len);
+      m_cc.cmd(cb, 2, m_len * m_len * m_len);
     }
   };
 }

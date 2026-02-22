@@ -26,22 +26,15 @@ namespace chunk {
     vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);;
 
   public:
-    explicit count(VkBuffer in, VkBuffer out0, VkBuffer out1) {
+    explicit count(VkBuffer in, VkBuffer vcmd, VkBuffer ecmd) {
       vee::update_descriptor_set(m_dset, 0, in);
-      vee::update_descriptor_set(m_dset, 1, VkDescriptorBufferInfo {
-        .buffer = out0,
-        .offset = traits::offset_of(&VkDrawIndexedIndirectCommand::instanceCount),
-        .range = 4,
-      });
-      vee::update_descriptor_set(m_dset, 2, VkDescriptorBufferInfo {
-        .buffer = out1,
-        .offset = traits::offset_of(&VkDrawIndirectCommand::instanceCount),
-        .range = 4,
-      });
+      vee::update_descriptor_set(m_dset, 1, vcmd);
+      vee::update_descriptor_set(m_dset, 2, ecmd);
     }
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {
       upc pc { .mdl = static_cast<unsigned>(mdl) };
 
+      vee::cmd_bind_c_pipeline(cb, *m_ppl);
       vee::cmd_bind_c_descriptor_set(cb, *m_pl, 0, m_dset);
       vee::cmd_push_compute_constants(cb, *m_pl, &pc);
       vee::cmd_dispatch(cb, elems, 1, 1);
