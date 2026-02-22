@@ -45,6 +45,10 @@ namespace chunk {
     bitonic m_bit;
     count m_cc;
 
+    constexpr auto & output() const {
+      return m_bit.use_first_as_output() ? m_local0 : m_local1;
+    }
+
   public:
     struct param {
       unsigned len;
@@ -73,7 +77,7 @@ namespace chunk {
     , m_vcmd_orig { p.vcmd }
     , m_ecmd_orig { p.ecmd }
     , m_bit { m_dset01, m_dset10, p.len * p.len * p.len }
-    , m_cc { p.host, *m_vcmd.buffer, *m_ecmd.buffer }
+    , m_cc { *output().buffer, *m_vcmd.buffer, *m_ecmd.buffer }
     {
       vee::update_descriptor_set(m_dset_hl, 0, p.host);
       vee::update_descriptor_set(m_dset_hl, 1, *m_local0.buffer);
@@ -88,7 +92,7 @@ namespace chunk {
     constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
     constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
     constexpr auto output_memory() const {
-      return *(m_bit.use_first_as_output() ? m_local0 : m_local1).memory;
+      return *output().memory;
     }
 
     void cmd(vee::command_buffer cb) {
