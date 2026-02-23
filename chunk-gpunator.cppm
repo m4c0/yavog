@@ -15,6 +15,8 @@ namespace chunk {
       dotz::vec4 rot, pos, size;
     };
 
+    voo::single_cb m_cb { false };
+
     voo::bound_buffer m_local0;
     voo::bound_buffer m_local1;
     voo::bound_buffer m_vcmd = voo::bound_buffer::create_from_host(vcmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
@@ -58,17 +60,10 @@ namespace chunk {
     , m_comp { p.host, *m_local0.buffer, *m_local1.buffer, p.len }
     , m_bit { *m_local0.buffer, *m_local1.buffer, p.len * p.len * p.len }
     , m_cc { *output().buffer, *m_vcmd.buffer, *m_ecmd.buffer }
-    {}
+    {
+      auto cb = m_cb.cb();
 
-    constexpr auto vcmd() const { return *m_vcmd.buffer; }
-    constexpr auto ecmd() const { return *m_ecmd.buffer; }
-    constexpr auto insts() const { return *output().buffer; }
-
-    constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
-    constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
-    constexpr auto output_memory() const { return *output().memory; }
-
-    void cmd(vee::command_buffer cb) {
+      voo::cmd_buf_sim_use_inherit g { cb };
       m_comp.cmd(cb);
       m_bit.cmd(cb);
 
@@ -78,5 +73,15 @@ namespace chunk {
         m_cc.cmd(cb, i, m_len * m_len * m_len);
       }
     }
+
+    constexpr auto command_buffer() const { return m_cb.cb(); }
+
+    constexpr auto vcmd() const { return *m_vcmd.buffer; }
+    constexpr auto ecmd() const { return *m_ecmd.buffer; }
+    constexpr auto insts() const { return *output().buffer; }
+
+    constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
+    constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
+    constexpr auto output_memory() const { return *output().memory; }
   };
 }

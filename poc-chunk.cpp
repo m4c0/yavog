@@ -78,7 +78,7 @@ public:
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
-      cgpu.cmd(cb);
+      vee::cmd_execute_command(cb, cgpu.command_buffer());
 
       vee::cmd_pipeline_barrier(cb,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
