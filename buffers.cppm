@@ -138,6 +138,47 @@ namespace buffers {
       (push(m, T {}), ...);
     }
   };
+ 
+  export class vc_buffer : public buffer<VkDrawIndexedIndirectCommand> {
+    template<typename T> void push(auto & map, int & vofs, T) {
+      auto prev = map[map.count() - 1];
+      map += {
+        .indexCount   = size(T::tri) * 3,
+        .firstIndex   = prev.firstIndex + prev.indexCount,
+        .vertexOffset = prev.vertexOffset + vofs,
+      };
+    }
+
+  public:
+    template<typename... T> vc_buffer(T...) :
+      buffer<VkDrawIndexedIndirectCommand> { sizeof...(T) + 1 }
+    {
+      int tmp = 0;
+      auto m = map();
+      m += {};
+      (push(m, tmp, T {}), ...);
+    }
+  };
+ 
+  export class ec_buffer : public buffer<VkDrawIndirectCommand> {
+    template<typename T> void push(auto & map, int & vofs, T) {
+      auto prev = map[map.count() - 1];
+      map += {
+        .vertexCount  = size(T::edg) * 3,
+        .firstVertex  = prev.firstVertex + prev.vertexCount,
+      };
+    }
+
+  public:
+    template<typename... T> ec_buffer(T...) :
+      buffer<VkDrawIndirectCommand> { sizeof...(T) + 1 }
+    {
+      int tmp = 0;
+      auto m = map();
+      m += {};
+      (push(m, tmp, T {}), ...);
+    }
+  };
 }
 
 // Should be in this module due to a bug in clang on windows
