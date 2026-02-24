@@ -108,6 +108,7 @@ public:
 
     silog::info("--------- vcmd");
     for (auto i = 0U; i < 4; i++) indirectdebug::dump({
+      .indices = bufs.idx.memory(),
       .indirect = cgpu.vcmd_memory(),
       .first = i,
     });

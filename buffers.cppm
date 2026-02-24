@@ -68,6 +68,7 @@ namespace buffers {
     [[nodiscard]] auto map() {
       return voo::memiter<T> { *m_buf.memory, &m_count };
     }
+    [[nodiscard]] constexpr auto memory() const { return *m_buf.memory; }
   };
 
   export class v_buffer : public buffer<vtx> {
