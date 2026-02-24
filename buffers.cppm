@@ -181,6 +181,22 @@ namespace buffers {
       (push(m, tmp, T {}), ...);
     }
   };
+
+  export struct all {
+    v_buffer  vtx;
+    ix_buffer idx;
+    e_buffer  edg;
+    vc_buffer vcmd;
+    ec_buffer ecmd;
+
+    template<typename... T> all(T...) :
+      vtx  { T {}... }
+    , idx  { T {}... }
+    , edg  { T {}... }
+    , vcmd { T {}... }
+    , ecmd { T {}... }
+    {}
+  };
 }
 
 // Should be in this module due to a bug in clang on windows
