@@ -15,9 +15,12 @@ layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
 layout(binding = 0, set = 1) buffer buf_1 { inst res[]; };
 
 int cmp(vec4 a, vec4 b) {
-  // w first to cover "mdl" first, leaving "empty" spaces at the end  
-  if (a.w < b.w) return 1;
-  if (a.w > b.w) return -1;
+  // "empty" spaces at the end  
+  if (a.w == 0) return 1;
+  if (b.w == 0) return -1;
+  // w first to cover "mdl" first
+  if (a.w < b.w) return -1;
+  if (a.w > b.w) return 1;
   // then by z, because it's always nice to have things z-sorted
   if (a.z < b.z) return -1;
   if (a.z > b.z) return 1;
