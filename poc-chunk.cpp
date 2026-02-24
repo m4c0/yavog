@@ -102,14 +102,19 @@ public:
       voo::memiter<VkDrawIndexedIndirectCommand> m { cgpu.vcmd_memory() };
       silog::info("--------- vcmd");
       for (auto i = 0; i < 4; i++) {
-        silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);
+        silog::infof("%d -- %6d %6d -- %6d %6d -- %6d",
+            i, m[i].instanceCount, m[i].firstInstance,
+            m[i].indexCount, m[i].firstIndex,
+            m[i].vertexOffset);
       }
     }
     {
       voo::memiter<VkDrawIndirectCommand> m { cgpu.ecmd_memory() };
       silog::info("--------- ecmd");
       for (auto i = 0; i < 4; i++) {
-        silog::infof("%d -- %6d %6d", i, m[i].instanceCount, m[i].firstInstance);
+        silog::infof("%d -- %6d %6d -- %6d %6d",
+            i, m[i].instanceCount, m[i].firstInstance,
+            m[i].vertexCount, m[i].firstVertex);
       }
     }
 
