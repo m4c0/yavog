@@ -10,6 +10,21 @@ using namespace traits::ints;
 using namespace wagen;
 
 namespace indirectdebug {
+  export void dump_insts(unsigned count, VkDeviceMemory mem) {
+    vee::device_wait_idle();
+
+    struct inst {
+      dotz::vec4 rot, pos, size;
+    };
+    voo::memiter<inst> m { mem };
+    for (auto i = 0; i < count; i++) {
+      auto [px,py,pz,mdl] = m[i].pos;
+      auto [sx,sy,sz,txt] = m[i].size;
+      if (mdl == 0) continue;
+      silog::infof("%d -- size:%f,%f,%f -- pos:%f,%f,%f -- mdl:%.0f", i, sx,sy,sz, px,py,pz, mdl);
+    }
+  }
+
   export struct indexed_indirect_params {
     VkDeviceMemory vertices;
     VkDeviceMemory indices;

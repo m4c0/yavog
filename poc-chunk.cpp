@@ -93,19 +93,7 @@ public:
     }
     voo::queue::universal()->submit({ .command_buffer = cb });
 
-    vee::device_wait_idle();
-
-    silog::infof("%dms", w.millis());
-    {
-      voo::memiter<buffers::inst> m { cgpu.output_memory() };
-      for (auto i = 0; i < count; i++) {
-        auto [px,py,pz,mdl] = m[i].pos;
-        auto [sx,sy,sz] = m[i].size;
-        if (mdl == 0) continue;
-        silog::infof("%8d -- %.1f,%.1f,%.1f -- %.1f,%.1f,%.1f -- %.0f", i, sx,sy,sz, px,py,pz, mdl);
-      }
-    }
-
+    indirectdebug::dump_insts(count, cgpu.output_memory());
     silog::info("--------- vcmd");
     indirectdebug::dump(4, indirectdebug::indexed_indirect_params {
       .vertices = bufs.vtx.memory(),
