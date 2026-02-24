@@ -30,7 +30,9 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 class scene_drawer : public ofs::drawer {
   texmap::cache tmap {};
   buffers::all bufs {
-    models::corner::t {}, models::cube::t {}, models::prism::t {}
+    models::corner::t {},
+    models::cube::t {},
+    models::prism::t {},
   };
   chunk::t ch {};
 
@@ -102,7 +104,7 @@ public:
     });
     silog::info("--------- ecmd");
     indirectdebug::dump(4, indirectdebug::indirect_params {
-      .vertices = bufs.vtx.memory(),
+      .vertices = bufs.edg.memory(),
       .indirect = cgpu.ecmd_memory(),
     });
   }
