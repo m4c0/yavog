@@ -147,6 +147,7 @@ namespace buffers {
         .firstIndex   = prev.firstIndex + prev.indexCount,
         .vertexOffset = prev.vertexOffset + vofs,
       };
+      vofs += size(T::vtx);
     }
 
   public:
