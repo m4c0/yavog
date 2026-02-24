@@ -140,13 +140,13 @@ namespace buffers {
   };
  
   export class vc_buffer : public buffer<VkDrawIndexedIndirectCommand> {
-    template<typename T> void push(auto & map, int & vofs, T) {
-      auto prev = map[map.count() - 1];
+    template<typename T> void push(auto & map, unsigned & i, int & vofs, T) {
       map += {
         .indexCount   = size(T::tri) * 3,
-        .firstIndex   = prev.firstIndex + prev.indexCount,
-        .vertexOffset = prev.vertexOffset + vofs,
+        .firstIndex   = i,
+        .vertexOffset = vofs,
       };
+      i += size(T::tri) * 3;
       vofs += size(T::vtx);
     }
 
@@ -154,27 +154,28 @@ namespace buffers {
     template<typename... T> vc_buffer(T...) :
       buffer<VkDrawIndexedIndirectCommand> { sizeof...(T) + 1 }
     {
-      int tmp = 0;
+      unsigned i = 0;
+      int vofs = 0;
       auto m = map();
       m += {};
-      (push(m, tmp, T {}), ...);
+      (push(m, i, vofs, T {}), ...);
     }
   };
  
   export class ec_buffer : public buffer<VkDrawIndirectCommand> {
-    template<typename T> void push(auto & map, int & vofs, T) {
-      auto prev = map[map.count() - 1];
+    template<typename T> void push(auto & map, unsigned & i, T) {
       map += {
         .vertexCount  = size(T::edg) * 3,
-        .firstVertex  = prev.firstVertex + prev.vertexCount,
+        .firstVertex  = i,
       };
+      i += size(T::edg) * 3;
     }
 
   public:
     template<typename... T> ec_buffer(T...) :
       buffer<VkDrawIndirectCommand> { sizeof...(T) + 1 }
     {
-      int tmp = 0;
+      unsigned tmp = 0;
       auto m = map();
       m += {};
       (push(m, tmp, T {}), ...);
