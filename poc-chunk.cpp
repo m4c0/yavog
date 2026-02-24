@@ -27,7 +27,10 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  models::drawer embed { 128 * 128 * 16 };
+  texmap::cache tmap {};
+  buffers::all bufs {
+    models::corner::t {}, models::cube::t {}, models::prism::t {}
+  };
   chunk::t ch {};
 
   voo::single_cb scb {};
@@ -41,33 +44,36 @@ class scene_drawer : public ofs::drawer {
   chunk::gpunator cgpu {{
     .len = len,
     .host = *host,
-    .vcmd = embed.vcmd(),
-    .ecmd = embed.ecmd(),
+    .vcmd = *bufs.vcmd,
+    .ecmd = *bufs.ecmd,
   }};
 
 public:
   scene_drawer();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
+
+    vee::cmd_bind_vertex_buffers(cb, 0, *bufs.vtx, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
-    embed.faces(cb, pl);
-      for (auto i = 0; i < 4; i++) {
-        vee::cmd_draw_indexed_indirect(cb, cgpu.vcmd(), i, 1);
-      }
+    vee::cmd_bind_index_buffer_u16(cb, *bufs.idx);
+    for (auto i = 1; i < 4; i++) {
+      vee::cmd_draw_indexed_indirect(cb, cgpu.vcmd(), i, 1);
+    }
   }
   void edges(vee::command_buffer cb) override {
+    vee::cmd_bind_vertex_buffers(cb, 0, *bufs.edg, 0);
     vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
-    embed.edges(cb);
-      for (auto i = 0; i < 4; i++) {
-        vee::cmd_draw_indirect(cb, cgpu.ecmd(), i, 1);
-      }
+    for (auto i = 1; i < 4; i++) {
+      vee::cmd_draw_indirect(cb, cgpu.ecmd(), i, 1);
+    }
   }
 
   void build(float mult = 1) {
     sitime::stopwatch w {};
     {
       auto m = host.map();
-      ch.copy(m, { 0, 0, 32 }, len);
+      ch.copy(m, { 0, 0, 0 }, len);
     }
 
     auto cb = scb.cb();
@@ -117,22 +123,13 @@ public:
             m[i].vertexCount, m[i].firstVertex);
       }
     }
-
-    using enum chunk::model;
-    auto m = embed.builder();
-    ch.build(m, cube, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::cube::t {}));
-    ch.build(m, prism, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::prism::t {}));
-    ch.build(m, corner, { 0, 0, 32 }, mult);
-    m.push(embed.model(models::corner::t {}));
   }
 };
 
 scene_drawer::scene_drawer() {
   using enum chunk::model;
-  auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
-  auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
+  auto dirt  = tmap.load("Ground105_1K-JPG_Color.jpg");
+  auto grass = tmap.load("Ground037_1K-JPG_Color.jpg");
 
   constexpr const auto mm = chunk::minmax;
 
