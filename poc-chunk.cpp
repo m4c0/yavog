@@ -7,6 +7,7 @@ import chunk;
 import dotz;
 import embedded;
 import hai;
+import indirectdebug;
 import models;
 import ofs;
 import post;
@@ -104,16 +105,12 @@ public:
         silog::infof("%8d -- %.1f,%.1f,%.1f -- %.1f,%.1f,%.1f -- %.0f", i, sx,sy,sz, px,py,pz, mdl);
       }
     }
-    {
-      voo::memiter<VkDrawIndexedIndirectCommand> m { cgpu.vcmd_memory() };
-      silog::info("--------- vcmd");
-      for (auto i = 0; i < 4; i++) {
-        silog::infof("%d -- %6d %6d -- %6d %6d -- %6d",
-            i, m[i].instanceCount, m[i].firstInstance,
-            m[i].indexCount, m[i].firstIndex,
-            m[i].vertexOffset);
-      }
-    }
+
+    silog::info("--------- vcmd");
+    for (auto i = 0U; i < 4; i++) indirectdebug::dump({
+      .indirect = cgpu.vcmd_memory(),
+      .first = i,
+    });
     {
       voo::memiter<VkDrawIndirectCommand> m { cgpu.ecmd_memory() };
       silog::info("--------- ecmd");
