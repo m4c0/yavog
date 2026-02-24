@@ -107,21 +107,16 @@ public:
     }
 
     silog::info("--------- vcmd");
-    for (auto i = 0U; i < 4; i++) indirectdebug::dump({
+    indirectdebug::dump(4, indirectdebug::indexed_indirect_params {
       .vertices = bufs.vtx.memory(),
       .indices = bufs.idx.memory(),
       .indirect = cgpu.vcmd_memory(),
-      .first = i,
     });
-    {
-      voo::memiter<VkDrawIndirectCommand> m { cgpu.ecmd_memory() };
-      silog::info("--------- ecmd");
-      for (auto i = 0; i < 4; i++) {
-        silog::infof("%d -- %6d %6d -- %6d %6d",
-            i, m[i].instanceCount, m[i].firstInstance,
-            m[i].vertexCount, m[i].firstVertex);
-      }
-    }
+    silog::info("--------- ecmd");
+    indirectdebug::dump(4, indirectdebug::indirect_params {
+      .vertices = bufs.vtx.memory(),
+      .indirect = cgpu.ecmd_memory(),
+    });
   }
 };
 

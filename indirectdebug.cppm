@@ -52,4 +52,46 @@ namespace indirectdebug {
           v.normal.x, v.normal.y, v.normal.z);
     }
   }
+  export void dump(unsigned count, indexed_indirect_params p) {
+    for (auto i = 0U; i < count; i++) {
+      p.first = i;
+      indirectdebug::dump(p);
+    }
+  }
+
+  export struct indirect_params {
+    VkDeviceMemory vertices;
+    VkDeviceMemory indirect;
+    unsigned first;
+  };
+  export void dump(indirect_params p) {
+    vee::device_wait_idle();
+
+    voo::memiter<VkDrawIndirectCommand> mcmd { p.indirect };
+    auto mcmd_i = mcmd[p.first];
+
+    silog::infof("Indirect instances:%d+%d vertices:%d+%d",
+        mcmd_i.firstInstance, mcmd_i.instanceCount,
+        mcmd_i.firstVertex, mcmd_i.vertexCount);
+
+    struct vtx {
+      dotz::vec4 pos;
+      dotz::vec2 uv;
+      dotz::vec3 normal;
+    };
+    voo::memiter<vtx> mvtx { p.vertices };
+    for (auto i = 0U; i < dotz::min(12, mcmd_i.vertexCount); i++) {
+      auto v = mvtx[i + mcmd_i.firstVertex];
+      silog::infof("- pos:%f,%f,%f,%f -- uv:%f,%f -- normal:%f,%f,%f",
+          v.pos.x, v.pos.y, v.pos.z, v.pos.w,
+          v.uv.x, v.uv.y,
+          v.normal.x, v.normal.y, v.normal.z);
+    }
+  }
+  export void dump(unsigned count, indirect_params p) {
+    for (auto i = 0U; i < count; i++) {
+      p.first = i;
+      indirectdebug::dump(p);
+    }
+  }
 }
