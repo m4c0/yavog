@@ -66,7 +66,7 @@ static void ex_shadow_test(models::drawer & embed) {
   auto m = embed.builder();
 
   // Prisms
-  m += { .pos { 4, 0, 5, static_cast<float>(txt_ids[1]) } };
+  m += { .pos { 4, 0, 5 }, .txtid = static_cast<float>(txt_ids[1]) };
   m.push(embed.model(models::prism::t {}));
 
   // Cubes
@@ -75,16 +75,17 @@ static void ex_shadow_test(models::drawer & embed) {
       unsigned n = (x + y) % 4;
       if (n == 3) continue;
 
-      m += { .pos { x - 64, -2, y, static_cast<float>(txt_ids[n]) } };
+      m += { .pos { x - 64, -2, y }, .txtid = static_cast<float>(txt_ids[n]) };
     }
   }
-  m += { .pos { 3, 0, 5, static_cast<float>(txt_ids[0]) } };
+  m += { .pos { 3, 0, 5 }, .txtid = static_cast<float>(txt_ids[0]) };
   m.push(embed.model(models::cube::t {}));
 
   // More prisms
   m += {
     .rot { 0, 1, 0, 0 },
-    .pos { 2, 0, 5, static_cast<float>(txt_ids[1]) },
+    .pos { 2, 0, 5 },
+    .txtid = static_cast<float>(txt_ids[1]),
   };
   m.push(embed.model(models::prism::t {}));
 }
@@ -93,11 +94,11 @@ static void ex_cube(models::drawer & embed) {
   auto m = embed.builder();
 
   float txt_id = embed.texture("Tiles101_1K-JPG_Color.jpg");
-  m += { .pos { -1,  0, 4, txt_id } };
-  m += { .pos {  1,  0, 4, txt_id } };
-  m += { .pos { -1,  0, 2, txt_id } };
-  m += { .pos {  1,  0, 2, txt_id } };
-  m += { .pos {  0, -1, 3, txt_id } };
+  m += { .pos { -1,  0, 4 }, .txtid = txt_id };
+  m += { .pos {  1,  0, 4 }, .txtid = txt_id };
+  m += { .pos { -1,  0, 2 }, .txtid = txt_id };
+  m += { .pos {  1,  0, 2 }, .txtid = txt_id };
+  m += { .pos {  0, -1, 3 }, .txtid = txt_id };
   m.push(embed.model(models::prism::t {}));
 }
 
@@ -105,13 +106,13 @@ static void ex_sizedcubes(models::drawer & embed) {
   auto m = embed.builder();
 
   float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
-  m += { .pos { 0, -2.1, 4, grass } };
+  m += { .pos { 0, -2.1, 4 }, .txtid = grass };
 
   float dirt = embed.texture("Ground105_1K-JPG_Color.jpg");
-  m += { .pos {  1.0, -2, 3.5, dirt }, .size { 1, 1, 2 } };
-  m += { .pos { -1.0, -2, 4.5, dirt }, .size { 1, 1, 2 } };
-  m += { .pos {  0.5, -2, 5.0, dirt }, .size { 2, 1, 1 } };
-  m += { .pos { -0.5, -2, 3.0, dirt }, .size { 2, 1, 1 } };
+  m += { .pos {  1.0, -2, 3.5 }, .size { 1, 1, 2 }, .txtid = dirt };
+  m += { .pos { -1.0, -2, 4.5 }, .size { 1, 1, 2 }, .txtid = dirt };
+  m += { .pos {  0.5, -2, 5.0 }, .size { 2, 1, 1 }, .txtid = dirt };
+  m += { .pos { -0.5, -2, 3.0 }, .size { 2, 1, 1 }, .txtid = dirt };
   m.push(embed.model(models::cube::t {}));
 }
 
@@ -123,22 +124,22 @@ static void ex_hills(models::drawer & embed) {
 
   for (auto x = 0; x < 128; x++) {
     //for (auto y = 0; y < 128; y++) {
-      m += { .pos { x - 64, -2, 0, dirt }, .size { 1, 1, 256 } };
+      m += { .pos { x - 64, -2, 0 }, .size { 1, 1, 256 }, .txtid = dirt };
     //}
   }
-  m += { .pos { 3, -1, 5, grass }, .size { 3, 1, 3 } };
+  m += { .pos { 3, -1, 5 }, .size { 3, 1, 3 }, .txtid = grass };
   m.push(embed.model(models::cube::t {}));
 
-  m += {                                 .pos { 5, -1, 5, grass }, .size { 1, 1, 3 } };
-  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 5, grass }, .size { 1, 1, 3 } };
-  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 3, -1, 3, grass }, .size { 1, 1, 3 } };
-  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 3, -1, 7, grass }, .size { 1, 1, 3 } };
+  m += {                                 .pos { 5, -1, 5 }, .size { 1, 1, 3 }, .txtid = grass };
+  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 5 }, .size { 1, 1, 3 }, .txtid = grass };
+  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 3, -1, 3 }, .size { 1, 1, 3 }, .txtid = grass };
+  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 3, -1, 7 }, .size { 1, 1, 3 }, .txtid = grass };
   m.push(embed.model(models::prism::t {}));
 
-  m += {                                 .pos { 5, -1, 7, grass } };
-  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 1, -1, 7, grass } };
-  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 5, -1, 3, grass } };
-  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 3, grass } };
+  m += {                                 .pos { 5, -1, 7, }, .txtid = grass };
+  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 1, -1, 7, }, .txtid = grass };
+  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 5, -1, 3, }, .txtid = grass };
+  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 3, }, .txtid = grass };
   m.push(embed.model(models::corner::t {}));
 }
 

@@ -46,8 +46,10 @@ namespace chunk {
             auto i = at(p);
             m[pz + py + px] = {
               .rot = i.rot,
-              .pos = { dotz::vec3 { p } + c, static_cast<float>(i.txt) },
-              .size { dotz::vec3 { 1 }, static_cast<float>(i.mdl) },
+              .pos = dotz::vec3 { p } + c,
+              .mdl = static_cast<float>(i.mdl),
+              .size { 1 },
+              .txtid = static_cast<float>(i.txt),
             };
           }
         }
@@ -67,8 +69,10 @@ namespace chunk {
             if (!i.set) return;
             m += {
               .rot = i.rot,
-              .pos { dotz::vec3 { i.pos } * mult + c, i.txt },
-              .size = { i.size, i.mdl },
+              .pos { dotz::vec3 { i.pos } * mult + c },
+              .mdl = static_cast<float>(i.mdl),
+              .size = i.size,
+              .txtid = static_cast<float>(i.txt),
             };
             i = {};
           };

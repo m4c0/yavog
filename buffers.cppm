@@ -16,8 +16,10 @@ namespace buffers {
   };
   export struct inst {
     dotz::vec4 rot { 0, 0, 0, 1 };
-    dotz::vec4 pos {}; // pos(3) + txtid
-    dotz::vec4 size { 1, 1, 1, 0 }; // size(3) + mdl
+    dotz::vec3 pos {};
+    float mdl;
+    dotz::vec3 size { 1 };
+    float txtid;
   };
   export struct edge {
     dotz::vec4 nrm_a;
@@ -231,18 +233,17 @@ export namespace buffers::vk {
     return vee::vertex_attribute_vec4(b, traits::offset_of(m));
   }
   auto attr(auto (buffers::vtx::*m)) { return attr(0, m); }
-  auto attr(auto (buffers::inst::*m)) { return attr(1, m); }
   auto attr(auto (buffers::edge::*m)) { return attr(0, m); }
 
   struct attrs : hai::view<VkVertexInputAttributeDescription> {
     explicit attrs(auto... ms) : view { attr(ms)...  } {}
   };
-  struct iattrs : attrs {
-    explicit iattrs(auto... ms) : attrs {
-      &inst::pos,
-      &inst::rot,
-      &inst::size,
-      ms...
+  struct iattrs : hai::view<VkVertexInputAttributeDescription> { 
+    explicit iattrs(auto... ms) : view {
+      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::pos)),
+      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
+      vee::vertex_attribute_vec4(1, traits::offset_of(&inst::size)),
+      attr(ms)...
     } {}
   };
 }

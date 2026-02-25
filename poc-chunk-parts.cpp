@@ -43,12 +43,13 @@ int main() {
 
   voo::memiter<inst> m { *b1.memory };
   for (auto i = 0; i < len * len * len; i++) {
-    auto [px,py,pz,txt] = m[i].pos;
-    auto [sx,sy,sz,mdl] = m[i].size;
-    if (mdl == 0) continue;
+    if (m[i].mdl == 0) continue;
+
+    auto [px,py,pz] = m[i].pos;
+    auto [sx,sy,sz] = m[i].size;
 
     silog::infof(
         "%3d - %.0f - %4.1f,%4.1f,%4.1f - %4.1f,%4.1f,%4.1f",
-        i, mdl, px,py,pz, sx,sy,sz);
+        i, m[i].mdl, px,py,pz, sx,sy,sz);
   }
 }
