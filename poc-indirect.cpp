@@ -36,6 +36,26 @@ struct app_stuff {
     models::corner::t {},
   };
   buffers::i_buffer insts { 4 };
+
+  app_stuff() {
+    auto i = insts.map();
+    i += {
+      .pos { 1, 1, 4 },
+      .size { 1 },
+    };
+    i += {
+      .pos { -1, 1, 4 },
+      .size { 1 },
+    };
+    i += {
+      .pos { 1, -1, 4 },
+      .size { 1 },
+    };
+    i += {
+      .pos { -1, -1, 4 },
+      .size { 1 },
+    };
+  }
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -70,7 +90,7 @@ extern "C" void casein_init() {
       vv::as()->bufs.idx.cmd_bind(cb);
       vv::as()->insts.cmd_bind(cb);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count());
+      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count(), vv::as()->insts.count());
     }
 
     vv::ss()->swc.queue_submit(cb);
