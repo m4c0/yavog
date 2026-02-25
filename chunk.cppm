@@ -16,11 +16,6 @@ namespace chunk {
     model mdl = model::none;
     unsigned txt;
   };
-  struct inst : block {
-    dotz::vec3 pos {};
-    dotz::vec3 size { 1 };
-    bool set = false;
-  };
   
   export class t {
     hai::array<block> m_data { blk_size };
@@ -51,10 +46,8 @@ namespace chunk {
             auto i = at(p);
             m[pz + py + px] = {
               .rot = i.rot,
-              .pos = dotz::vec3 { p } + c,
-              .mdl = static_cast<float>(i.mdl),
-              .size { 1 },
-              .txt = static_cast<float>(i.txt),
+              .pos = { dotz::vec3 { p } + c, static_cast<float>(i.txt) },
+              .size { dotz::vec3 { 1 }, static_cast<float>(i.mdl) },
             };
           }
         }
@@ -62,6 +55,11 @@ namespace chunk {
     }
 
     void build(auto & m, model mdl, dotz::vec3 c, float mult = 1) const {
+      struct inst : block {
+        dotz::vec3 pos {};
+        dotz::vec3 size { 1 };
+        bool set = false;
+      };
       for (auto x = -minmax; x <= minmax; x++) {
         for (auto y = -minmax; y <= minmax; y++) {
           inst i {};

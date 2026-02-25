@@ -16,7 +16,7 @@ namespace buffers {
   };
   export struct inst {
     dotz::vec4 rot { 0, 0, 0, 1 };
-    dotz::vec4 pos; // pos(3) + txtid
+    dotz::vec4 pos {}; // pos(3) + txtid
     dotz::vec4 size { 1, 1, 1, 0 }; // size(3) + mdl
   };
   export struct edge {
@@ -25,13 +25,6 @@ namespace buffers {
     dotz::vec4 vtx_a;
     dotz::vec4 vtx_b;
   };
-  export struct tmp_inst {
-    dotz::vec4 rot;
-    dotz::vec3 pos;
-    float mdl;
-    dotz::vec3 size;
-    float txt;
-  };
 
   export template<unsigned N> consteval unsigned size1(const auto (&)[N]) { return N; }
   export consteval unsigned size(auto &... as) { return (size1(as) + ...); }
@@ -39,8 +32,8 @@ namespace buffers {
   template<typename T> VkBufferUsageFlags usage() {
     return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
   }
-  template<> VkBufferUsageFlags usage<tmp_inst>() {
-    return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+  template<> VkBufferUsageFlags usage<inst>() {
+    return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
   template<> VkBufferUsageFlags usage<uint16_t>() {
     return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
@@ -68,6 +61,15 @@ namespace buffers {
       return voo::memiter<T> { *m_buf.memory, &m_count };
     }
     [[nodiscard]] constexpr auto memory() const { return *m_buf.memory; }
+  };
+
+  export class i_buffer : public buffer<inst> {
+  public:
+    i_buffer(unsigned count) : buffer { count } {}
+
+    void cmd_bind(vee::command_buffer cb) {
+      vee::cmd_bind_vertex_buffers(cb, 1, **this, 0);
+    }
   };
 
   export class v_buffer : public buffer<vtx> {

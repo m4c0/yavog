@@ -4,7 +4,7 @@ import chunk;
 import silog;
 import voo;
 
-using inst = buffers::tmp_inst;
+using inst = buffers::inst;
 
 int main() {
   voo::device_and_queue dq { "poc-chunk-parts" };
@@ -43,12 +43,12 @@ int main() {
 
   voo::memiter<inst> m { *b1.memory };
   for (auto i = 0; i < len * len * len; i++) {
-    if (m[i].mdl == 0) continue;
+    auto [px,py,pz,txt] = m[i].pos;
+    auto [sx,sy,sz,mdl] = m[i].size;
+    if (mdl == 0) continue;
 
-    auto [px,py,pz] = m[i].pos;
-    auto [sx,sy,sz] = m[i].size;
     silog::infof(
         "%3d - %.0f - %4.1f,%4.1f,%4.1f - %4.1f,%4.1f,%4.1f",
-        i, m[i].mdl, px,py,pz, sx,sy,sz);
+        i, mdl, px,py,pz, sx,sy,sz);
   }
 }

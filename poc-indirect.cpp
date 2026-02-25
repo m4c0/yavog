@@ -39,6 +39,7 @@ struct app_stuff {
     models::prism::t {},
     models::corner::t {},
   };
+  buffers::i_buffer insts { 4 };
 };
 struct ext_stuff {
   voo::single_cb cb {};

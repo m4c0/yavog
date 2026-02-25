@@ -41,8 +41,7 @@ class scene_drawer : public ofs::drawer {
   static constexpr const unsigned len = 32; // PoT padding
   static constexpr const unsigned count = len * len * len; // PoT padding
   static_assert(chunk::len <= len);
-
-  buffers::buffer<buffers::tmp_inst> host { count };
+  buffers::i_buffer host { count };
 
   chunk::gpunator cgpu {{
     .len = len,
