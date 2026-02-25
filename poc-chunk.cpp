@@ -1,4 +1,6 @@
 #pragma leco app
+#pragma leco add_shader "poc-model.frag"
+#pragma leco add_shader "poc-indirect.vert"
 #pragma leco add_resource_dir assets
 
 import buffers;
@@ -27,59 +29,83 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-class scene_drawer : public ofs::drawer {
-  texmap::cache tmap {};
-  buffers::all bufs {
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
-  chunk::t ch {};
+struct app_stuff {
+  voo::device_and_queue dq { "poc-chunk", casein::native_ptr};
+  vee::render_pass rp = voo::single_att_render_pass(dq);
+
+  vee::pipeline_layout pl = vee::create_pipeline_layout();
+  vee::gr_pipeline ppl = vee::create_graphics_pipeline({
+    .pipeline_layout = *pl,
+    .render_pass = *rp,
+    .shaders {
+      voo::vert_shader("poc-indirect.vert.spv").pipeline_stage(),
+      voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
+    },
+    .bindings = buffers::vk::ibindings(),
+    .attributes = buffers::vk::iattrs(),
+  });
 
   voo::single_cb scb {};
 
   static constexpr const unsigned len = 32; // PoT padding
   static constexpr const unsigned count = len * len * len; // PoT padding
   static_assert(chunk::len <= len);
-  buffers::i_buffer host { count };
 
+  texmap::cache tmap {};
+
+  buffers::all bufs {
+    models::cube::t {},
+    models::prism::t {},
+    models::corner::t {},
+  };
+  buffers::i_buffer insts { count };
+
+  chunk::t ch {};
   chunk::gpunator cgpu {{
     .len = len,
-    .host = *host,
+    .host = *insts,
     .vcmd = *bufs.vcmd,
     .ecmd = *bufs.ecmd,
   }};
 
-public:
-  scene_drawer();
+  app_stuff() {
+    using enum chunk::model;
+    auto dirt  = tmap.load("Ground105_1K-JPG_Color.jpg");
+    auto grass = tmap.load("Ground037_1K-JPG_Color.jpg");
 
-  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
-
-    bufs.vtx.cmd_bind(cb);
-    bufs.idx.cmd_bind(cb);
-    vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
-    for (auto i = 1; i < 4; i++) {
-      vee::cmd_draw_indexed_indirect(cb, cgpu.vcmd(), i, 1);
+    constexpr const auto mm = chunk::minmax;
+    for (auto x = -mm; x <= mm; x++) {
+      for (auto y = -mm; y <= -2; y++) {
+        for (auto z = -mm; z <= mm; z++) {
+          ch.set({ x, y, z }, { .mdl = cube, .txt = dirt });
+        }
+      }
     }
-  }
-  void edges(vee::command_buffer cb) override {
-    bufs.edg.cmd_bind(cb);
-    vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
-    for (auto i = 1; i < 4; i++) {
-      vee::cmd_draw_indirect(cb, cgpu.ecmd(), i, 1);
+    const dotz::vec4 r90 { 0, 0.7071, 0, 0.7071 };
+    const dotz::vec4 r180 { 0, 1, 0, 0 };
+    const dotz::vec4 r270 { 0, -0.7071, 0, 0.7071 };
+    for (auto x = -1; x <= 1; x++) {
+      for (auto y = -1; y <= 1; y++) {
+        ch.set({ 3 + x, -1, 5 + y }, { .mdl = cube, .txt = grass });
+      }
+      ch.set({ 5, -1, 5 + x }, {              .mdl = prism, .txt = grass });
+      ch.set({ 1, -1, 5 + x }, { .rot = r180, .mdl = prism, .txt = grass });
+      ch.set({ 3 + x, -1, 3 }, { .rot = r90,  .mdl = prism, .txt = grass });
+      ch.set({ 3 + x, -1, 7 }, { .rot = r270, .mdl = prism, .txt = grass });
     }
-  }
+    ch.set({ 5, -1, 7 }, {              .mdl = corner, .txt = grass });
+    ch.set({ 1, -1, 7 }, { .rot = r270, .mdl = corner, .txt = grass });
+    ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
+    ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
-  void build(float mult = 1) {
-    sitime::stopwatch w {};
     {
-      auto m = host.map();
+      auto m = insts.map();
       ch.copy(m, { 0, 0, 0 }, len);
     }
 
-    auto cb = scb.cb();
     {
+      auto cb = scb.cb();
+
       voo::cmd_buf_one_time_submit ots { cb };
 
       vee::cmd_pipeline_barrier(cb,
@@ -92,7 +118,8 @@ public:
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
           vee::memory_barrier(0, 0));
     }
-    voo::queue::universal()->submit({ .command_buffer = cb });
+
+    voo::queue::universal()->submit({ .command_buffer = scb.cb() });
 
     indirectdebug::dump_insts(count, cgpu.output_memory());
     silog::info("--------- vcmd");
@@ -108,120 +135,43 @@ public:
     });
   }
 };
-
-scene_drawer::scene_drawer() {
-  using enum chunk::model;
-  auto dirt  = tmap.load("Ground105_1K-JPG_Color.jpg");
-  auto grass = tmap.load("Ground037_1K-JPG_Color.jpg");
-
-  constexpr const auto mm = chunk::minmax;
-
-  for (auto x = -mm; x <= mm; x++) {
-    for (auto y = -mm; y <= -2; y++) {
-      for (auto z = -mm; z <= mm; z++) {
-        ch.set({ x, y, z }, { .mdl = cube, .txt = dirt });
-      }
-    }
-  }
-  const dotz::vec4 r90 { 0, 0.7071, 0, 0.7071 };
-  const dotz::vec4 r180 { 0, 1, 0, 0 };
-  const dotz::vec4 r270 { 0, -0.7071, 0, 0.7071 };
-  for (auto x = -1; x <= 1; x++) {
-    for (auto y = -1; y <= 1; y++) {
-      ch.set({ 3 + x, -1, 5 + y }, { .mdl = cube, .txt = grass });
-    }
-    ch.set({ 5, -1, 5 + x }, {              .mdl = prism, .txt = grass });
-    ch.set({ 1, -1, 5 + x }, { .rot = r180, .mdl = prism, .txt = grass });
-    ch.set({ 3 + x, -1, 3 }, { .rot = r90,  .mdl = prism, .txt = grass });
-    ch.set({ 3 + x, -1, 7 }, { .rot = r270, .mdl = prism, .txt = grass });
-  }
-  ch.set({ 5, -1, 7 }, {              .mdl = corner, .txt = grass });
-  ch.set({ 1, -1, 7 }, { .rot = r270, .mdl = corner, .txt = grass });
-  ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
-  ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
-
-  build();
-}
-
-struct app_stuff {
-  voo::device_and_queue dq { "poc-model", casein::native_ptr, {
-    .feats {
-      .independentBlend = true,
-      .samplerAnisotropy = true,
-    },
-  }};
-  scene_drawer scene {};
-
-  post::pipeline post { dq, false };
-  ofs::pipeline ofs {};
-};
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
-
-  hai::array<timing::query> tq { swc.count() };
-
-  ext_stuff() {
-    vv::as()->ofs.setup(swc);
-
-    vv::as()->post.update_descriptor_sets(vv::as()->ofs);
-    vv::as()->post.setup(swc);
-  }
+  hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
 };
 
-static const float g_far_plane = 100.f;
 extern "C" void casein_init() {
   vv::setup([] {
+    auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
-    auto cb = vv::ss()->cb.cb();
-    auto & qp = vv::ss()->tq[vv::ss()->swc.index()];
 
-    static float last = 0;
+    auto cb = vv::ss()->cb.cb();
     {
       voo::cmd_buf_one_time_submit ots { cb };
-
-      last = qp.write(cb, [&] {
-        qp.write(timing::ppl_render, cb);
-        vv::as()->ofs.render(cb, &vv::as()->scene, {
-          .light { 0, -0.71, 0.71, 0 },
-          .aspect = vv::ss()->swc.aspect(),
-          .far = g_far_plane,
-        });
-
-        qp.write(timing::ppl_post, cb);
-        vv::as()->post.render(cb, vv::ss()->swc, {});
-      });
+      voo::cmd_render_pass rp { vee::render_pass_begin {
+        .command_buffer = cb,
+        .render_pass = *vv::as()->rp,
+        .framebuffer = *vv::ss()->fbs[vv::ss()->swc.index()],
+        .extent = ext,
+        .clear_colours { 
+          vee::clear_colour({ 0, 0, 0, 1 }),
+        },
+      }, true };
+      vee::cmd_set_viewport(cb, ext);
+      vee::cmd_set_scissor(cb, ext);
+      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
+      vv::as()->insts.cmd_bind(cb);
+      vv::as()->bufs.cmd_draw_vtx(cb);
     }
+
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
-
-    static struct count {
-      sitime::stopwatch w {};
-      int i = 0;
-      ~count() { silog::infof("Counters: %.3f FPS, last frame: %.1fms, far plane %.0f", i / w.secs(), last, g_far_plane); }
-    } * cnt = new count {};
-    cnt->i++;
-    if (cnt->w.secs() > 3) {
-      delete cnt;
-      cnt = new count {};
-    }
   });
 
   casein::handle(casein::KEY_DOWN, casein::K_F, [] {
     casein::fullscreen = !casein::fullscreen;
     casein::interrupt(casein::IRQ_FULLSCREEN);
-  });
-
-  casein::handle(casein::KEY_DOWN, casein::K_UP,   [] { });
-  casein::handle(casein::KEY_DOWN, casein::K_DOWN, [] { });
-
-  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { });
-  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { });
-
-  casein::handle(casein::KEY_DOWN, casein::K_SPACE, [] {
-    static bool explode = true;
-    vv::as()->scene.build(explode ? 1.5 : 1.0);
-    explode = !explode;
   });
 
   casein::window_title = "poc-chunk";

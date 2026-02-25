@@ -16,7 +16,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct app_stuff {
-  voo::device_and_queue dq { "poc-model", casein::native_ptr };
+  voo::device_and_queue dq { "poc-indirect", casein::native_ptr };
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
   vee::pipeline_layout pl = vee::create_pipeline_layout();
@@ -78,8 +78,6 @@ struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
   hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
-
-  ext_stuff() {}
 };
 
 extern "C" void casein_init() {
