@@ -43,7 +43,7 @@ namespace ofs {
         vee::colour_blend_none(),
       },
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs {
+      .attributes = buffers::vk::iattrs {
         &buffers::vtx::pos,
         &buffers::vtx::uv,
         &buffers::vtx::normal,
@@ -69,7 +69,7 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings = buffers::vk::bindings<buffers::edge, buffers::inst>(),
-      .attributes = buffers::vk::attrs {
+      .attributes = buffers::vk::iattrs {
         &buffers::edge::nrm_a,
         &buffers::edge::nrm_b,
         &buffers::edge::vtx_a,
@@ -96,7 +96,7 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs {
+      .attributes = buffers::vk::iattrs {
         &buffers::vtx::pos,
         &buffers::vtx::normal,
       },
@@ -122,7 +122,7 @@ namespace ofs {
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
       .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::attrs {
+      .attributes = buffers::vk::iattrs {
         &buffers::vtx::pos,
         &buffers::vtx::uv,
         &buffers::vtx::normal,
