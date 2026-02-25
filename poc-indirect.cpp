@@ -3,6 +3,7 @@
 #pragma leco add_shader "poc-indirect.vert"
 import buffers;
 import casein;
+import chunk;
 import hai;
 import models;
 import vinyl;
@@ -37,31 +38,40 @@ struct app_stuff {
   };
   buffers::i_buffer insts { 4 };
 
+  chunk::count cc { *insts, *bufs.vcmd, *bufs.ecmd };
+
   app_stuff() {
     auto i = insts.map();
     i += {
       .pos { 1, 1, 4 },
+      .mdl = 1,
       .size { 1 },
     };
     i += {
       .pos { -1, 1, 4 },
+      .mdl = 2,
       .size { 1 },
     };
     i += {
       .pos { 1, -1, 4 },
+      .mdl = 2,
       .size { 1 },
     };
     i += {
       .pos { -1, -1, 4 },
+      .mdl = 3,
       .size { 1 },
     };
 
-    auto vc = bufs.vcmd.map(nullptr);
-    vc[1].instanceCount = 1;
-    vc[2].firstInstance = 1;
-    vc[2].instanceCount = 2;
-    vc[3].firstInstance = 3;
-    vc[3].instanceCount = 1;
+    voo::single_cb cb {};
+    { 
+      voo::cmd_buf_one_time_submit ots { cb.cb() };
+      cc.cmd(cb.cb(), 1, 4);
+      cc.cmd(cb.cb(), 2, 4);
+      cc.cmd(cb.cb(), 3, 4);
+    }
+    voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
+    vee::device_wait_idle();
   }
 };
 struct ext_stuff {

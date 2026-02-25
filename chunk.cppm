@@ -1,5 +1,6 @@
 export module chunk;
 export import :compact;
+export import :count;
 export import :gpunator;
 export import :objects;
 import dotz;

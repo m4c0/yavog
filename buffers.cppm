@@ -41,10 +41,10 @@ namespace buffers {
     return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
   }
   template<> VkBufferUsageFlags usage<VkDrawIndexedIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
   template<> VkBufferUsageFlags usage<VkDrawIndirectCommand>() {
-    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
 
   export template<typename T> class buffer : no::no {
