@@ -3,6 +3,7 @@
 
 layout(location = 3) in vec4 pos;
 layout(location = 4) in vec3 normal;
+layout(location = 5) in vec3 uv;
 
 float i_backface(vec3 n);
 vec4  i_modl(vec4);

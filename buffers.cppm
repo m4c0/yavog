@@ -222,6 +222,7 @@ export namespace buffers::vk {
   template<typename... T> auto bindings() {
     return hai::view<VkVertexInputBindingDescription> { binding<T>()... };
   }
+  auto ibindings() { return bindings<vtx, inst>(); }
 
   template<typename T> auto attr(unsigned b, dotz::vec2 (T::*m)) {
     return vee::vertex_attribute_vec2(b, traits::offset_of(m));
@@ -244,6 +245,11 @@ export namespace buffers::vk {
       vee::vertex_attribute_vec4(1, traits::offset_of(&inst::rot)),
       vee::vertex_attribute_vec4(1, traits::offset_of(&inst::size)),
       attr(ms)...
+    } {}
+    explicit iattrs() : iattrs {
+      &buffers::vtx::pos,
+      &buffers::vtx::normal,
+      &buffers::vtx::uv,
     } {}
   };
 }

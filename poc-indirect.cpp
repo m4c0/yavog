@@ -26,12 +26,8 @@ struct app_stuff {
       voo::vert_shader("poc-indirect.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
-    .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-    .attributes = buffers::vk::iattrs {
-      &buffers::vtx::pos,
-      &buffers::vtx::normal,
-      &buffers::vtx::uv,
-    },
+    .bindings = buffers::vk::ibindings(),
+    .attributes = buffers::vk::iattrs(),
   });
 
   buffers::all bufs {

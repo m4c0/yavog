@@ -2,8 +2,8 @@
 #pragma leco include "ofs.glsl"
 
 layout(location = 3) in vec4 pos;
-layout(location = 4) in vec2 uv;
-layout(location = 5) in vec3 normal;
+layout(location = 4) in vec3 normal;
+layout(location = 5) in vec2 uv;
 layout(location = 0, component = 3) in float i_txtid;
 
 layout(location = 0) out vec2 f_uv;

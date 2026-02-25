@@ -42,12 +42,8 @@ namespace ofs {
         vee::colour_blend_none(),
         vee::colour_blend_none(),
       },
-      .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::iattrs {
-        &buffers::vtx::pos,
-        &buffers::vtx::uv,
-        &buffers::vtx::normal,
-      },
+      .bindings = buffers::vk::ibindings(),
+      .attributes = buffers::vk::iattrs(),
     });
 
     colour() {
@@ -95,11 +91,8 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_INCREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
         .back  = stencil(VK_STENCIL_OP_DECREMENT_AND_WRAP, VK_COMPARE_OP_ALWAYS),
       }),
-      .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::iattrs {
-        &buffers::vtx::pos,
-        &buffers::vtx::normal,
-      },
+      .bindings = buffers::vk::ibindings(),
+      .attributes = buffers::vk::iattrs(),
     });
 
     shcaps() {
@@ -121,12 +114,8 @@ namespace ofs {
         .front = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
         .back  = stencil(VK_STENCIL_OP_KEEP, VK_COMPARE_OP_EQUAL),
       }),
-      .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
-      .attributes = buffers::vk::iattrs {
-        &buffers::vtx::pos,
-        &buffers::vtx::uv,
-        &buffers::vtx::normal,
-      },
+      .bindings = buffers::vk::ibindings(),
+      .attributes = buffers::vk::iattrs(),
     });
 
     lights() {
