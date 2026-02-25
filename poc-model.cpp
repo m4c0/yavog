@@ -51,13 +51,11 @@ struct app_stuff {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
-    .bindings {
-      vee::vertex_input_bind(sizeof(buffers::vtx)),
-    },
-    .attributes {
-      vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-      vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
+    .bindings = buffers::vk::bindings<buffers::vtx>(),
+    .attributes = buffers::vk::attrs {
+      &buffers::vtx::pos,
+      &buffers::vtx::normal,
+      &buffers::vtx::uv,
     },
   });
   vee::gr_pipeline lines_ppl = vee::create_graphics_pipeline({
@@ -68,13 +66,11 @@ struct app_stuff {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
-    .bindings {
-      vee::vertex_input_bind(sizeof(buffers::vtx)),
-    },
-    .attributes {
-      vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-      vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
+    .bindings = buffers::vk::bindings<buffers::vtx>(),
+    .attributes = buffers::vk::attrs {
+      &buffers::vtx::pos,
+      &buffers::vtx::normal,
+      &buffers::vtx::uv,
     },
   });
   vee::gr_pipeline faces_ppl = vee::create_graphics_pipeline({
@@ -85,13 +81,11 @@ struct app_stuff {
       voo::vert_shader("poc-model.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
-    .bindings {
-      vee::vertex_input_bind(sizeof(buffers::vtx)),
-    },
-    .attributes {
-      vee::vertex_attribute_vec4(0, traits::offset_of(&buffers::vtx::pos)),
-      vee::vertex_attribute_vec3(0, traits::offset_of(&buffers::vtx::normal)),
-      vee::vertex_attribute_vec2(0, traits::offset_of(&buffers::vtx::uv)),
+    .bindings = buffers::vk::bindings<buffers::vtx>(),
+    .attributes = buffers::vk::attrs {
+      &buffers::vtx::pos,
+      &buffers::vtx::normal,
+      &buffers::vtx::uv,
     },
   });
 };

@@ -221,12 +221,15 @@ export namespace buffers::vk {
   auto attr(auto (buffers::inst::*m)) { return attr(1, m); }
   auto attr(auto (buffers::edge::*m)) { return attr(0, m); }
 
-  struct iattrs : hai::view<VkVertexInputAttributeDescription> {
-    explicit iattrs(auto... ms) : view {
-      attr(&inst::pos),
-      attr(&inst::rot),
-      attr(&inst::size),
-      attr(ms)...
+  struct attrs : hai::view<VkVertexInputAttributeDescription> {
+    explicit attrs(auto... ms) : view { attr(ms)...  } {}
+  };
+  struct iattrs : attrs {
+    explicit iattrs(auto... ms) : attrs {
+      &inst::pos,
+      &inst::rot,
+      &inst::size,
+      ms...
     } {}
   };
 }
