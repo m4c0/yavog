@@ -59,6 +59,9 @@ namespace buffers {
     [[nodiscard]] constexpr auto operator*() const { return *m_buf.buffer; }
     [[nodiscard]] constexpr auto count() const { return m_count; }
 
+    [[nodiscard]] auto map(unsigned * c) {
+      return voo::memiter<T> { *m_buf.memory, c };
+    }
     [[nodiscard]] auto map() {
       return voo::memiter<T> { *m_buf.memory, &m_count };
     }
@@ -172,12 +175,18 @@ namespace buffers {
     {
       unsigned i = 0;
       int vofs = 0;
-      auto m = map();
+      auto m = buffer::map();
       m += {};
       (push(m, i, vofs, T {}), ...);
     }
+
+    void cmd_draw(vee::command_buffer cb) {
+      for (auto i = 0; i < count(); i++) {
+        vee::cmd_draw_indexed_indirect(cb, **this, i, 1);
+      }
+    }
   };
- 
+
   export class ec_buffer : public buffer<VkDrawIndirectCommand> {
     template<typename T> void push(auto & map, unsigned & i, T) {
       map += {

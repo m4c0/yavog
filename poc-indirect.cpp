@@ -55,6 +55,13 @@ struct app_stuff {
       .pos { -1, -1, 4 },
       .size { 1 },
     };
+
+    auto vc = bufs.vcmd.map(nullptr);
+    vc[1].instanceCount = 1;
+    vc[2].firstInstance = 1;
+    vc[2].instanceCount = 2;
+    vc[3].firstInstance = 3;
+    vc[3].instanceCount = 1;
   }
 };
 struct ext_stuff {
@@ -86,11 +93,11 @@ extern "C" void casein_init() {
       }, true };
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
+      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vv::as()->bufs.vtx.cmd_bind(cb);
       vv::as()->bufs.idx.cmd_bind(cb);
       vv::as()->insts.cmd_bind(cb);
-      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count(), vv::as()->insts.count());
+      vv::as()->bufs.vcmd.cmd_draw(cb);
     }
 
     vv::ss()->swc.queue_submit(cb);
