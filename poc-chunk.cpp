@@ -57,15 +57,15 @@ public:
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, tmap.dset());
 
-    vee::cmd_bind_vertex_buffers(cb, 0, *bufs.vtx, 0);
+    bufs.vtx.cmd_bind(cb);
+    bufs.idx.cmd_bind(cb);
     vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
-    vee::cmd_bind_index_buffer_u16(cb, *bufs.idx);
     for (auto i = 1; i < 4; i++) {
       vee::cmd_draw_indexed_indirect(cb, cgpu.vcmd(), i, 1);
     }
   }
   void edges(vee::command_buffer cb) override {
-    vee::cmd_bind_vertex_buffers(cb, 0, *bufs.edg, 0);
+    bufs.edg.cmd_bind(cb);
     vee::cmd_bind_vertex_buffers(cb, 1, cgpu.insts(), 0);
     for (auto i = 1; i < 4; i++) {
       vee::cmd_draw_indirect(cb, cgpu.ecmd(), i, 1);

@@ -124,8 +124,8 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
-      vee::cmd_bind_vertex_buffers(cb, 0, *vv::as()->vtx, 0);
-      vee::cmd_bind_index_buffer_u16(cb, *vv::as()->idx);
+      vv::as()->vtx.cmd_bind(cb);
+      vv::as()->idx.cmd_bind(cb);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->faces_ppl);
       vee::cmd_draw_indexed(cb, vv::as()->idx.count());
 

@@ -82,6 +82,10 @@ namespace buffers {
       auto m = map();
       (push(m, T {}), ...);
     }
+
+    void cmd_bind(vee::command_buffer cb) {
+      vee::cmd_bind_vertex_buffers(cb, 0, **this, 0);
+    }
   };
 
   export class ix_buffer : public buffer<uint16_t> {
@@ -98,6 +102,10 @@ namespace buffers {
     {
       auto m = map();
       (push(m, T {}), ...);
+    }
+
+    void cmd_bind(vee::command_buffer cb) {
+      vee::cmd_bind_index_buffer_u16(cb, **this);
     }
   };
 
@@ -137,6 +145,10 @@ namespace buffers {
     e_buffer(T...) : buffer<edge> { size(T::edg...) * 3 } {
       auto m = map();
       (push(m, T {}), ...);
+    }
+
+    void cmd_bind(vee::command_buffer cb) {
+      vee::cmd_bind_vertex_buffers(cb, 0, **this, 0);
     }
   };
  
