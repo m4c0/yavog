@@ -26,8 +26,8 @@ struct app_stuff {
       voo::vert_shader("poc-indirect.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
-    .bindings = buffers::vk::bindings<buffers::vtx>(),
-    .attributes = buffers::vk::attrs {
+    .bindings = buffers::vk::bindings<buffers::vtx, buffers::inst>(),
+    .attributes = buffers::vk::iattrs {
       &buffers::vtx::pos,
       &buffers::vtx::normal,
       &buffers::vtx::uv,
@@ -72,6 +72,7 @@ extern "C" void casein_init() {
       vee::cmd_set_scissor(cb, ext);
       vv::as()->bufs.vtx.cmd_bind(cb);
       vv::as()->bufs.idx.cmd_bind(cb);
+      vv::as()->insts.cmd_bind(cb);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
       vee::cmd_draw_indexed(cb, vv::as()->bufs.idx.count());
     }
