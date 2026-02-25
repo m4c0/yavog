@@ -94,10 +94,8 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vv::as()->bufs.vtx.cmd_bind(cb);
-      vv::as()->bufs.idx.cmd_bind(cb);
       vv::as()->insts.cmd_bind(cb);
-      vv::as()->bufs.vcmd.cmd_draw(cb);
+      vv::as()->bufs.cmd_draw_vtx(cb);
     }
 
     vv::ss()->swc.queue_submit(cb);

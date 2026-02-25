@@ -205,6 +205,12 @@ namespace buffers {
       m += {};
       (push(m, tmp, T {}), ...);
     }
+
+    void cmd_draw(vee::command_buffer cb) {
+      for (auto i = 0; i < count(); i++) {
+        vee::cmd_draw_indirect(cb, **this, i, 1);
+      }
+    }
   };
 
   export struct all {
@@ -221,6 +227,16 @@ namespace buffers {
     , vcmd { T {}... }
     , ecmd { T {}... }
     {}
+
+    void cmd_draw_vtx(vee::command_buffer cb) {
+      vtx.cmd_bind(cb);
+      idx.cmd_bind(cb);
+      vcmd.cmd_draw(cb);
+    }
+    void cmd_draw_edg(vee::command_buffer cb) {
+      edg.cmd_bind(cb);
+      ecmd.cmd_draw(cb);
+    }
   };
 }
 
