@@ -70,7 +70,7 @@ namespace chunk {
             m += {
               .rot = i.rot,
               .pos { dotz::vec3 { i.pos } * mult + c, i.txt },
-              .size = i.size,
+              .size = { i.size, i.mdl },
             };
             i = {};
           };
