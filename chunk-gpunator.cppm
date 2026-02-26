@@ -61,7 +61,7 @@ namespace chunk {
     , m_len { p.len }
     , m_in { p.in }
     , m_out { p.out }
-    , m_comp { *p.in->insts, *m_local0.buffer, *m_local1.buffer, p.len }
+    , m_comp { *p.in->insts, *m_local0.buffer, p.len }
     , m_bit { *m_local0.buffer, *m_local1.buffer, p.len * p.len * p.len }
     , m_cc { *output().buffer, *m_out->vcmd, *m_out->ecmd }
     {

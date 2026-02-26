@@ -15,7 +15,7 @@ int main() {
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b2 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-  chunk::compact cc { *b0.buffer, *b1.buffer, *b2.buffer, len };
+  chunk::compact cc { *b0.buffer, *b1.buffer, len };
 
   voo::single_cb cb {};
 
