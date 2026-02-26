@@ -11,8 +11,7 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
-layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
-layout(binding = 0, set = 1) buffer buf_1 { inst res[]; };
+layout(binding = 0, set = 0) buffer buf_0 { inst inp[]; };
 
 int cmp(vec4 a, vec4 b) {
   // "empty" spaces at the end  
@@ -52,13 +51,16 @@ void main() {
 
   uint ia = dv * pc.div + ra;
   uint ib = dv * pc.div + rb;
+  if (ib < ia) return;
 
   inst a = inp[ia];
   inst b = inp[ib];
   if (((id / pc.jump) % 2 == 1) ^^ (ia < ib)) {
-    res[id] = cmp(a, b) < 0 ? a : b;
+    inp[ia] = cmp(a, b) < 0 ? a : b;
+    inp[ib] = cmp(a, b) > 0 ? a : b;
   } else {
-    res[id] = cmp(a, b) > 0 ? a : b;
+    inp[ia] = cmp(a, b) > 0 ? a : b;
+    inp[ib] = cmp(a, b) < 0 ? a : b;
   }
 }
 

@@ -24,9 +24,6 @@ namespace chunk {
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
     voo::single_cb m_cb { false };
 
-    voo::bound_buffer m_local0;
-    voo::bound_buffer m_local1;
-
     unsigned m_len;
 
     input * m_in;
@@ -36,10 +33,6 @@ namespace chunk {
     bitonic m_bit;
     count m_cc;
 
-    constexpr auto & output() const {
-      return m_bit.use_first_as_output() ? m_local0 : m_local1;
-    }
-
   public:
     struct param {
       unsigned len;
@@ -48,22 +41,12 @@ namespace chunk {
     };
 
     explicit gpunator(const param & p) :
-      m_local0 {
-      voo::bound_buffer::create_from_host(
-          sizeof(buffers::inst) * p.len * p.len * p.len,
-          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
-    }
-    , m_local1 {
-      voo::bound_buffer::create_from_host(
-          sizeof(buffers::inst) * p.len * p.len * p.len,
-          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
-    }
-    , m_len { p.len }
+      m_len { p.len }
     , m_in { p.in }
     , m_out { p.out }
-    , m_comp { *p.in->insts, *m_local0.buffer, p.len }
-    , m_bit { *m_local0.buffer, *m_local1.buffer, p.len * p.len * p.len }
-    , m_cc { *output().buffer, *m_out->vcmd, *m_out->ecmd }
+    , m_comp { *p.in->insts, *p.out->inst, p.len }
+    , m_bit { *p.out->inst, p.len * p.len * p.len }
+    , m_cc { *p.out->inst, *m_out->vcmd, *m_out->ecmd }
     {
       auto cb = m_cb.cb();
 
