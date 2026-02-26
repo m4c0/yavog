@@ -54,7 +54,7 @@ struct app_stuff {
   texmap::cache tmap {};
 
   buffers::all bufs {
-    len,
+    count,
     models::cube::t {},
     models::prism::t {},
     models::corner::t {},
