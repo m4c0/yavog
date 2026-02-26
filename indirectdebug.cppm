@@ -19,7 +19,7 @@ namespace indirectdebug {
       auto [px,py,pz] = m[i].pos;
       auto [sx,sy,sz] = m[i].size;
       if (m[i].mdl == 0) continue;
-      silog::infof("%d -- size:%f,%f,%f -- pos:%f,%f,%f -- mdl:%.0f", i, sx,sy,sz, px,py,pz, m[i].mdl);
+      silog::infof("%d -- size:%f,%f,%f -- pos:%f,%f,%f -- mdl:%.0f - txt:%.0f", i, sx,sy,sz, px,py,pz, m[i].mdl, m[i].txtid);
     }
   }
 
