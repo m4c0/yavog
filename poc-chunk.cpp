@@ -1,6 +1,4 @@
 #pragma leco app
-#pragma leco add_shader "poc-model.frag"
-#pragma leco add_shader "poc-indirect.vert"
 #pragma leco add_resource_dir assets
 
 import buffers;
@@ -30,20 +28,16 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct app_stuff {
-  voo::device_and_queue dq { "poc-chunk", casein::native_ptr};
+  voo::device_and_queue dq { "poc-chunk", casein::native_ptr, {
+    .feats {
+      .independentBlend = true,
+      .samplerAnisotropy = true,
+    },
+  }};
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout();
-  vee::gr_pipeline ppl = vee::create_graphics_pipeline({
-    .pipeline_layout = *pl,
-    .render_pass = *rp,
-    .shaders {
-      voo::vert_shader("poc-indirect.vert.spv").pipeline_stage(),
-      voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
-    },
-    .bindings = buffers::vk::ibindings(),
-    .attributes = buffers::vk::iattrs(),
-  });
+  post::pipeline post { dq };
+  ofs::pipeline ofs {};
 
   voo::single_cb scb {};
 
@@ -105,7 +99,7 @@ struct app_stuff {
 
     {
       auto m = ch_in.inst.map();
-      ch.copy(m, { 0, 0, 16 }, len);
+      ch.copy(m, { 0, 0, 0 }, len);
     }
 
     {
@@ -120,41 +114,53 @@ struct app_stuff {
       vee::cmd_execute_command(cb, cgpu.command_buffer());
 
       vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT,
-          vee::memory_barrier(0, 0));
+          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+          vee::memory_barrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDIRECT_COMMAND_READ_BIT));
     }
 
     voo::queue::universal()->submit({ .command_buffer = scb.cb() });
+
     indirectdebug::dump(bufs, count, 4);
   }
 };
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
-  hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
+
+  ext_stuff() {
+    vv::as()->ofs.setup(swc);
+
+    vv::as()->post.update_descriptor_sets(vv::as()->ofs);
+    vv::as()->post.setup(swc);
+  }
+};
+
+struct scene_drawer : public ofs::drawer {
+  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, vv::as()->tmap.dset());
+    vv::as()->bufs.cmd_draw_vtx(cb);
+  }
+  void edges(vee::command_buffer cb) override {
+    vv::as()->bufs.cmd_draw_edg(cb);
+  }
 };
 
 extern "C" void casein_init() {
   vv::setup([] {
-    auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
+
+    auto l = dotz::normalise(dotz::vec3 { 1, 0.3, 0.3 });
+    scene_drawer d {};
 
     auto cb = vv::ss()->cb.cb();
     {
       voo::cmd_buf_one_time_submit ots { cb };
-      voo::cmd_render_pass rp { vee::render_pass_begin {
-        .command_buffer = cb,
-        .render_pass = *vv::as()->rp,
-        .framebuffer = *vv::ss()->fbs[vv::ss()->swc.index()],
-        .extent = ext,
-        .clear_colours { 
-          vee::clear_colour({ 0, 0, 0, 1 }),
-        },
-      }, true };
-      vee::cmd_set_viewport(cb, ext);
-      vee::cmd_set_scissor(cb, ext);
-      vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vv::as()->bufs.cmd_draw_vtx(cb);
+      vv::as()->ofs.render(cb, &d, {
+        .light { l, 0 },
+        .aspect = vv::ss()->swc.aspect(),
+        .far = 100.0f,
+      });
+      vv::as()->post.render(cb, vv::ss()->swc, {});
     }
 
     vv::ss()->swc.queue_submit(cb);
