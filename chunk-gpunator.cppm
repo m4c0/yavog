@@ -2,6 +2,7 @@ export module chunk:gpunator;
 import :bitonic;
 import :compact;
 import :count;
+import buffers;
 import voo;
 
 using namespace wagen;
@@ -10,10 +11,6 @@ namespace chunk {
   export class gpunator {
     static constexpr const auto vcmd_size = sizeof(VkDrawIndexedIndirectCommand) * model_count;
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
-
-    struct inst {
-      dotz::vec4 rot, pos, size;
-    };
 
     voo::single_cb m_cb { false };
 
@@ -46,12 +43,12 @@ namespace chunk {
     explicit gpunator(const param & p) :
       m_local0 {
       voo::bound_buffer::create_from_host(
-          sizeof(inst) * p.len * p.len * p.len,
+          sizeof(buffers::inst) * p.len * p.len * p.len,
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
     }
     , m_local1 {
       voo::bound_buffer::create_from_host(
-          sizeof(inst) * p.len * p.len * p.len,
+          sizeof(buffers::inst) * p.len * p.len * p.len,
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
     }
     , m_len { p.len }
