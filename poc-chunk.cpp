@@ -55,15 +55,15 @@ struct app_stuff {
 
   buffers::all bufs {
     count,
+    models::corner::t {},
     models::cube::t {},
     models::prism::t {},
-    models::corner::t {},
   };
   chunk::input ch_in {
     count,
+    models::corner::t {},
     models::cube::t {},
     models::prism::t {},
-    models::corner::t {},
   };
 
   chunk::t ch {};
