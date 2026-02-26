@@ -54,18 +54,23 @@ struct app_stuff {
   texmap::cache tmap {};
 
   buffers::all bufs {
+    len,
     models::cube::t {},
     models::prism::t {},
     models::corner::t {},
   };
-  buffers::i_buffer insts { count };
+  chunk::input ch_in {
+    count,
+    models::cube::t {},
+    models::prism::t {},
+    models::corner::t {},
+  };
 
   chunk::t ch {};
   chunk::gpunator cgpu {{
     .len = len,
-    .host = *insts,
-    .vcmd = *bufs.vcmd,
-    .ecmd = *bufs.ecmd,
+    .in = &ch_in,
+    .out = &bufs,
   }};
 
   app_stuff() {
@@ -99,8 +104,8 @@ struct app_stuff {
     ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
     {
-      auto m = insts.map();
-      ch.copy(m, { 0, 0, 0 }, len);
+      auto m = bufs.inst.map();
+      ch.copy(m, { 0, 0, 16 }, len);
     }
 
     {
@@ -149,7 +154,6 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vv::as()->insts.cmd_bind(cb);
       vv::as()->bufs.cmd_draw_vtx(cb);
     }
 

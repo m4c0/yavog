@@ -8,21 +8,29 @@ import voo;
 using namespace wagen;
 
 namespace chunk {
+  export struct input {
+    buffers::i_buffer insts;
+    buffers::vc_buffer vcmd;
+    buffers::ec_buffer ecmd;
+
+    template<typename... T> input(unsigned count, T...) :
+      insts { count }
+    , vcmd { T {}... }
+    , ecmd { T {}... }
+    {}
+  };
   export class gpunator {
     static constexpr const auto vcmd_size = sizeof(VkDrawIndexedIndirectCommand) * model_count;
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
-
     voo::single_cb m_cb { false };
 
     voo::bound_buffer m_local0;
     voo::bound_buffer m_local1;
-    voo::bound_buffer m_vcmd = voo::bound_buffer::create_from_host(vcmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
-    voo::bound_buffer m_ecmd = voo::bound_buffer::create_from_host(ecmd_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
 
     unsigned m_len;
 
-    VkBuffer m_vcmd_orig;
-    VkBuffer m_ecmd_orig;
+    input * m_in;
+    buffers::all * m_out;
 
     compact m_comp;
     bitonic m_bit;
@@ -35,9 +43,8 @@ namespace chunk {
   public:
     struct param {
       unsigned len;
-      VkBuffer host;
-      VkBuffer vcmd;
-      VkBuffer ecmd;
+      input * in;
+      buffers::all * out;
     };
 
     explicit gpunator(const param & p) :
@@ -52,11 +59,11 @@ namespace chunk {
           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
     }
     , m_len { p.len }
-    , m_vcmd_orig { p.vcmd }
-    , m_ecmd_orig { p.ecmd }
-    , m_comp { p.host, *m_local0.buffer, *m_local1.buffer, p.len }
+    , m_in { p.in }
+    , m_out { p.out }
+    , m_comp { *p.in->insts, *m_local0.buffer, *m_local1.buffer, p.len }
     , m_bit { *m_local0.buffer, *m_local1.buffer, p.len * p.len * p.len }
-    , m_cc { *output().buffer, *m_vcmd.buffer, *m_ecmd.buffer }
+    , m_cc { *output().buffer, *m_out->vcmd, *m_out->ecmd }
     {
       auto cb = m_cb.cb();
 
@@ -64,21 +71,13 @@ namespace chunk {
       m_comp.cmd(cb);
       m_bit.cmd(cb);
 
-      vee::cmd_copy_buffer(cb, m_vcmd_orig, *m_vcmd.buffer, vcmd_size);
-      vee::cmd_copy_buffer(cb, m_ecmd_orig, *m_ecmd.buffer, ecmd_size);
+      vee::cmd_copy_buffer(cb, *m_in->vcmd, *m_out->vcmd, vcmd_size);
+      vee::cmd_copy_buffer(cb, *m_in->ecmd, *m_out->ecmd, ecmd_size);
       for (auto i = 1; i < model_count; i++) {
         m_cc.cmd(cb, i, m_len * m_len * m_len);
       }
     }
 
     constexpr auto command_buffer() const { return m_cb.cb(); }
-
-    constexpr auto vcmd() const { return *m_vcmd.buffer; }
-    constexpr auto ecmd() const { return *m_ecmd.buffer; }
-    constexpr auto insts() const { return *output().buffer; }
-
-    constexpr auto vcmd_memory() const { return *m_vcmd.memory; }
-    constexpr auto ecmd_memory() const { return *m_ecmd.memory; }
-    constexpr auto output_memory() const { return *output().memory; }
   };
 }
