@@ -1,4 +1,5 @@
 export module indirectdebug;
+import buffers;
 import dotz;
 import jute;
 import silog;
@@ -13,15 +14,12 @@ namespace indirectdebug {
   export void dump_insts(unsigned count, VkDeviceMemory mem) {
     vee::device_wait_idle();
 
-    struct inst {
-      dotz::vec4 rot, pos, size;
-    };
-    voo::memiter<inst> m { mem };
+    voo::memiter<buffers::inst> m { mem };
     for (auto i = 0; i < count; i++) {
-      auto [px,py,pz,mdl] = m[i].pos;
-      auto [sx,sy,sz,txt] = m[i].size;
-      if (mdl == 0) continue;
-      silog::infof("%d -- size:%f,%f,%f -- pos:%f,%f,%f -- mdl:%.0f", i, sx,sy,sz, px,py,pz, mdl);
+      auto [px,py,pz] = m[i].pos;
+      auto [sx,sy,sz] = m[i].size;
+      if (m[i].mdl == 0) continue;
+      silog::infof("%d -- size:%f,%f,%f -- pos:%f,%f,%f -- mdl:%.0f", i, sx,sy,sz, px,py,pz, m[i].mdl);
     }
   }
 
@@ -108,5 +106,23 @@ namespace indirectdebug {
       p.first = i;
       indirectdebug::dump(p);
     }
+  }
+
+  export void dump(const buffers::all & bufs, unsigned icount, unsigned vccount) {
+    vee::device_wait_idle();
+
+    silog::info("--------- insts");
+    indirectdebug::dump_insts(icount, bufs.inst.memory());
+    silog::info("--------- vcmd");
+    indirectdebug::dump(vccount, indirectdebug::indexed_indirect_params {
+      .vertices = bufs.vtx.memory(),
+      .indices = bufs.idx.memory(),
+      .indirect = bufs.vcmd.memory(),
+    });
+    silog::info("--------- ecmd");
+    indirectdebug::dump(vccount, indirectdebug::indirect_params {
+      .vertices = bufs.edg.memory(),
+      .indirect = bufs.ecmd.memory(),
+    });
   }
 }

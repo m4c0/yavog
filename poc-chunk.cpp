@@ -120,19 +120,7 @@ struct app_stuff {
     }
 
     voo::queue::universal()->submit({ .command_buffer = scb.cb() });
-
-    indirectdebug::dump_insts(count, cgpu.output_memory());
-    silog::info("--------- vcmd");
-    indirectdebug::dump(4, indirectdebug::indexed_indirect_params {
-      .vertices = bufs.vtx.memory(),
-      .indices = bufs.idx.memory(),
-      .indirect = cgpu.vcmd_memory(),
-    });
-    silog::info("--------- ecmd");
-    indirectdebug::dump(4, indirectdebug::indirect_params {
-      .vertices = bufs.edg.memory(),
-      .indirect = cgpu.ecmd_memory(),
-    });
+    indirectdebug::dump(bufs, count, 4);
   }
 };
 struct ext_stuff {
