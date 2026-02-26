@@ -32,16 +32,16 @@ struct app_stuff {
   });
 
   buffers::all bufs {
+    4,
     models::cube::t {},
     models::prism::t {},
     models::corner::t {},
   };
-  buffers::i_buffer insts { 4 };
 
-  chunk::count cc { *insts, *bufs.vcmd, *bufs.ecmd };
+  chunk::count cc { *bufs.inst, *bufs.vcmd, *bufs.ecmd };
 
   app_stuff() {
-    auto i = insts.map();
+    auto i = bufs.inst.map();
     i += {
       .pos { 1, 1, 4 },
       .mdl = 1,
@@ -102,7 +102,6 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vv::as()->insts.cmd_bind(cb);
       vv::as()->bufs.cmd_draw_vtx(cb);
     }
 

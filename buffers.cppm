@@ -219,22 +219,26 @@ namespace buffers {
     e_buffer  edg;
     vc_buffer vcmd;
     ec_buffer ecmd;
+    i_buffer  inst;
 
-    template<typename... T> all(T...) :
+    template<typename... T> all(unsigned insts, T...) :
       vtx  { T {}... }
     , idx  { T {}... }
     , edg  { T {}... }
     , vcmd { T {}... }
     , ecmd { T {}... }
+    , inst { insts }
     {}
 
     void cmd_draw_vtx(vee::command_buffer cb) {
       vtx.cmd_bind(cb);
       idx.cmd_bind(cb);
+      inst.cmd_bind(cb);
       vcmd.cmd_draw(cb);
     }
     void cmd_draw_edg(vee::command_buffer cb) {
       edg.cmd_bind(cb);
+      inst.cmd_bind(cb);
       ecmd.cmd_draw(cb);
     }
   };
