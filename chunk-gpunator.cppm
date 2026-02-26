@@ -9,12 +9,12 @@ using namespace wagen;
 
 namespace chunk {
   export struct input {
-    buffers::i_buffer insts;
+    buffers::i_buffer inst;
     buffers::vc_buffer vcmd;
     buffers::ec_buffer ecmd;
 
     template<typename... T> input(unsigned count, T...) :
-      insts { count }
+      inst { count }
     , vcmd { T {}... }
     , ecmd { T {}... }
     {}
@@ -44,7 +44,7 @@ namespace chunk {
       m_len { p.len }
     , m_in { p.in }
     , m_out { p.out }
-    , m_comp { *p.in->insts, *p.out->inst, p.len }
+    , m_comp { *p.in->inst, *p.out->inst, p.len }
     , m_bit { *p.out->inst, p.len * p.len * p.len }
     , m_cc { *p.out->inst, *m_out->vcmd, *m_out->ecmd }
     {

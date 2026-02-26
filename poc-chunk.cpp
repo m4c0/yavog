@@ -104,7 +104,7 @@ struct app_stuff {
     ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
     {
-      auto m = bufs.inst.map();
+      auto m = ch_in.inst.map();
       ch.copy(m, { 0, 0, 16 }, len);
     }
 
