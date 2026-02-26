@@ -9,9 +9,9 @@ layout(push_constant) uniform upc {
 } pc;
 
 layout(location = 0, component = 0) in vec3 i_pos;
-layout(location = 0, component = 3) in float i_txtid;
 layout(location = 1) in vec4 i_rot;
 layout(location = 2) in vec3 i_size;
+layout(location = 2, component = 3) in float i_txtid;
 
 const float near =   0.01;
 
