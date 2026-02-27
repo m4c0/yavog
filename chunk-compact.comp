@@ -18,12 +18,16 @@ layout(binding = 0, set = 1) buffer buf_1 { inst to[]; };
 
 vec3 qrot(vec3 p, vec4 q);
 
+vec4 qinv(vec4 q) {
+  return vec4(-q.xyz, q.w) / length(q);
+}
+
 bool valid(inst aa) {
   if (aa.pos.w == 2) return true; // Cube is always fine
 
   if (aa.pos.w == 3) { // Prism only on Z
-    vec3 r = qrot(pc.n, aa.rot);
-    return length(abs(r) - vec3(0, 0, 1)) < 0.001;
+    vec3 r = qrot(vec3(0, 0, 1), aa.rot);
+    return length(r - pc.n) < 0.001;
   }
 
   return false;
@@ -45,8 +49,9 @@ void main() {
   for (int i = 1; i < k_len; i++) { 
     uint nxt = idx(gl_GlobalInvocationID + pc.n * i);
     if (valid(orig) && same(orig, nxt)) {
+      vec4 qi = qinv(orig.rot);
       to[tgt].pos.xyz += 0.5 * pc.n;
-      to[tgt].size.xyz += 1.0 * pc.n;
+      to[tgt].size.xyz += 1.0 * qrot(pc.n, qi);
       to[nxt] = inst(vec4(0), vec4(0), vec4(0));
     } else {
       tgt = nxt;
