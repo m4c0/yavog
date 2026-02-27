@@ -36,7 +36,7 @@ struct app_stuff {
   }};
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
-  post::pipeline post { dq };
+  post::pipeline post { dq, false };
   ofs::pipeline ofs {};
 
   voo::single_cb scb {};
@@ -93,8 +93,7 @@ extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
 
-    //auto l = dotz::normalise(dotz::vec3 { 1, 0.3, 0.3 });
-    auto l = dotz::normalise(dotz::vec3 { 0, 1, 0 });
+    auto l = dotz::normalise(dotz::vec3 { 1, -0.3, 0.3 });
     scene_drawer d {};
 
     auto cb = vv::ss()->cb.cb();
