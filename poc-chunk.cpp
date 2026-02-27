@@ -149,7 +149,7 @@ extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
 
-    auto l = dotz::normalise(dotz::vec3 { 1, 0.3, 0.3 });
+    auto l = dotz::normalise(dotz::vec3 { 1, -0.3, 0.3 });
     scene_drawer d {};
 
     auto cb = vv::ss()->cb.cb();
