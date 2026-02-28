@@ -5,7 +5,6 @@ import buffers;
 import casein;
 import chunk;
 import dotz;
-import embedded;
 import hai;
 import models;
 import ofs;
@@ -21,14 +20,9 @@ import voo;
 import wagen;
 
 static enum {
-  e_cube,
-  e_sizedcubes,
   e_shadowtest,
-  e_hills,
   e_chunks,
-} constexpr const example = e_chunks;
-
-static constexpr const bool enable_post = example > e_sizedcubes;
+} constexpr const example = e_shadowtest;
 
 using namespace wagen;
 
@@ -39,20 +33,69 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  models::drawer embed { 128 * 128 * 16 };
+  static constexpr const unsigned len = 32; // PoT padding
+  static constexpr const unsigned count = len * len * len; // PoT padding
+  static_assert(chunk::len <= len);
+
+  texmap::cache m_tmap {};
+  buffers::all m_bufs {
+    count,
+    models::corner::t {},
+    models::cube::t {},
+    models::prism::t {},
+  };
+  chunk::input m_in {
+    count,
+    models::corner::t {},
+    models::cube::t {},
+    models::prism::t {},
+  };
+
+  voo::single_cb m_cb {};
+  chunk::gpunator m_cgpu {{
+    .len = len,
+    .in = &m_in,
+    .out = &m_bufs,
+  }};
+
+  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
+    if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, m_tmap.dset());
+    m_bufs.cmd_draw_vtx(cb);
+  }
+  void edges(vee::command_buffer cb) override {
+    m_bufs.cmd_draw_edg(cb);
+  }
 
 public:
   scene_drawer();
 
-  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-    embed.faces(cb, pl);
+  [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
+
+  void copy(const chunk::t & ch, dotz::vec3 c) {
+    auto m = m_in.inst.map();
+    ch.copy(m, { 0, 0, 0 }, len);
   }
-  void edges(vee::command_buffer cb) override {
-    embed.edges(cb);
+  void update() {
+    auto cb = m_cb.cb();
+    {
+      voo::cmd_buf_one_time_submit ots { cb };
+
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+          vee::memory_barrier(0, 0));
+
+      vee::cmd_execute_command(cb, m_cgpu.command_buffer());
+
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+          vee::memory_barrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDIRECT_COMMAND_READ_BIT));
+    }
+
+    voo::queue::universal()->submit({ .command_buffer = cb });
   }
 };
 
-static void ex_shadow_test(models::drawer & embed) {
+static void ex_shadow_test(scene_drawer & embed) {
   static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
   static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
@@ -63,87 +106,29 @@ static void ex_shadow_test(models::drawer & embed) {
     embed.texture(t131),
   };
 
-  auto m = embed.builder();
+  using enum chunk::model;
+  chunk::t ch {};
 
   // Prisms
-  m += { .pos { 4, 0, 5 }, .txtid = static_cast<float>(txt_ids[1]) };
-  m.push(embed.model(models::prism::t {}));
+  ch.set({ 4, 0, 5 }, { .mdl = prism, .txt = txt_ids[1] });
 
   // Cubes
-  for (auto x = 0; x < 128; x++) {
-    for (auto y = 0; y < 128; y++) {
-      unsigned n = (x + y) % 4;
+  for (auto x = -chunk::minmax; x < chunk::minmax; x++) {
+    for (auto y = -chunk::minmax; y < chunk::minmax; y++) {
+      unsigned n = (x + y + 2 * chunk::minmax) % 4;
       if (n == 3) continue;
-
-      m += { .pos { x - 64, -2, y }, .txtid = static_cast<float>(txt_ids[n]) };
+      ch.set({ x, -2, y }, { .mdl = cube, .txt = txt_ids[n] });
     }
   }
-  m += { .pos { 3, 0, 5 }, .txtid = static_cast<float>(txt_ids[0]) };
-  m.push(embed.model(models::cube::t {}));
+  ch.set({ 3, 0, 5 }, { .mdl = cube, .txt = txt_ids[0] });
 
   // More prisms
-  m += {
-    .rot { 0, 1, 0, 0 },
-    .pos { 2, 0, 5 },
-    .txtid = static_cast<float>(txt_ids[1]),
-  };
-  m.push(embed.model(models::prism::t {}));
+  ch.set({ 2, 0, 5 }, { .rot { 0, 1, 0, 0 }, .mdl = prism, .txt = txt_ids[1] });
+
+  embed.copy(ch, {});
 }
 
-static void ex_cube(models::drawer & embed) {
-  auto m = embed.builder();
-
-  float txt_id = embed.texture("Tiles101_1K-JPG_Color.jpg");
-  m += { .pos { -1,  0, 4 }, .txtid = txt_id };
-  m += { .pos {  1,  0, 4 }, .txtid = txt_id };
-  m += { .pos { -1,  0, 2 }, .txtid = txt_id };
-  m += { .pos {  1,  0, 2 }, .txtid = txt_id };
-  m += { .pos {  0, -1, 3 }, .txtid = txt_id };
-  m.push(embed.model(models::prism::t {}));
-}
-
-static void ex_sizedcubes(models::drawer & embed) {
-  auto m = embed.builder();
-
-  float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
-  m += { .pos { 0, -2.1, 4 }, .txtid = grass };
-
-  float dirt = embed.texture("Ground105_1K-JPG_Color.jpg");
-  m += { .pos {  1.0, -2, 3.5 }, .size { 1, 1, 2 }, .txtid = dirt };
-  m += { .pos { -1.0, -2, 4.5 }, .size { 1, 1, 2 }, .txtid = dirt };
-  m += { .pos {  0.5, -2, 5.0 }, .size { 2, 1, 1 }, .txtid = dirt };
-  m += { .pos { -0.5, -2, 3.0 }, .size { 2, 1, 1 }, .txtid = dirt };
-  m.push(embed.model(models::cube::t {}));
-}
-
-static void ex_hills(models::drawer & embed) {
-  auto m = embed.builder();
-
-  float grass = embed.texture("Ground037_1K-JPG_Color.jpg");
-  float dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
-
-  for (auto x = 0; x < 128; x++) {
-    //for (auto y = 0; y < 128; y++) {
-      m += { .pos { x - 64, -2, 0 }, .size { 1, 1, 256 }, .txtid = dirt };
-    //}
-  }
-  m += { .pos { 3, -1, 5 }, .size { 3, 1, 3 }, .txtid = grass };
-  m.push(embed.model(models::cube::t {}));
-
-  m += {                                 .pos { 5, -1, 5 }, .size { 1, 1, 3 }, .txtid = grass };
-  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 5 }, .size { 1, 1, 3 }, .txtid = grass };
-  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 3, -1, 3 }, .size { 1, 1, 3 }, .txtid = grass };
-  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 3, -1, 7 }, .size { 1, 1, 3 }, .txtid = grass };
-  m.push(embed.model(models::prism::t {}));
-
-  m += {                                 .pos { 5, -1, 7, }, .txtid = grass };
-  m += { .rot { 0, -0.7071, 0, 0.7071 }, .pos { 1, -1, 7, }, .txtid = grass };
-  m += { .rot { 0, 0.7071, 0, 0.7071 },  .pos { 5, -1, 3, }, .txtid = grass };
-  m += { .rot { 0, 1, 0, 0 },            .pos { 1, -1, 3, }, .txtid = grass };
-  m.push(embed.model(models::corner::t {}));
-}
-
-static void ex_chunks(models::drawer & embed) {
+static void ex_chunks(scene_drawer & embed) {
   chunk::t ch {};
 
   using enum chunk::model;
@@ -176,28 +161,20 @@ static void ex_chunks(models::drawer & embed) {
   ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
-  auto m = embed.builder();
-  ch.build(m, cube, {});
-  ch.build(m, cube, { chunk::len, 0, chunk::len });
-  ch.build(m, cube, { 0, 0, chunk::len });
-  ch.build(m, cube, { -chunk::len, 0, chunk::len });
-  ch.build(m, cube, { chunk::len, 0, 0 });
-  ch.build(m, cube, { -chunk::len, 0, 0 });
-  m.push(embed.model(models::cube::t {}));
-  ch.build(m, prism, {});
-  m.push(embed.model(models::prism::t {}));
-  ch.build(m, corner, {});
-  m.push(embed.model(models::corner::t {}));
+  embed.copy(ch, {});
+  embed.copy(ch, { chunk::len, 0, chunk::len });
+  embed.copy(ch, { 0, 0, chunk::len });
+  embed.copy(ch, { -chunk::len, 0, chunk::len });
+  embed.copy(ch, { chunk::len, 0, 0 });
+  embed.copy(ch, { -chunk::len, 0, 0 });
 }
 
 scene_drawer::scene_drawer() {
   switch (example) {
-    case e_cube:       ex_cube(embed);        break;
-    case e_sizedcubes: ex_sizedcubes(embed);  break;
-    case e_shadowtest: ex_shadow_test(embed); break;
-    case e_hills:      ex_hills(embed);       break;
-    case e_chunks:     ex_chunks(embed);      break;
+    case e_shadowtest: ex_shadow_test(*this); break;
+    case e_chunks:     ex_chunks(*this);      break;
   }
+  update();
 }
 
 struct app_stuff {
@@ -209,7 +186,7 @@ struct app_stuff {
   }};
   scene_drawer scene {};
 
-  post::pipeline post { dq, enable_post };
+  post::pipeline post { dq };
   ofs::pipeline ofs {};
 };
 struct ext_stuff {
@@ -265,14 +242,10 @@ extern "C" void casein_init() {
         });
 
         qp.write(timing::ppl_post, cb);
-#ifndef CUBE_EXAMPLE
         vv::as()->post.render(cb, vv::ss()->swc, {
           .fog { 0.4, 0.6, 0.8, 2 },
           .far = g_far_plane,
         });
-#else
-        vv::as()->post.render(cb, vv::ss()->swc, {});
-#endif
       });
     }
     vv::ss()->swc.queue_submit(cb);
