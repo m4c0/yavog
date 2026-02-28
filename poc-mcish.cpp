@@ -22,7 +22,7 @@ import wagen;
 static enum {
   e_shadowtest,
   e_chunks,
-} constexpr const example = e_shadowtest;
+} constexpr const example = e_chunks;
 
 using namespace wagen;
 
@@ -71,9 +71,9 @@ public:
 
   [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
 
-  void copy(const chunk::t & ch, dotz::vec3 c) {
+  void copy(const chunk::t & ch, dotz::ivec3 c) {
     auto m = m_in.inst.map();
-    ch.copy(m, { 0, 0, 0 }, len);
+    ch.copy(m, c, len);
   }
   void update() {
     auto cb = m_cb.cb();
