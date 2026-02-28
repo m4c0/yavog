@@ -160,7 +160,10 @@ extern "C" void casein_init() {
         .aspect = vv::ss()->swc.aspect(),
         .far = 100.0f,
       });
-      vv::as()->post.render(cb, vv::ss()->swc, {});
+      vv::as()->post.render(cb, vv::ss()->swc, {
+        .fog { 0.4, 0.6, 0.8, 2 },
+        .far = 100.f,
+      });
     }
 
     vv::ss()->swc.queue_submit(cb);
