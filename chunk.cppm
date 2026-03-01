@@ -3,21 +3,14 @@ export import :compact;
 export import :count;
 export import :gpunator;
 export import :objects;
+export import :stamp;
 import dotz;
 import hai;
 import sv;
+import voo;
 
 namespace chunk {
-  export inline constexpr const auto minmax = 15;
-  export inline constexpr const auto len = minmax * 2 + 1;
   static inline constexpr const auto blk_size = len * len * len;
-
-  export struct block {
-    dotz::vec4 rot { 0, 0, 0, 1 };
-    model mdl = model::none;
-    unsigned txt;
-  };
-  
   export class t {
     hai::array<block> m_data { blk_size };
 

@@ -19,7 +19,7 @@ int main() {
 
   voo::single_cb cb {};
 
-  chunk::t ch {};
+  chunk::stamp ch {};
   for (auto z = -1; z <= 1; z++) {
     for (auto y = -1; y <= 1; y++) {
       for (auto x = -1; x <= 1; x++) {
@@ -29,12 +29,8 @@ int main() {
   }
 
   {
-    voo::memiter<inst> m { *b0.memory };
-    ch.copy(m, {}, len);
-  }
-
-  {
     voo::cmd_buf_one_time_submit ots { cb.cb() };
+    ch.cmd(cb.cb(), {}, len);
     cc.cmd(cb.cb());
   }
   voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
