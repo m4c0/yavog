@@ -1,4 +1,6 @@
+#pragma leco add_shader "chunk-stamp.comp"
 export module chunk:stamp;
+import :cpipeline;
 import :objects;
 import dotz;
 import voo;
@@ -15,11 +17,18 @@ namespace chunk {
   };
   
   export class stamp {
+    struct upc {
+      dotz::ivec3 center;
+      unsigned len;
+    };
+
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
         blk_size * sizeof(block),
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     voo::mapmem m_m { *m_buf.memory };
     block * m_data = static_cast<block *>(*m_m);
+
+    cpipeline<upc, 2> m_cp { "chunk-stamp.comp.spv", { *m_buf.buffer } };;
 
   public:
     void set(dotz::ivec3 p, block b) {
@@ -36,6 +45,11 @@ namespace chunk {
     }
 
     void cmd(vee::command_buffer cb, dotz::ivec3 c, unsigned len) {
+      upc pc {
+        .center = c,
+        .len = len,
+      };
+      m_cp.cmd_dispatch(cb, &pc, { 0 }, { len, len, len });
     }
   };
 }

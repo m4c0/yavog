@@ -1,0 +1,23 @@
+#version 450
+
+struct block {
+  vec4 rot;
+  uint mdl;
+  uint txt;
+};
+struct inst {
+  vec4 rot;
+  vec4 pos;  // pos.xyz + mdl
+  vec4 size; // size.xyz + txt
+};
+
+layout(push_constant) uniform upc {
+  ivec3 center;
+  uint len;
+} pc;
+
+layout(binding = 0) uniform buf_0 { block inp[]; };
+layout(binding = 1) uniform buf_1 { inst outp[]; };
+
+void main() {
+}
