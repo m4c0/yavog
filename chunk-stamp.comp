@@ -11,13 +11,23 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
+layout(constant_id = 93) const uint i_len = 31;
+layout(constant_id = 94) const uint o_len = 32;
+
 layout(push_constant) uniform upc {
   ivec3 center;
-  uint len;
 } pc;
 
-layout(binding = 0) uniform buf_0 { block inp[]; };
-layout(binding = 1) uniform buf_1 { inst outp[]; };
+layout(binding = 0, set = 0) readonly buffer buf_0 { block inp[]; };
+layout(binding = 0, set = 1) buffer buf_1 { inst outp[]; };
 
 void main() {
+  uvec3 pp = gl_GlobalInvocationID;
+  block i = inp[pp.z * i_len * i_len + pp.y * i_len + pp.x];
+
+  inst o;
+  o.rot = i.rot;
+  o.pos = vec4(pc.center + pp, i.mdl),
+  o.size = vec4(1, 1, 1, i.txt);
+  outp[pp.z * o_len * o_len + pp.y * o_len + pp.x] = o;
 }

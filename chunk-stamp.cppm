@@ -19,7 +19,6 @@ namespace chunk {
   export class stamp {
     struct upc {
       dotz::ivec3 center;
-      unsigned len;
     };
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
@@ -31,6 +30,10 @@ namespace chunk {
     cpipeline<upc, 2> m_cp { "chunk-stamp.comp.spv", { *m_buf.buffer } };;
 
   public:
+    explicit stamp(VkBuffer buf) :
+      m_cp { "chunk-stamp.comp.spv", { *m_buf.buffer, buf } }
+    {}
+
     void set(dotz::ivec3 p, block b) {
       p = p + minmax;
       if (p.x < 0 || p.y < 0 || p.z < 0) throw 0;
@@ -47,7 +50,6 @@ namespace chunk {
     void cmd(vee::command_buffer cb, dotz::ivec3 c, unsigned len) {
       upc pc {
         .center = c,
-        .len = len,
       };
       m_cp.cmd_dispatch(cb, &pc, { 0 }, { len, len, len });
     }

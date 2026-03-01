@@ -15,11 +15,11 @@ int main() {
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b2 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
+  chunk::stamp ch { *b0.buffer };
   chunk::compact cc { *b0.buffer, *b1.buffer, len };
 
   voo::single_cb cb {};
 
-  chunk::stamp ch {};
   for (auto z = -1; z <= 1; z++) {
     for (auto y = -1; y <= 1; y++) {
       for (auto x = -1; x <= 1; x++) {
