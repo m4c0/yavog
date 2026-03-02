@@ -14,6 +14,7 @@ namespace chunk {
     dotz::vec4 rot { 0, 0, 0, 1 };
     model mdl = model::none;
     unsigned txt;
+    unsigned _pad[2];
   };
   
   export class stamp {
