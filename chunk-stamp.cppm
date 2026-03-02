@@ -27,7 +27,7 @@ namespace chunk {
     voo::mapmem m_m { *m_buf.memory };
     block * m_data = static_cast<block *>(*m_m);
 
-    cpipeline<upc, 2> m_cp { "chunk-stamp.comp.spv", { *m_buf.buffer } };;
+    cpipeline<upc, 2> m_cp;
 
   public:
     explicit stamp(VkBuffer buf) :
@@ -51,7 +51,7 @@ namespace chunk {
       upc pc {
         .center = c,
       };
-      m_cp.cmd_dispatch(cb, &pc, { 0 }, { len, len, len });
+      m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { len, len, len });
     }
   };
 }
