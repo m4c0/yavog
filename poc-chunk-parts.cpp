@@ -27,6 +27,25 @@ int main() {
       }
     }
   }
+  {
+    voo::cmd_buf_one_time_submit ots { cb.cb() };
+    ch.cmd(cb.cb(), {}, len);
+  }
+  voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
+  vee::device_wait_idle();
+  {
+    voo::memiter<inst> m { *b0.memory };
+    for (auto i = 0; i < len * len * len; i++) {
+      if (m[i].mdl == 0) continue;
+
+      auto [px,py,pz] = m[i].pos;
+      auto [sx,sy,sz] = m[i].size;
+
+      silog::infof(
+          "b0: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+          i, m[i].mdl, m[i].mdl, px,py,pz, sx,sy,sz);
+    }
+  }
 
   {
     voo::cmd_buf_one_time_submit ots { cb.cb() };
@@ -45,7 +64,7 @@ int main() {
     auto [sx,sy,sz] = m[i].size;
 
     silog::infof(
-        "%3d - %.0f - %4.1f,%4.1f,%4.1f - %4.1f,%4.1f,%4.1f",
-        i, m[i].mdl, px,py,pz, sx,sy,sz);
+        "b1: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+        i, m[i].mdl, m[i].mdl, px,py,pz, sx,sy,sz);
   }
 }
