@@ -48,6 +48,8 @@ namespace chunk {
       return m_data[p.x + p.y * len + p.z * len * len];
     }
 
+    auto data() { return m_data; }
+
     void cmd(vee::command_buffer cb, dotz::ivec3 c, unsigned len) {
       upc pc {
         .center = c,

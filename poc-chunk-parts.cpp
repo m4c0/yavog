@@ -22,10 +22,18 @@ int main() {
   for (auto z = -1; z <= 1; z++) {
     for (auto y = -1; y <= 1; y++) {
       for (auto x = -1; x <= 1; x++) {
-        ch.set({ x, y, z }, { .mdl = chunk::model::cube });
+        ch.set({ x, y, z }, { .mdl = chunk::model::cube, .txt = 67 });
       }
     }
   }
+    for (auto i = 0; i < 31 * 31 * 31; i++) {
+      auto m = ch.data();
+      if (m[i].mdl == chunk::model::none) continue;
+
+      silog::infof(
+          "ch: %3d - mdl:%d txt:%d",
+          i, m[i].mdl, m[i].txt);
+    }
   {
     voo::cmd_buf_one_time_submit ots { cb.cb() };
     ch.cmd(cb.cb(), {}, len);
@@ -42,7 +50,7 @@ int main() {
 
       silog::infof(
           "b0: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
-          i, m[i].mdl, m[i].mdl, px,py,pz, sx,sy,sz);
+          i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
     }
   }
 
@@ -64,6 +72,6 @@ int main() {
 
     silog::infof(
         "b1: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
-        i, m[i].mdl, m[i].mdl, px,py,pz, sx,sy,sz);
+        i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
   }
 }
