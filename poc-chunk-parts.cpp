@@ -13,7 +13,6 @@ int main() {
   constexpr const auto buf_sz = sizeof(inst) * len * len * len;
   voo::bound_buffer b0 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-  voo::bound_buffer b2 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
   chunk::stamp ch { *b0.buffer };
   chunk::compact cc { *b0.buffer, *b1.buffer, len };
