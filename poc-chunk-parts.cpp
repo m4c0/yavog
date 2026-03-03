@@ -34,11 +34,7 @@ int main() {
           "ch: %3d - mdl:%d txt:%d",
           i, m[i].mdl, m[i].txt);
     }
-  {
-    voo::cmd_buf_one_time_submit ots { cb.cb() };
-    ch.cmd(cb.cb(), {});
-  }
-  voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
+  ch.copy({});
   vee::device_wait_idle();
   {
     voo::memiter<inst> m { *b0.memory };

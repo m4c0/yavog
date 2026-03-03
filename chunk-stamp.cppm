@@ -30,6 +30,9 @@ namespace chunk {
 
     cpipeline<upc, 2> m_cp;
 
+    voo::single_cb m_cb {};
+    voo::fence m_f { true };
+
   public:
     explicit stamp(VkBuffer buf, unsigned l) :
       m_cp {
@@ -59,6 +62,17 @@ namespace chunk {
         .center = c,
       };
       m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { len, len, len });
+    }
+    void copy(dotz::ivec3 c) {
+      m_f.wait_and_reset();
+      voo::run(voo::cmd_buf_one_time_submit { m_cb.cb() }, [&] {
+        upc pc { .center = c };
+        m_cp.cmd_dispatch(m_cb.cb(), &pc, { 0, 1 }, { len, len, len });
+      });
+      voo::queue::universal()->queue_submit({
+        .fence = m_f,
+        .command_buffer = m_cb.cb(),
+      });
     }
   };
 }
