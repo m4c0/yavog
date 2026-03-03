@@ -50,7 +50,7 @@ namespace chunk {
 
     auto data() { return m_data; }
 
-    void cmd(vee::command_buffer cb, dotz::ivec3 c, unsigned len) {
+    void cmd(vee::command_buffer cb, dotz::ivec3 c) {
       upc pc {
         .center = c,
       };
