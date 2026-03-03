@@ -51,6 +51,7 @@ class scene_drawer : public ofs::drawer {
     models::prism::t {},
   };
 
+  chunk::stamp m_ch { *m_in.inst, len };
   voo::single_cb m_cb {};
   chunk::gpunator m_cgpu {{
     .len = len,
@@ -70,11 +71,8 @@ public:
   scene_drawer();
 
   [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
+  [[nodiscard]] auto & ch() { return m_ch; }
 
-  void copy(const chunk::t & ch, dotz::ivec3 c) {
-    auto m = m_in.inst.map();
-    ch.copy(m, c, len);
-  }
   void update() {
     auto cb = m_cb.cb();
     {
@@ -107,7 +105,7 @@ static void ex_shadow_test(scene_drawer & embed) {
   };
 
   using enum chunk::model;
-  chunk::t ch {};
+  auto & ch = embed.ch();
 
   // Prisms
   ch.set({ 4, 0, 5 }, { .mdl = prism, .txt = txt_ids[1] });
@@ -125,11 +123,11 @@ static void ex_shadow_test(scene_drawer & embed) {
   // More prisms
   ch.set({ 2, 0, 5 }, { .rot { 0, 1, 0, 0 }, .mdl = prism, .txt = txt_ids[1] });
 
-  embed.copy(ch, {});
+  ch.copy({});
 }
 
 static void ex_chunks(scene_drawer & embed) {
-  chunk::t ch {};
+  auto & ch = embed.ch();
 
   using enum chunk::model;
   auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
@@ -161,12 +159,12 @@ static void ex_chunks(scene_drawer & embed) {
   ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
-  embed.copy(ch, {});
-  embed.copy(ch, { chunk::len, 0, chunk::len });
-  embed.copy(ch, { 0, 0, chunk::len });
-  embed.copy(ch, { -chunk::len, 0, chunk::len });
-  embed.copy(ch, { chunk::len, 0, 0 });
-  embed.copy(ch, { -chunk::len, 0, 0 });
+  ch.copy({});
+  ch.copy({ chunk::len, 0, chunk::len });
+  ch.copy({ 0, 0, chunk::len });
+  ch.copy({ -chunk::len, 0, chunk::len });
+  ch.copy({ chunk::len, 0, 0 });
+  ch.copy({ -chunk::len, 0, 0 });
 }
 
 scene_drawer::scene_drawer() {
