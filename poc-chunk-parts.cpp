@@ -52,7 +52,6 @@ int main() {
 
   {
     voo::cmd_buf_one_time_submit ots { cb.cb() };
-    ch.cmd(cb.cb(), {});
     cc.cmd(cb.cb());
   }
   voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });

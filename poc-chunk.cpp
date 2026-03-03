@@ -89,6 +89,8 @@ struct app_stuff {
     ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
     ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
+    ch.copy({});
+
     {
       auto cb = scb.cb();
 
@@ -98,7 +100,6 @@ struct app_stuff {
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
-      ch.cmd(cb, {});
       vee::cmd_execute_command(cb, cgpu.command_buffer());
 
       vee::cmd_pipeline_barrier(cb,

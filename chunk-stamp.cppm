@@ -57,12 +57,6 @@ namespace chunk {
 
     auto data() { return m_data; }
 
-    void cmd(vee::command_buffer cb, dotz::ivec3 c) {
-      upc pc {
-        .center = c,
-      };
-      m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { len, len, len });
-    }
     void copy(dotz::ivec3 c) {
       m_f.wait_and_reset();
       voo::run(voo::cmd_buf_one_time_submit { m_cb.cb() }, [&] {
