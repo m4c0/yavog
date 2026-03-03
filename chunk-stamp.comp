@@ -26,9 +26,14 @@ void main() {
   uvec3 pp = gl_GlobalInvocationID;
   block i = inp[pp.z * i_len * i_len + pp.y * i_len + pp.x];
 
+  pp = pp + pc.center;
+  if (pp.x < 0 || pp.x >= o_len) return;
+  if (pp.y < 0 || pp.y >= o_len) return;
+  if (pp.z < 0 || pp.z >= o_len) return;
+
   inst o;
   o.rot = i.rot;
-  o.pos = vec4(vec3(pc.center + pp) - i_minmax, i.mdl),
+  o.pos = vec4(vec3(pp) - i_minmax, i.mdl),
   o.size = vec4(1, 1, 1, i.txt);
   outp[pp.z * o_len * o_len + pp.y * o_len + pp.x] = o;
 }
