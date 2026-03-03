@@ -31,8 +31,12 @@ namespace chunk {
     cpipeline<upc, 2> m_cp;
 
   public:
-    explicit stamp(VkBuffer buf) :
-      m_cp { "chunk-stamp.comp.spv", { *m_buf.buffer, buf } }
+    explicit stamp(VkBuffer buf, unsigned l) :
+      m_cp {
+        "chunk-stamp.comp.spv",
+        vee::specialisation_info { 94, l },
+        { *m_buf.buffer, buf }
+      }
     {}
 
     void set(dotz::ivec3 p, block b) {
