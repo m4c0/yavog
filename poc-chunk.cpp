@@ -52,7 +52,7 @@ struct app_stuff {
     models::prism::t {},
   };
 
-  chunk::t ch {};
+  chunk::stamp ch { *ch_in.inst, len };
   chunk::gpunator cgpu {{
     .len = len,
     .in = &ch_in,
@@ -90,11 +90,6 @@ struct app_stuff {
     ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
     {
-      auto m = ch_in.inst.map();
-      ch.copy(m, { 0, 0, 0 }, len);
-    }
-
-    {
       auto cb = scb.cb();
 
       voo::cmd_buf_one_time_submit ots { cb };
@@ -103,6 +98,7 @@ struct app_stuff {
           VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           vee::memory_barrier(0, 0));
 
+      ch.cmd(cb, {});
       vee::cmd_execute_command(cb, cgpu.command_buffer());
 
       vee::cmd_pipeline_barrier(cb,
