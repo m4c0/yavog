@@ -159,12 +159,12 @@ static void ex_chunks(scene_drawer & embed) {
   ch.set({ 5, -1, 3 }, { .rot = r90,  .mdl = corner, .txt = grass });
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
-  ch.copy({});
-  ch.copy({ chunk::len, 0, chunk::len });
-  ch.copy({ 0, 0, chunk::len });
-  ch.copy({ -chunk::len, 0, chunk::len });
-  ch.copy({ chunk::len, 0, 0 });
-  ch.copy({ -chunk::len, 0, 0 });
+  ch.copy({  0, 0, 0 });
+  //ch.copy({  1, 0, 1 });
+  //ch.copy({  0, 0, 1 });
+  //ch.copy({ -1, 0, 1 });
+  //ch.copy({  1, 0, 0 });
+  //ch.copy({ -1, 0, 0 });
 }
 
 scene_drawer::scene_drawer() {

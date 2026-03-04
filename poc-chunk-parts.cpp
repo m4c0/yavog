@@ -9,7 +9,7 @@ using inst = buffers::inst;
 int main() {
   voo::device_and_queue dq { "poc-chunk-parts" };
 
-  constexpr const auto len = 64;
+  constexpr const auto len = 32;
   constexpr const auto buf_sz = sizeof(inst) * len * len * len;
   voo::bound_buffer b0 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
@@ -31,7 +31,8 @@ int main() {
       if (m[i].mdl == chunk::model::none) continue;
 
       silog::infof(
-          "ch: %3d - mdl:%d txt:%d",
+          "ch: %2d,%2d,%2d %5d - mdl:%d txt:%d",
+          i % chunk::len, (i / chunk::len) % chunk::len, i / (chunk::len * chunk::len),
           i, m[i].mdl, m[i].txt);
     }
   ch.copy({});
@@ -45,7 +46,8 @@ int main() {
       auto [sx,sy,sz] = m[i].size;
 
       silog::infof(
-          "b0: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+          "b0: %2d,%2d,%2d %5d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+          i % len, (i / len) % len, i / (len * len),
           i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
     }
   }
@@ -66,7 +68,8 @@ int main() {
     auto [sx,sy,sz] = m[i].size;
 
     silog::infof(
-        "b1: %3d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+        "b1: %2d,%2d,%2d %5d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
+        i % len, (i / len) % len, i / (len * len),
         i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
   }
 }

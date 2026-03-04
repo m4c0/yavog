@@ -11,7 +11,6 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
-layout(constant_id = 92) const uint i_minmax = 15;
 layout(constant_id = 93) const uint i_len = 31;
 layout(constant_id = 94) const uint o_len = 32;
 
@@ -22,18 +21,23 @@ layout(push_constant) uniform upc {
 layout(binding = 0, set = 0) readonly buffer buf_0 { block inp[]; };
 layout(binding = 0, set = 1) buffer buf_1 { inst outp[]; };
 
-void main() {
-  uvec3 pp = gl_GlobalInvocationID;
-  block i = inp[pp.z * i_len * i_len + pp.y * i_len + pp.x];
+const uint i_minmax = (i_len - 1) / 2;
 
-  pp = pp + pc.center;
-  if (pp.x < 0 || pp.x >= o_len) return;
-  if (pp.y < 0 || pp.y >= o_len) return;
-  if (pp.z < 0 || pp.z >= o_len) return;
+void main() {
+  uvec3 ip = gl_GlobalInvocationID;
+  block i = inp[ip.z * i_len * i_len + ip.y * i_len + ip.x];
+
+  ivec3 cnt = pc.center * int(i_len);
+
+  // uints will overflow on negs, so a single GT op is required
+  uvec3 op = ip + cnt;
+  if (op.x >= o_len) return;
+  if (op.y >= o_len) return;
+  if (op.z >= o_len) return;
 
   inst o;
   o.rot = i.rot;
-  o.pos = vec4(vec3(pp) - i_minmax, i.mdl),
+  o.pos = vec4(vec3(ip) + cnt - i_minmax, i.mdl),
   o.size = vec4(1, 1, 1, i.txt);
-  outp[pp.z * o_len * o_len + pp.y * o_len + pp.x] = o;
+  outp[op.z * o_len * o_len + op.y * o_len + op.x] = o;
 }
