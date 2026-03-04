@@ -41,21 +41,16 @@ int cmp(inst a, inst b) {
 }
 
 void main() {
-  uint id = gl_GlobalInvocationID.x;
+  uint ia = gl_GlobalInvocationID.x;
 
-  uint dv = id / pc.div;
-  uint rs = id % pc.div;
+  uint rb = (ia + pc.div / 2) % pc.div;
+  uint ib = (ia / pc.div) * pc.div + rb;
 
-  uint ra = rs;
-  uint rb = (rs + pc.div / 2) % pc.div;
-
-  uint ia = dv * pc.div + ra;
-  uint ib = dv * pc.div + rb;
   if (ib < ia) return;
 
   inst a = inp[ia];
   inst b = inp[ib];
-  if (((id / pc.jump) % 2 == 1) ^^ (ia < ib)) {
+  if (((ia / pc.jump) % 2 == 1) ^^ (ia < ib)) {
     inp[ia] = cmp(a, b) < 0 ? a : b;
     inp[ib] = cmp(a, b) > 0 ? a : b;
   } else {
