@@ -33,10 +33,14 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  static constexpr const unsigned len = 64; // PoT padding
-  static constexpr const unsigned count = len * len * len; // PoT padding
-  static_assert(chunk::len <= len);
-  static_assert((len & (len - 1)) == 0, "len must be power of two");
+  static constexpr const dotz::ivec3 len { 256, 32, 256 };
+  static constexpr const unsigned count = len.z * len.y * len.x;
+  static_assert(chunk::len <= len.x);
+  static_assert(chunk::len <= len.y);
+  static_assert(chunk::len <= len.z);
+  static_assert((len.x & (len.x - 1)) == 0, "len must be power of two");
+  static_assert((len.y & (len.y - 1)) == 0, "len must be power of two");
+  static_assert((len.z & (len.z - 1)) == 0, "len must be power of two");
 
   texmap::cache m_tmap {};
   buffers::all m_bufs {
@@ -78,10 +82,6 @@ public:
     auto cb = m_cb.cb();
     {
       voo::cmd_buf_one_time_submit ots { cb };
-
-      vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-          vee::memory_barrier(0, 0));
 
       vee::cmd_execute_command(cb, m_cgpu.command_buffer());
 
