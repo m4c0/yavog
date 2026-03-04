@@ -33,9 +33,10 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
-  static constexpr const unsigned len = 32; // PoT padding
+  static constexpr const unsigned len = 64; // PoT padding
   static constexpr const unsigned count = len * len * len; // PoT padding
   static_assert(chunk::len <= len);
+  static_assert((len & (len - 1)) == 0, "len must be power of two");
 
   texmap::cache m_tmap {};
   buffers::all m_bufs {
@@ -160,11 +161,11 @@ static void ex_chunks(scene_drawer & embed) {
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
   ch.copy({  0, 0, 0 });
-  //ch.copy({  1, 0, 1 });
-  //ch.copy({  0, 0, 1 });
-  //ch.copy({ -1, 0, 1 });
-  //ch.copy({  1, 0, 0 });
-  //ch.copy({ -1, 0, 0 });
+  ch.copy({  1, 0, 1 });
+  ch.copy({  0, 0, 1 });
+  ch.copy({ -1, 0, 1 });
+  ch.copy({  1, 0, 0 });
+  ch.copy({ -1, 0, 0 });
 }
 
 scene_drawer::scene_drawer() {

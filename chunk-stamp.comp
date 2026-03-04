@@ -30,7 +30,7 @@ void main() {
   ivec3 cnt = pc.center * int(i_len);
 
   // uints will overflow on negs, so a single GT op is required
-  uvec3 op = ip + cnt;
+  uvec3 op = ip + cnt + (o_len - i_len) / 2;
   if (op.x >= o_len) return;
   if (op.y >= o_len) return;
   if (op.z >= o_len) return;

@@ -9,7 +9,7 @@ using inst = buffers::inst;
 int main() {
   voo::device_and_queue dq { "poc-chunk-parts" };
 
-  constexpr const auto len = 32;
+  constexpr const auto len = 64;
   constexpr const auto buf_sz = sizeof(inst) * len * len * len;
   voo::bound_buffer b0 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
