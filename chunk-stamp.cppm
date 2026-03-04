@@ -34,10 +34,14 @@ namespace chunk {
     voo::fence m_f { true };
 
   public:
-    explicit stamp(VkBuffer buf, unsigned l) :
+    explicit stamp(VkBuffer buf, dotz::ivec3 l) :
       m_cp {
         "chunk-stamp.comp.spv",
-        vee::specialisation_info { 94, l },
+        vee::specialisation_info<dotz::ivec3>(l, {
+          vee::specialisation_map_entry(94, &dotz::ivec3::x),
+          vee::specialisation_map_entry(95, &dotz::ivec3::y),
+          vee::specialisation_map_entry(96, &dotz::ivec3::z),
+        }),
         { *m_buf.buffer, buf }
       }
     {}

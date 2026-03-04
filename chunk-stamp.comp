@@ -12,7 +12,9 @@ struct inst {
 };
 
 layout(constant_id = 93) const uint i_len = 31;
-layout(constant_id = 94) const uint o_len = 32;
+layout(constant_id = 94) const uint o_len_x = 32;
+layout(constant_id = 95) const uint o_len_y = 32;
+layout(constant_id = 96) const uint o_len_z = 32;
 
 layout(push_constant) uniform upc {
   ivec3 center;
@@ -28,16 +30,15 @@ void main() {
   block i = inp[ip.z * i_len * i_len + ip.y * i_len + ip.x];
 
   ivec3 cnt = pc.center * int(i_len);
+  uvec3 o_len = uvec3(o_len_x, o_len_y, o_len_z);
 
   // uints will overflow on negs, so a single GT op is required
   uvec3 op = ip + cnt + (o_len - i_len) / 2;
-  if (op.x >= o_len) return;
-  if (op.y >= o_len) return;
-  if (op.z >= o_len) return;
+  if (any(greaterThanEqual(op, uvec3(o_len)))) return;
 
   inst o;
   o.rot = i.rot;
   o.pos = vec4(vec3(ip) + cnt - i_minmax, i.mdl),
   o.size = vec4(1, 1, 1, i.txt);
-  outp[op.z * o_len * o_len + op.y * o_len + op.x] = o;
+  outp[op.z * o_len_x * o_len_y + op.y * o_len_x + op.x] = o;
 }
