@@ -7,7 +7,9 @@ struct inst {
   vec4 size; // size.xyz + txt
 };
 
-layout(constant_id = 99) const int k_len = 31;
+layout(constant_id = 94) const uint k_len_x = 32;
+layout(constant_id = 95) const uint k_len_y = 32;
+layout(constant_id = 96) const uint k_len_z = 32;
 
 layout(push_constant) uniform upc {
   uvec3 n;
@@ -40,10 +42,13 @@ bool same(inst aa, uint b) {
     abs(aa.pos.w - bb.pos.w) < 0.001;
 }
 uint idx(uvec3 p) {
-  return p.x + p.y * k_len + p.z * k_len * k_len;
+  return p.x + p.y * k_len_x + p.z * k_len_x * k_len_y;
 }
 
 void main() {
+  uvec3 kk = pc.n * ivec3(k_len_x, k_len_y, k_len_z);
+  uint k_len = kk.x + kk.y + kk.z; 
+
   uint tgt = idx(gl_GlobalInvocationID);
   inst orig = to[tgt] = from[tgt];
   for (int i = 1; i < k_len; i++) { 

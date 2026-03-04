@@ -14,22 +14,26 @@ namespace chunk {
     static constexpr const dotz::ivec3 ivec3_z { 0, 0, 1 };
 
     cpipeline<dotz::ivec3, 2> m_cp;
-    unsigned m_len;
+    dotz::ivec3 m_len;
 
   public:
-    compact(VkBuffer from, VkBuffer to, unsigned len) :
+    compact(VkBuffer from, VkBuffer to, dotz::ivec3 l) :
       m_cp {
         "chunk-compact.comp.spv",
-        vee::specialisation_info { 99, len },
+        vee::specialisation_info<dotz::ivec3>(l, {
+          vee::specialisation_map_entry(94, &dotz::ivec3::x),
+          vee::specialisation_map_entry(95, &dotz::ivec3::y),
+          vee::specialisation_map_entry(96, &dotz::ivec3::z),
+        }),
         { from, to }
       }
-    , m_len { len }
+    , m_len { l }
     {}
 
     void cmd(vee::command_buffer cb) {
-      m_cp.cmd_dispatch(cb, &ivec3_z, { 0, 1 }, { m_len, m_len, 1U });
-      m_cp.cmd_dispatch(cb, &ivec3_y, { 1, 1 }, { m_len, 1U, m_len });
-      m_cp.cmd_dispatch(cb, &ivec3_x, { 1, 1 }, { 1U, m_len, m_len });
+      m_cp.cmd_dispatch(cb, &ivec3_z, { 0, 1 }, { m_len.x, m_len.y, 1 });
+      m_cp.cmd_dispatch(cb, &ivec3_y, { 1, 1 }, { m_len.x, 1, m_len.z });
+      m_cp.cmd_dispatch(cb, &ivec3_x, { 1, 1 }, { 1, m_len.y, m_len.z });
     }
   };
 }

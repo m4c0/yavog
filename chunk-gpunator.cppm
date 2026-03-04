@@ -24,7 +24,7 @@ namespace chunk {
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
     voo::single_cb m_cb { false };
 
-    unsigned m_len;
+    dotz::ivec3 m_len;
 
     input * m_in;
     buffers::all * m_out;
@@ -35,7 +35,7 @@ namespace chunk {
 
   public:
     struct param {
-      unsigned len;
+      dotz::ivec3 len;
       input * in;
       buffers::all * out;
     };
@@ -45,7 +45,7 @@ namespace chunk {
     , m_in { p.in }
     , m_out { p.out }
     , m_comp { *p.in->inst, *p.out->inst, p.len }
-    , m_bit { *p.out->inst, p.len * p.len * p.len }
+    , m_bit { *p.out->inst, static_cast<unsigned>(p.len.x * p.len.y * p.len.z) }
     , m_cc { *p.out->inst, *m_out->vcmd, *m_out->ecmd }
     {
       auto cb = m_cb.cb();
@@ -57,7 +57,7 @@ namespace chunk {
       vee::cmd_copy_buffer(cb, *m_in->vcmd, *m_out->vcmd, vcmd_size);
       vee::cmd_copy_buffer(cb, *m_in->ecmd, *m_out->ecmd, ecmd_size);
       for (auto i = 1; i < model_count; i++) {
-        m_cc.cmd(cb, i, m_len * m_len * m_len);
+        m_cc.cmd(cb, i, m_len.x * m_len.y * m_len.z);
       }
     }
 
