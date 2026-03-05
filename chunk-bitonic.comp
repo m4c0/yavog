@@ -40,17 +40,17 @@ int cmp(inst a, inst b) {
   return cmp(a.size, b.size);
 }
 
-void main() {
+void doit(uint jump, uint div) {
   uint ia = gl_GlobalInvocationID.x;
 
-  uint rb = (ia + pc.div / 2) % pc.div;
-  uint ib = (ia / pc.div) * pc.div + rb;
+  uint rb = (ia + div / 2) % div;
+  uint ib = (ia / div) * div + rb;
 
   if (ib < ia) return;
 
   inst a = inp[ia];
   inst b = inp[ib];
-  if (((ia / pc.jump) % 2 == 1) ^^ (ia < ib)) {
+  if (((ia / jump) % 2 == 1) ^^ (ia < ib)) {
     inp[ia] = cmp(a, b) < 0 ? a : b;
     inp[ib] = cmp(a, b) > 0 ? a : b;
   } else {
@@ -59,3 +59,6 @@ void main() {
   }
 }
 
+void main() {
+  doit(pc.jump, pc.div);
+}
