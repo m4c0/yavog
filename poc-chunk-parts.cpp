@@ -1,6 +1,7 @@
 #pragma leco app
 import buffers;
 import chunk;
+import dotz;
 import silog;
 import voo;
 
@@ -9,8 +10,9 @@ using inst = buffers::inst;
 int main() {
   voo::device_and_queue dq { "poc-chunk-parts" };
 
-  constexpr const auto len = 64;
-  constexpr const auto buf_sz = sizeof(inst) * len * len * len;
+  constexpr const dotz::ivec3 len { 64, 32, 64 };
+  constexpr const auto buf_n = len.x * len.y * len.z;
+  constexpr const auto buf_sz = sizeof(inst) * buf_n;
   voo::bound_buffer b0 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   voo::bound_buffer b1 = voo::bound_buffer::create_from_host(buf_sz, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
@@ -39,7 +41,7 @@ int main() {
   vee::device_wait_idle();
   {
     voo::memiter<inst> m { *b0.memory };
-    for (auto i = 0; i < len * len * len; i++) {
+    for (auto i = 0; i < buf_n; i++) {
       if (m[i].mdl == 0) continue;
 
       auto [px,py,pz] = m[i].pos;
@@ -47,7 +49,7 @@ int main() {
 
       silog::infof(
           "b0: %2d,%2d,%2d %5d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
-          i % len, (i / len) % len, i / (len * len),
+          i % len.x, (i / len.x) % len.y, i / (len.x * len.y),
           i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
     }
   }
@@ -61,7 +63,7 @@ int main() {
   vee::device_wait_idle();
 
   voo::memiter<inst> m { *b1.memory };
-  for (auto i = 0; i < len * len * len; i++) {
+  for (auto i = 0; i < buf_n; i++) {
     if (m[i].mdl == 0) continue;
 
     auto [px,py,pz] = m[i].pos;
@@ -69,7 +71,7 @@ int main() {
 
     silog::infof(
         "b1: %2d,%2d,%2d %5d - mdl:%.0f txt:%.0f - pos:%4.1f,%4.1f,%4.1f - sz:%4.1f,%4.1f,%4.1f",
-        i % len, (i / len) % len, i / (len * len),
+        i % len.x, (i / len.x) % len.y, i / (len.x * len.y),
         i, m[i].mdl, m[i].txtid, px,py,pz, sx,sy,sz);
   }
 }
