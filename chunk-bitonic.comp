@@ -50,7 +50,7 @@ void doit(uint jump, uint div) {
 
   inst a = inp[ia];
   inst b = inp[ib];
-  if (((ia / jump) % 2 == 1) ^^ (ia < ib)) {
+  if ((ia / jump) % 2 == 0) {
     inp[ia] = cmp(a, b) < 0 ? a : b;
     inp[ib] = cmp(a, b) > 0 ? a : b;
   } else {
