@@ -22,14 +22,16 @@ namespace chunk {
     {}
 
     void cmd(vee::command_buffer cb) {
-      for (unsigned jump = 2; jump <= 32; jump <<= 1) {
+      constexpr const auto thr = 256;
+
+      for (unsigned jump = 2; jump <= thr; jump <<= 1) {
         upc pc = { .jump = jump, .div = jump };
-        m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / 32, 1U, 1U });
+        m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / thr, 1U, 1U });
       }
-      for (unsigned jump = 64; jump <= m_elems; jump <<= 1) {
-        for (unsigned div = jump; div >= 32; div >>= 1) {
+      for (unsigned jump = thr * 2; jump <= m_elems; jump <<= 1) {
+        for (unsigned div = jump; div >= thr; div >>= 1) {
           upc pc = { .jump = jump, .div = div };
-          m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / 32, 1U, 1U });
+          m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / thr, 1U, 1U });
         }
       }
     }

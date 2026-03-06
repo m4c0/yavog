@@ -59,7 +59,7 @@ void g2g(uvec2 i) {
   inp[i.y] = c > 0 ? a : b;
 }
 
-#define SZ 32
+#define SZ 256
 layout(local_size_x = SZ) in;
 shared inst sha[SZ];
 shared inst shb[SZ];
@@ -97,6 +97,51 @@ void b2g(uvec2 g) {
 
 void main() {
   switch (pc.div) {
+    case 256:
+      g2a(rot(gl_GlobalInvocationID, 256));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 128));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 64));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 32));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 16));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 8));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      a2g(rot(gl_LocalInvocationID, 2));
+      break;
+    case 128:
+      g2a(rot(gl_GlobalInvocationID, 128));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 64));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 32));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 16));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 8));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      b2g(rot(gl_LocalInvocationID, 2));
+      break;
+    case 64:
+      g2a(rot(gl_GlobalInvocationID, 64));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 32));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 16));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 8));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      a2g(rot(gl_LocalInvocationID, 2));
+      break;
     case 32:
       g2a(rot(gl_GlobalInvocationID, 32));
       memoryBarrierShared();
