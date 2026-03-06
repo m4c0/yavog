@@ -42,15 +42,14 @@ int cmp(inst a, inst b) {
   return cmp(a.size, b.size) * flip;
 }
 
-uvec2 rot(uint div) {
-  uint ia = gl_GlobalInvocationID.x;
+uvec2 rot(uvec3 id, uint div) {
+  uint ia = id.x;
   uint rb = (ia + div / 2) % div;
   uint ib = (ia / div) * div + rb;
   return uvec2(ia, ib);
 }
 
-void g2g(uint div) {
-  uvec2 i = rot(div);
+void g2g(uvec2 i) {
   if (i.y < i.x) return;
 
   inst a = inp[i.x];
@@ -60,6 +59,31 @@ void g2g(uint div) {
   inp[i.y] = c > 0 ? a : b;
 }
 
+layout(local_size_x = 4) in;
+shared inst shd[4];
+
+void g2l(uvec2 g) {
+  inst a = inp[g.x];
+  inst b = inp[g.y];
+  int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
+  shd[gl_LocalInvocationID.x] = c < 0 ? a : b;
+}
+void l2g(uvec2 g) {
+  inst a = shd[g.x];
+  inst b = shd[g.y];
+  int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
+  inp[gl_GlobalInvocationID.x] = c < 0 ? a : b;
+}
+
 void main() {
-  g2g(pc.div);
+  if (pc.div > 4) {
+    g2g(rot(gl_GlobalInvocationID, pc.div));
+    return;
+  } else if (pc.div < 4) {
+    return;
+  }
+
+  g2l(rot(gl_GlobalInvocationID, 4));
+  memoryBarrierShared();
+  l2g(rot(gl_LocalInvocationID, 2));
 }
