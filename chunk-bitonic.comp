@@ -82,6 +82,12 @@ void b2a(uvec2 g) {
   int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
   sha[gl_LocalInvocationID.x] = c < 0 ? a : b;
 }
+void a2g(uvec2 g) {
+  inst a = sha[g.x];
+  inst b = sha[g.y];
+  int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
+  inp[gl_GlobalInvocationID.x] = c < 0 ? a : b;
+}
 void b2g(uvec2 g) {
   inst a = shb[g.x];
   inst b = shb[g.y];
@@ -90,20 +96,41 @@ void b2g(uvec2 g) {
 }
 
 void main() {
-  if (pc.div > SZ) {
-    g2g(rot(gl_GlobalInvocationID, pc.div));
-    return;
-  } else if (pc.div < SZ) {
-    return;
+  switch (pc.div) {
+    case 32:
+      g2a(rot(gl_GlobalInvocationID, 32));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 16));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 8));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      b2g(rot(gl_LocalInvocationID, 2));
+      break;
+    case 16:
+      g2a(rot(gl_GlobalInvocationID, 16));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 8));
+      memoryBarrierShared();
+      b2a(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      a2g(rot(gl_LocalInvocationID, 2));
+      break;
+    case 8:
+      g2a(rot(gl_GlobalInvocationID, 8));
+      memoryBarrierShared();
+      a2b(rot(gl_LocalInvocationID, 4));
+      memoryBarrierShared();
+      b2g(rot(gl_LocalInvocationID, 2));
+      break;
+    case 4:
+      g2a(rot(gl_GlobalInvocationID, 4));
+      memoryBarrierShared();
+      a2g(rot(gl_LocalInvocationID, 2));
+      break;
+    default:
+      g2g(rot(gl_GlobalInvocationID, pc.div));
+      break;
   }
-
-  g2a(rot(gl_GlobalInvocationID, 32));
-  memoryBarrierShared();
-  a2b(rot(gl_LocalInvocationID, 16));
-  memoryBarrierShared();
-  b2a(rot(gl_LocalInvocationID, 8));
-  memoryBarrierShared();
-  a2b(rot(gl_LocalInvocationID, 4));
-  memoryBarrierShared();
-  b2g(rot(gl_LocalInvocationID, 2));
 }
