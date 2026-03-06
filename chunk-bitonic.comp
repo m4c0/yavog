@@ -31,31 +31,35 @@ int cmp(vec4 a, vec4 b) {
   return 0;
 }
 int cmp(inst a, inst b) {
+  int flip = ((gl_GlobalInvocationID.x / pc.jump) % 2 != 0) ? -1 : 1;
+
   int c = cmp(a.pos, b.pos);
-  if (c != 0) return c;
+  if (c != 0) return c * flip;
 
   c = cmp(a.rot, b.rot);
-  if (c != 0) return c;
+  if (c != 0) return c * flip;
 
-  return cmp(a.size, b.size);
+  return cmp(a.size, b.size) * flip;
 }
 
-void g2g(uint jump, uint div) {
+uvec2 rot(uint div) {
   uint ia = gl_GlobalInvocationID.x;
-
   uint rb = (ia + div / 2) % div;
   uint ib = (ia / div) * div + rb;
+  return uvec2(ia, ib);
+}
 
-  if (ib < ia) return;
+void g2g(uint div) {
+  uvec2 i = rot(div);
+  if (i.y < i.x) return;
 
-  inst a = inp[ia];
-  inst b = inp[ib];
+  inst a = inp[i.x];
+  inst b = inp[i.y];
   int c = cmp(a, b);
-  if ((ia / jump) % 2 != 0) c *= -1;
-  inp[ia] = c < 0 ? a : b;
-  inp[ib] = c > 0 ? a : b;
+  inp[i.x] = c < 0 ? a : b;
+  inp[i.y] = c > 0 ? a : b;
 }
 
 void main() {
-  g2g(pc.jump, pc.div);
+  g2g(pc.div);
 }
