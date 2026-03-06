@@ -40,7 +40,7 @@ int cmp(inst a, inst b) {
   return cmp(a.size, b.size);
 }
 
-void doit(uint jump, uint div) {
+void g2g(uint jump, uint div) {
   uint ia = gl_GlobalInvocationID.x;
 
   uint rb = (ia + div / 2) % div;
@@ -50,15 +50,12 @@ void doit(uint jump, uint div) {
 
   inst a = inp[ia];
   inst b = inp[ib];
-  if ((ia / jump) % 2 == 0) {
-    inp[ia] = cmp(a, b) < 0 ? a : b;
-    inp[ib] = cmp(a, b) > 0 ? a : b;
-  } else {
-    inp[ia] = cmp(a, b) > 0 ? a : b;
-    inp[ib] = cmp(a, b) < 0 ? a : b;
-  }
+  int c = cmp(a, b);
+  if ((ia / jump) % 2 != 0) c *= -1;
+  inp[ia] = c < 0 ? a : b;
+  inp[ib] = c > 0 ? a : b;
 }
 
 void main() {
-  doit(pc.jump, pc.div);
+  g2g(pc.jump, pc.div);
 }
