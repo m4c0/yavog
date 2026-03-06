@@ -1,4 +1,5 @@
 export module chunk;
+export import :bitonic;
 export import :compact;
 export import :count;
 export import :gpunator;
