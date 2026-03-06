@@ -59,31 +59,51 @@ void g2g(uvec2 i) {
   inp[i.y] = c > 0 ? a : b;
 }
 
-layout(local_size_x = 4) in;
-shared inst shd[4];
+#define SZ 32
+layout(local_size_x = SZ) in;
+shared inst sha[SZ];
+shared inst shb[SZ];
 
-void g2l(uvec2 g) {
+void g2a(uvec2 g) {
   inst a = inp[g.x];
   inst b = inp[g.y];
   int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
-  shd[gl_LocalInvocationID.x] = c < 0 ? a : b;
+  sha[gl_LocalInvocationID.x] = c < 0 ? a : b;
 }
-void l2g(uvec2 g) {
-  inst a = shd[g.x];
-  inst b = shd[g.y];
+void a2b(uvec2 g) {
+  inst a = sha[g.x];
+  inst b = sha[g.y];
+  int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
+  shb[gl_LocalInvocationID.x] = c < 0 ? a : b;
+}
+void b2a(uvec2 g) {
+  inst a = shb[g.x];
+  inst b = shb[g.y];
+  int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
+  sha[gl_LocalInvocationID.x] = c < 0 ? a : b;
+}
+void b2g(uvec2 g) {
+  inst a = shb[g.x];
+  inst b = shb[g.y];
   int c = cmp(a, b) * (g.y < g.x ? -1 : 1);
   inp[gl_GlobalInvocationID.x] = c < 0 ? a : b;
 }
 
 void main() {
-  if (pc.div > 4) {
+  if (pc.div > SZ) {
     g2g(rot(gl_GlobalInvocationID, pc.div));
     return;
-  } else if (pc.div < 4) {
+  } else if (pc.div < SZ) {
     return;
   }
 
-  g2l(rot(gl_GlobalInvocationID, 4));
+  g2a(rot(gl_GlobalInvocationID, 32));
   memoryBarrierShared();
-  l2g(rot(gl_LocalInvocationID, 2));
+  a2b(rot(gl_LocalInvocationID, 16));
+  memoryBarrierShared();
+  b2a(rot(gl_LocalInvocationID, 8));
+  memoryBarrierShared();
+  a2b(rot(gl_LocalInvocationID, 4));
+  memoryBarrierShared();
+  b2g(rot(gl_LocalInvocationID, 2));
 }

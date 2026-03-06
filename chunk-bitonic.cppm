@@ -25,7 +25,7 @@ namespace chunk {
       for (unsigned jump = 2; jump <= m_elems; jump <<= 1) {
         for (unsigned div = jump; div >= 2; div >>= 1) {
           upc pc = { .jump = jump, .div = div };
-          m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / 4, 1U, 1U });
+          m_cp.cmd_dispatch(cb, &pc, { 0 }, { m_elems / 32, 1U, 1U });
         }
       }
     }
