@@ -22,7 +22,7 @@ namespace chunk {
   export class gpunator {
     static constexpr const auto vcmd_size = sizeof(VkDrawIndexedIndirectCommand) * model_count;
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
-    voo::single_cb m_cb { false };
+    voo::single_cb m_cb { true };
 
     dotz::ivec3 m_len;
 
@@ -59,8 +59,14 @@ namespace chunk {
       for (auto i = 1; i < model_count; i++) {
         m_cc.cmd(cb, i, m_len.x * m_len.y * m_len.z);
       }
+
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+          vee::memory_barrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDIRECT_COMMAND_READ_BIT));
     }
 
-    constexpr auto command_buffer() const { return m_cb.cb(); }
+    void submit() const {
+      voo::queue::universal()->submit({ .command_buffer = m_cb.cb() });
+    }
   };
 }

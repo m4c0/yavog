@@ -90,24 +90,7 @@ struct app_stuff {
     ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner, .txt = grass });
 
     ch.copy({});
-
-    {
-      auto cb = scb.cb();
-
-      voo::cmd_buf_one_time_submit ots { cb };
-
-      vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-          vee::memory_barrier(0, 0));
-
-      vee::cmd_execute_command(cb, cgpu.command_buffer());
-
-      vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
-          vee::memory_barrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDIRECT_COMMAND_READ_BIT));
-    }
-
-    voo::queue::universal()->submit({ .command_buffer = scb.cb() });
+    cgpu.submit();
 
     indirectdebug::dump(bufs, count, 4);
   }

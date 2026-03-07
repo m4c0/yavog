@@ -78,20 +78,7 @@ public:
   [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
   [[nodiscard]] auto & ch() { return m_ch; }
 
-  void update() {
-    auto cb = m_cb.cb();
-    {
-      voo::cmd_buf_one_time_submit ots { cb };
-
-      vee::cmd_execute_command(cb, m_cgpu.command_buffer());
-
-      vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
-          vee::memory_barrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDIRECT_COMMAND_READ_BIT));
-    }
-
-    voo::queue::universal()->submit({ .command_buffer = cb });
-  }
+  void update() { m_cgpu.submit(); }
 };
 
 static void ex_shadow_test(scene_drawer & embed) {
