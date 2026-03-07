@@ -20,6 +20,7 @@ namespace chunk {
   export class stamp {
     struct upc {
       dotz::ivec3 center;
+      dotz::ivec3 o_len;
     };
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
@@ -29,6 +30,7 @@ namespace chunk {
     block * m_data = static_cast<block *>(*m_m);
 
     cpipeline<upc, 2> m_cp;
+    upc m_pc;
 
     voo::single_cb m_cb {};
     voo::fence m_f { true };
@@ -37,13 +39,9 @@ namespace chunk {
     explicit stamp(VkBuffer buf, dotz::ivec3 l) :
       m_cp {
         "chunk-stamp.comp.spv",
-        vee::specialisation_info<dotz::ivec3>(l, {
-          vee::specialisation_map_entry(94, &dotz::ivec3::x),
-          vee::specialisation_map_entry(95, &dotz::ivec3::y),
-          vee::specialisation_map_entry(96, &dotz::ivec3::z),
-        }),
         { *m_buf.buffer, buf }
       }
+    , m_pc { .o_len = l }
     {}
 
     void set(dotz::ivec3 p, block b) {
@@ -64,8 +62,8 @@ namespace chunk {
     void copy(dotz::ivec3 c) {
       m_f.wait_and_reset();
       voo::run(voo::cmd_buf_one_time_submit { m_cb.cb() }, [&] {
-        upc pc { .center = c };
-        m_cp.cmd_dispatch(m_cb.cb(), &pc, { 0, 1 }, { len, len, len });
+        m_pc.center = c;
+        m_cp.cmd_dispatch(m_cb.cb(), &m_pc, { 0, 1 }, { len, len, len });
       });
       voo::queue::universal()->queue_submit({
         .fence = m_f,
