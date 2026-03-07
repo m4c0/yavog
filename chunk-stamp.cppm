@@ -20,7 +20,9 @@ namespace chunk {
   export class stamp {
     struct upc {
       dotz::ivec3 center;
+      unsigned _p0;
       dotz::ivec3 o_len;
+      unsigned _p1;
     };
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(

@@ -15,7 +15,9 @@ namespace chunk {
 
     struct upc {
       dotz::ivec3 n;
+      unsigned _p0;
       dotz::ivec3 k_len;
+      unsigned _p1;
     };
 
     cpipeline<upc, 2> m_cp;
