@@ -4,16 +4,12 @@ import buffers;
 import casein;
 import chunk;
 import dotz;
-import indirectdebug;
 import models;
 import ofs;
 import post;
 import texmap;
 import vinyl;
 import voo;
-import wagen;
-
-using namespace wagen;
 
 struct app_stuff;
 struct ext_stuff;
@@ -34,30 +30,17 @@ struct app_stuff {
   voo::single_cb scb {};
 
   static constexpr const unsigned len = 32; // PoT padding
-  static constexpr const unsigned count = len * len * len; // PoT padding
   static_assert(chunk::len <= len);
 
   texmap::cache tmap {};
 
-  buffers::all bufs {
-    count,
+  chunk::gpunator cgpu {
+    len,
     models::corner::t {},
     models::cube::t {},
     models::prism::t {},
   };
-  chunk::input ch_in {
-    count,
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
-
-  chunk::stamp ch { *ch_in.inst, len };
-  chunk::gpunator cgpu {{
-    .len = len,
-    .in = &ch_in,
-    .out = &bufs,
-  }};
+  chunk::stamp ch = cgpu.stamp();
 
   app_stuff() {
     using enum chunk::model;
@@ -91,8 +74,6 @@ struct app_stuff {
 
     ch.copy({});
     cgpu.submit();
-
-    indirectdebug::dump(bufs, count, 4);
   }
 };
 struct ext_stuff {
@@ -110,10 +91,10 @@ struct ext_stuff {
 struct scene_drawer : public ofs::drawer {
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, vv::as()->tmap.dset());
-    vv::as()->bufs.cmd_draw_vtx(cb);
+    vv::as()->cgpu.cmd_draw_vtx(cb);
   }
   void edges(vee::command_buffer cb) override {
-    vv::as()->bufs.cmd_draw_edg(cb);
+    vv::as()->cgpu.cmd_draw_edg(cb);
   }
 };
 
