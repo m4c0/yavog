@@ -19,11 +19,6 @@ import vinyl;
 import voo;
 import wagen;
 
-static enum {
-  e_shadowtest,
-  e_chunks,
-} constexpr const example = e_chunks;
-
 using namespace wagen;
 
 static constexpr const auto target_fps = 30.f;
@@ -76,50 +71,14 @@ public:
   scene_drawer();
 
   [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
-  [[nodiscard]] auto & ch() { return m_ch; }
-
-  void update() { m_cgpu.submit(); }
 };
 
-static void ex_shadow_test(scene_drawer & embed) {
-  static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
-  static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
-  static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
-
-  unsigned txt_ids[] {
-    embed.texture(t040),
-    embed.texture(t101),
-    embed.texture(t131),
-  };
+scene_drawer::scene_drawer() {
+  auto & ch = m_ch;
 
   using enum chunk::model;
-  auto & ch = embed.ch();
-
-  // Prisms
-  ch.set({ 4, 0, 5 }, { .mdl = prism, .txt = txt_ids[1] });
-
-  // Cubes
-  for (auto x = -chunk::minmax; x < chunk::minmax; x++) {
-    for (auto y = -chunk::minmax; y < chunk::minmax; y++) {
-      unsigned n = (x + y + 2 * chunk::minmax) % 4;
-      if (n == 3) continue;
-      ch.set({ x, -2, y }, { .mdl = cube, .txt = txt_ids[n] });
-    }
-  }
-  ch.set({ 3, 0, 5 }, { .mdl = cube, .txt = txt_ids[0] });
-
-  // More prisms
-  ch.set({ 2, 0, 5 }, { .rot { 0, 1, 0, 0 }, .mdl = prism, .txt = txt_ids[1] });
-
-  ch.copy({});
-}
-
-static void ex_chunks(scene_drawer & embed) {
-  auto & ch = embed.ch();
-
-  using enum chunk::model;
-  auto dirt  = embed.texture("Ground105_1K-JPG_Color.jpg");
-  auto grass = embed.texture("Ground037_1K-JPG_Color.jpg");
+  auto dirt  = texture("Ground105_1K-JPG_Color.jpg");
+  auto grass = texture("Ground037_1K-JPG_Color.jpg");
 
   constexpr const auto mm = chunk::minmax;
 
@@ -153,14 +112,8 @@ static void ex_chunks(scene_drawer & embed) {
   ch.copy({ -1, 0, 1 });
   ch.copy({  1, 0, 0 });
   ch.copy({ -1, 0, 0 });
-}
 
-scene_drawer::scene_drawer() {
-  switch (example) {
-    case e_shadowtest: ex_shadow_test(*this); break;
-    case e_chunks:     ex_chunks(*this);      break;
-  }
-  update();
+  m_cgpu.submit();
 }
 
 struct app_stuff {
@@ -196,6 +149,9 @@ static float g_sun_spd = 90;
 static sitime::stopwatch g_tt {};
 
 static dotz::vec3 sun_vec() {
+  if (g_sun_y < -2) g_sun_y = -2;
+  else if (g_sun_y > -0.1) g_sun_y = -0.1;
+
   dotz::vec3 l { dotz::sin(g_sun*3.14/180.), g_sun_y, dotz::cos(g_sun*3.14/180.) };
   return dotz::normalise(l);
 }
@@ -268,8 +224,8 @@ extern "C" void casein_init() {
   casein::handle(casein::KEY_DOWN, casein::K_UP,   [] { g_sun_y = +1.0; });
   casein::handle(casein::KEY_DOWN, casein::K_DOWN, [] { g_sun_y = -1.0; });
 
-  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun += 1.0; });
-  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun -= 1.0; });
+  casein::handle(casein::KEY_DOWN, casein::K_LEFT,  [] { g_sun += 0.1; });
+  casein::handle(casein::KEY_DOWN, casein::K_RIGHT, [] { g_sun -= 0.1; });
 
   casein::handle(casein::KEY_DOWN, casein::K_SPACE, [] {
     auto [x, y, z] = sun_vec();
