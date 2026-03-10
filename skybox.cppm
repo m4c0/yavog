@@ -1,3 +1,5 @@
+#pragma leco add_shader "skybox.vert"
+#pragma leco add_shader "skybox.frag"
 export module skybox;
 import ofs;
 import voo;
@@ -76,8 +78,8 @@ namespace skybox::fwd {
       .depth = depth(),
       .blends { vee::colour_blend_none() },
       .shaders {
-        *voo::vert_shader("poc-skybox.vert.spv"),
-        *voo::frag_shader("poc-skybox.frag.spv"),
+        *voo::vert_shader("skybox.vert.spv"),
+        *voo::frag_shader("skybox.frag.spv"),
       },
     });
 

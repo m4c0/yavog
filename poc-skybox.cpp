@@ -1,6 +1,4 @@
 #pragma leco app
-#pragma leco add_shader "poc-skybox.vert"
-#pragma leco add_shader "poc-skybox.frag"
 #pragma leco add_resource_dir assets
 
 import casein;
