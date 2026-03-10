@@ -157,6 +157,7 @@ namespace ofs {
           vee::clear_colour({ 0, 0, 0, 1 }), 
           vee::clear_colour({ 0, 0, pc.far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
+          vee::clear_depth(1.0),
         },
       }, true };
       vee::cmd_set_viewport(cb, m_ext);
