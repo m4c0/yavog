@@ -37,7 +37,7 @@ inline constexpr auto create_depth_attachment() {
 inline constexpr auto depth() {
   return vee::depth::of({
     .depthTestEnable  = vk_true,
-    .depthCompareOp   = VK_COMPARE_OP_GREATER,
+    .depthCompareOp   = VK_COMPARE_OP_GREATER_OR_EQUAL,
   });
 }
 
@@ -94,6 +94,8 @@ public:
       .framebuffer = *m_fb,
       .extent = swc.extent(),
     }, true};
+    vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+    vee::cmd_draw(cb, 3);
   }
 };
 
@@ -115,7 +117,7 @@ struct app_stuff {
   }};
   scene_drawer scene {};
 
-  post::pipeline post { dq };
+  post::pipeline post { dq, true };
   skybox sky {};
   ofs::pipeline ofs {};
 };
