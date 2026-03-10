@@ -163,7 +163,7 @@ extern "C" void casein_init() {
       vv::as()->sky.render(cb, vv::ss()->swc);
 
       vv::as()->post.render(cb, vv::ss()->swc, {
-        .fog { 0.4, 0.6, 0.8, 2 },
+        .fog { 0.4, 0.6, 0.8, 0 },
         .far = 32,
       });
     }
