@@ -42,6 +42,10 @@ inline constexpr auto depth() {
 }
 
 class skybox {
+  struct upc {
+    float aspect;
+  };
+
   vee::render_pass m_rp = vee::create_render_pass({
     .attachments {{
       create_colour_attachment(),
@@ -69,7 +73,9 @@ class skybox {
   });
   vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
 
-  vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
+  vee::pipeline_layout m_pl = vee::create_pipeline_layout(
+      *m_dsl,
+      vee::vertex_push_constant_range<upc>());
   vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *m_pl,
     .render_pass = *m_rp,
@@ -105,6 +111,8 @@ public:
   }
 
   void render(vee::command_buffer cb, const voo::swapchain & swc) {
+    upc pc { .aspect = swc.aspect() };
+    
     voo::cmd_render_pass rpg {vee::render_pass_begin{
       .command_buffer = cb,
       .render_pass = *m_rp,
@@ -113,6 +121,7 @@ public:
     }, true};
     vee::cmd_bind_gr_pipeline(cb, *m_ppl);
     vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
+    vee::cmd_push_vertex_constants(cb, *m_pl, &pc);
     vee::cmd_draw(cb, 3);
   }
 };
