@@ -60,7 +60,16 @@ class skybox {
       vee::depth_dependency(),
     }},
   });
-  vee::pipeline_layout m_pl = vee::create_pipeline_layout();
+
+  vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
+    vee::dsl_fragment_sampler(),
+  });
+  vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
+    vee::combined_image_sampler(1)
+  });
+  vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+
+  vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
   vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *m_pl,
     .render_pass = *m_rp,
@@ -73,9 +82,17 @@ class skybox {
     },
   });
 
+  vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
+  voo::bound_image m_img {};
+
   vee::framebuffer m_fb {};
 
 public:
+  skybox() {
+    voo::load_image("3840px-Blue_Marble_2002.png", &m_img, [this](auto sz) {
+      vee::update_descriptor_set(m_dset, 0, 0, *m_img.iv, *m_smp);
+    });
+  }
   void setup(const voo::swapchain & swc, const ofs::pipeline & ofs) {
     m_fb = vee::create_framebuffer({
       .render_pass = *m_rp,
@@ -95,6 +112,7 @@ public:
       .extent = swc.extent(),
     }, true};
     vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+    vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
     vee::cmd_draw(cb, 3);
   }
 };

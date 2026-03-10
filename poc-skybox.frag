@@ -14,7 +14,6 @@ void main() {
 
   vec2 uv = vec2(lng / pi, lat / (pi / 2));
   uv = uv * 0.5 + 0.5;
-  o_colour = vec4(uv, 1, 1);
-  // colour = texture(txt, uv);
+  o_colour = texture(txt, uv);
 }
 
