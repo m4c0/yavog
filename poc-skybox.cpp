@@ -94,11 +94,8 @@ class skybox {
   vee::framebuffer m_fb {};
 
 public:
-  skybox() {
-    voo::load_image("3840px-Blue_Marble_2002.png", &m_img, [this](auto sz) {
-      vee::update_descriptor_set(m_dset, 0, 0, *m_img.iv, *m_smp);
-    });
-  }
+  [[nodiscard]] constexpr auto * img() { return &m_img; }
+
   void setup(const voo::swapchain & swc, const ofs::pipeline & ofs) {
     m_fb = vee::create_framebuffer({
       .render_pass = *m_rp,
@@ -108,6 +105,8 @@ public:
       }},
       .extent = swc.extent(),
     });
+
+    vee::update_descriptor_set(m_dset, 0, 0, *m_img.iv, *m_smp);
   }
 
   void render(vee::command_buffer cb, const voo::swapchain & swc) {
@@ -155,10 +154,12 @@ struct ext_stuff {
   ext_stuff() {
     vv::as()->ofs.setup(swc);
 
-    vv::as()->sky.setup(swc, vv::as()->ofs);
-
     vv::as()->post.update_descriptor_sets(vv::as()->ofs);
     vv::as()->post.setup(swc);
+
+    voo::load_image("3840px-Blue_Marble_2002.png", vv::as()->sky.img(), [this](auto sz) {
+      vv::as()->sky.setup(swc, vv::as()->ofs);
+    });
   }
 };
 
