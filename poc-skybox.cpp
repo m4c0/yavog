@@ -36,6 +36,7 @@ struct app_stuff {
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
+  voo::bound_image earth {};
 
   ext_stuff() {
     vv::as()->ofs.setup(swc);
@@ -43,8 +44,13 @@ struct ext_stuff {
     vv::as()->post.update_descriptor_sets(vv::as()->ofs);
     vv::as()->post.setup(swc);
 
-    voo::load_image("3840px-Blue_Marble_2002.png", vv::as()->sky.img(), [this](auto sz) {
-      vv::as()->sky.setup(swc, vv::as()->ofs);
+    voo::load_image("3840px-Blue_Marble_2002.png", &earth, [this](auto sz) {
+      vv::as()->sky.setup(swc, {
+        .ext = swc.extent(),
+        .colour = *vv::as()->ofs.fb().colour.iv,
+        .depth = *vv::as()->ofs.fb().depth.iv,
+        .output = *earth.iv,
+      });
     });
   }
 };

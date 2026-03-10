@@ -82,24 +82,27 @@ namespace skybox::fwd {
     });
 
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
-    voo::bound_image m_img {};
 
     vee::framebuffer m_fb {};
 
   public:
-    [[nodiscard]] constexpr auto * img() { return &m_img; }
-
-    void setup(const voo::swapchain & swc, const ofs::pipeline & ofs) {
+    struct setup_params {
+      VkExtent2D ext;
+      VkImageView colour;
+      VkImageView depth;
+      VkImageView output;
+    };
+    void setup(const voo::swapchain & swc, const setup_params & p) {
       m_fb = vee::create_framebuffer({
         .render_pass = *m_rp,
         .attachments {{
-          *ofs.fb().colour.iv,
-          *ofs.fb().depth.iv,
+          p.colour,
+          p.depth,
         }},
-        .extent = swc.extent(),
+        .extent = p.ext,
       });
 
-      vee::update_descriptor_set(m_dset, 0, 0, *m_img.iv, *m_smp);
+      vee::update_descriptor_set(m_dset, 0, 0, p.output, *m_smp);
     }
 
     void render(vee::command_buffer cb, const voo::swapchain & swc) {
