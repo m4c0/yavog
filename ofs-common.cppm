@@ -21,7 +21,7 @@ inline VkSampleCountFlagBits max_sampling() {
   return VK_SAMPLE_COUNT_1_BIT;
 }
 
-inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits samples) {
+inline constexpr auto msaa_attachment(VkFormat fmt, VkSampleCountFlagBits samples) {
   auto final_layout = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -36,7 +36,19 @@ inline constexpr auto create_msaa_attachment(VkFormat fmt, VkSampleCountFlagBits
     .finalLayout    = final_layout,
   };
 }
-inline constexpr auto create_depth_attachment() {
+inline constexpr auto colour_attachment(VkFormat fmt, VkImageLayout fl) {
+  return VkAttachmentDescription {
+    .format         = fmt,
+    .samples        = VK_SAMPLE_COUNT_1_BIT,
+    .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+    .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
+    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+    .finalLayout    = fl,
+  };
+}
+inline constexpr auto depth_attachment() {
   return VkAttachmentDescription {
     .format         = VK_FORMAT_D32_SFLOAT,
     .samples        = VK_SAMPLE_COUNT_1_BIT,
@@ -49,7 +61,7 @@ inline constexpr auto create_depth_attachment() {
   };
 }
 
-inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampleCountFlagBits samples) {
+inline voo::bound_image msaa_image(vee::extent ext, VkFormat fmt, VkSampleCountFlagBits samples) {
   auto usage = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
     : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -80,44 +92,35 @@ inline voo::bound_image create_msaa_image(vee::extent ext, VkFormat fmt, VkSampl
 inline auto create_render_pass(VkSampleCountFlagBits samples) {
   return vee::create_render_pass({
     .attachments {{
-      create_msaa_attachment(VK_FORMAT_R8G8B8A8_UNORM,      samples),
-      create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
-      create_msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
-      create_msaa_attachment(VK_FORMAT_D32_SFLOAT_S8_UINT,  samples),
+      msaa_attachment(VK_FORMAT_R8G8B8A8_UNORM,      samples),
+      msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
+      msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
+      msaa_attachment(VK_FORMAT_D32_SFLOAT_S8_UINT,  samples),
 
-      vee::create_colour_attachment({
-        .format = VK_FORMAT_R8G8B8A8_UNORM,
-        .final_layout = vee::image_layout_color_attachment_optimal,
-      }),
-      vee::create_colour_attachment({
-        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-        .final_layout = vee::image_layout_shader_read_only_optimal,
-      }),
-      vee::create_colour_attachment({
-        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-        .final_layout = vee::image_layout_shader_read_only_optimal,
-      }),
-      create_depth_attachment(),
+      colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+      colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+      colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+      depth_attachment(),
     }},
     .subpasses {{
-      vee::create_subpass({
+      vee::subpass({
         .colours {{
-          vee::create_attachment_ref(0, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(1, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(2, vee::image_layout_color_attachment_optimal),
+          vee::attachment_ref(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
         }},
-        .depth_stencil = vee::create_attachment_ref(3, vee::image_layout_depth_stencil_attachment_optimal),
+        .depth_stencil = vee::attachment_ref(3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
         .resolves {{
-          vee::create_attachment_ref(4, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(5, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(6, vee::image_layout_color_attachment_optimal),
-          vee::create_attachment_ref(7, vee::image_layout_depth_stencil_attachment_optimal),
+          vee::attachment_ref(4, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(5, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(6, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(7, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
         }},
       }),
     }},
     .dependencies {{
-      vee::create_colour_dependency(),
-      vee::create_depth_dependency(),
+      vee::colour_dependency(),
+      vee::depth_dependency(),
     }},
   });
 }
@@ -184,15 +187,15 @@ struct framebuffer : no::no {
   }
 
   explicit framebuffer(vee::extent ext, VkSampleCountFlagBits max_samples = max_sampling()) :
-    msaa_colour   { create_msaa_image(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
-  , msaa_position { create_msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
-  , msaa_normal   { create_msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+    msaa_colour   { msaa_image(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
+  , msaa_position { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+  , msaa_normal   { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
 
   , colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      VK_SAMPLE_COUNT_1_BIT) }
   , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
   , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
 
-  , msaa_depth { create_msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
+  , msaa_depth { msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
   , depth { dpth(ext) }
 
   , rp { create_render_pass(max_samples) }

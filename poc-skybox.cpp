@@ -48,16 +48,16 @@ class skybox {
       create_depth_attachment(),
     }},
     .subpasses {{
-      vee::create_subpass({
+      vee::subpass({
         .colours {{
-          vee::create_attachment_ref(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          vee::attachment_ref(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
         }},
-        .depth_stencil = vee::create_attachment_ref(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
+        .depth_stencil = vee::attachment_ref(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
       }),
     }},
     .dependencies {{
-      vee::create_colour_dependency(),
-      vee::create_depth_dependency(),
+      vee::colour_dependency(),
+      vee::depth_dependency(),
     }},
   });
   vee::pipeline_layout m_pl = vee::create_pipeline_layout();
