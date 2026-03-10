@@ -10,7 +10,7 @@ namespace skybox::fwd {
       .format         = VK_FORMAT_R8G8B8A8_UNORM,
       .samples        = VK_SAMPLE_COUNT_1_BIT,
       .loadOp         = VK_ATTACHMENT_LOAD_OP_LOAD,
-      .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
       .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
       .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
       .initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
