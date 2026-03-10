@@ -69,16 +69,14 @@ class scene_drawer : public ofs::drawer {
 
 public:
   scene_drawer();
-
-  [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
 };
 
 scene_drawer::scene_drawer() {
   auto & ch = m_ch;
 
   using enum chunk::model;
-  auto dirt  = texture("Ground105_1K-JPG_Color.jpg");
-  auto grass = texture("Ground037_1K-JPG_Color.jpg");
+  auto dirt  = m_tmap.load("Ground105_1K-JPG_Color.jpg");
+  auto grass = m_tmap.load("Ground037_1K-JPG_Color.jpg");
 
   constexpr const auto mm = chunk::minmax;
 

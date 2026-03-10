@@ -67,8 +67,6 @@ class scene_drawer : public ofs::drawer {
 
 public:
   scene_drawer();
-
-  [[nodiscard]] auto texture(sv name) { return m_tmap.load(name); }
 };
 
 scene_drawer::scene_drawer() {
@@ -77,9 +75,9 @@ scene_drawer::scene_drawer() {
   static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
 
   unsigned txt_ids[] {
-    texture(t040),
-    texture(t101),
-    texture(t131),
+    m_tmap.load(t040),
+    m_tmap.load(t101),
+    m_tmap.load(t131),
   };
 
   using enum chunk::model;
