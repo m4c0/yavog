@@ -29,7 +29,6 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public ofs::drawer {
   static constexpr const dotz::ivec3 len { 256, 32, 256 };
-  static constexpr const unsigned count = len.z * len.y * len.x;
   static_assert(chunk::len <= len.x);
   static_assert(chunk::len <= len.y);
   static_assert(chunk::len <= len.z);
@@ -38,33 +37,21 @@ class scene_drawer : public ofs::drawer {
   static_assert((len.z & (len.z - 1)) == 0, "len must be power of two");
 
   texmap::cache m_tmap {};
-  buffers::all m_bufs {
-    count,
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
-  chunk::input m_in {
-    count,
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
 
-  chunk::stamp m_ch { *m_in.inst, len };
-  voo::single_cb m_cb {};
-  chunk::gpunator m_cgpu {{
-    .len = len,
-    .in = &m_in,
-    .out = &m_bufs,
-  }};
+  chunk::gpunator m_cgpu {
+    len,
+    models::corner::t {},
+    models::cube::t {},
+    models::prism::t {},
+  };
+  chunk::stamp m_ch = m_cgpu.stamp();
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, m_tmap.dset());
-    m_bufs.cmd_draw_vtx(cb);
+    m_cgpu.cmd_draw_vtx(cb);
   }
   void edges(vee::command_buffer cb) override {
-    m_bufs.cmd_draw_edg(cb);
+    m_cgpu.cmd_draw_edg(cb);
   }
 
 public:
