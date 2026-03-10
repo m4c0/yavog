@@ -147,6 +147,17 @@ extern "C" void casein_init() {
         .far = 32,
       });
 
+      // This until it "ofs -> sky -> post" is the norm
+      auto imb = vee::image_memory_barrier(*vv::as()->ofs.fb().colour.img);
+      imb.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      imb.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+      imb.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+      imb.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+      vee::cmd_pipeline_barrier(cb,
+          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+          imb);
+
       vv::as()->sky.render(cb, vv::ss()->swc);
 
       vv::as()->post.render(cb, vv::ss()->swc, {

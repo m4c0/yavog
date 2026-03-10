@@ -97,7 +97,7 @@ inline auto create_render_pass(VkSampleCountFlagBits samples) {
       msaa_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, samples),
       msaa_attachment(VK_FORMAT_D32_SFLOAT_S8_UINT,  samples),
 
-      colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+      colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
       colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
       colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
       depth_attachment(),
