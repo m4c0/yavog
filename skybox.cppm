@@ -1,6 +1,7 @@
 #pragma leco add_shader "skybox-fwd.vert"
 #pragma leco add_shader "skybox-fwd.frag"
 export module skybox;
+import buffers;
 import ofs;
 import voo;
 
@@ -115,5 +116,50 @@ namespace skybox::fwd {
       vee::cmd_draw(cb, 3);
     }
   };
+}
 
+namespace skybox::rev {
+  class pipeline {
+    static constexpr const VkExtent2D ext { 2048, 1024 };
+    voo::bound_image m_image = voo::bound_image::create(
+        ext, VK_FORMAT_R8G8B8A8_UNORM,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+    voo::bound_image m_depth = voo::bound_image::create(
+        ext, VK_FORMAT_D32_SFLOAT,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+    vee::render_pass m_rp = vee::create_render_pass({
+      .attachments {{
+        vee::colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+        vee::depth_attachment(),
+      }},
+      .subpasses {{
+        vee::subpass({
+          .colours {{
+            vee::attachment_ref(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+          }},
+          .depth_stencil = vee::attachment_ref(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
+        }),
+      }},
+      .dependencies {{
+        vee::colour_dependency(),
+        vee::depth_dependency(),
+      }},
+    });
+
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout();
+    vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
+      .pipeline_layout = *m_pl,
+      .render_pass = *m_rp,
+      .extent = ext,
+      .back_face_cull = false,
+      .depth = vee::depth::op_less(),
+      .shaders {
+        *voo::vert_shader("skybox-rev.vert.spv"),
+        *voo::frag_shader("skybox-rev.frag.spv"),
+      },
+      .bindings = buffers::vk::ibindings(),
+      .attributes = buffers::vk::iattrs(),
+    });
+  };
 }
