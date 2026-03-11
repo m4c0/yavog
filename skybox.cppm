@@ -1,5 +1,7 @@
 #pragma leco add_shader "skybox-fwd.vert"
 #pragma leco add_shader "skybox-fwd.frag"
+#pragma leco add_shader "skybox-rev.vert"
+#pragma leco add_shader "skybox-rev.frag"
 export module skybox;
 import buffers;
 import ofs;
@@ -119,7 +121,7 @@ namespace skybox::fwd {
 }
 
 namespace skybox::rev {
-  class pipeline {
+  export class pipeline {
     static constexpr const VkExtent2D ext { 2048, 1024 };
     voo::bound_image m_image = voo::bound_image::create(
         ext, VK_FORMAT_R8G8B8A8_UNORM,
