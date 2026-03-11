@@ -29,12 +29,6 @@ namespace skybox::fwd {
       .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
     };
   }
-  inline constexpr auto depth() {
-    return vee::depth::of({
-      .depthTestEnable = vk_true,
-      .depthCompareOp  = VK_COMPARE_OP_GREATER_OR_EQUAL,
-    });
-  }
 
   export class pipeline {
     struct upc {
@@ -75,7 +69,6 @@ namespace skybox::fwd {
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
       .back_face_cull = false,
-      .depth = depth(),
       .blends { vee::colour_blend_none() },
       .shaders {
         *voo::vert_shader("skybox.vert.spv"),
