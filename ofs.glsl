@@ -1,5 +1,5 @@
 #version 450
-#pragma leco include "quaternions.glsl"
+#pragma leco include "buffers.glsl"
 
 layout(push_constant) uniform upc {
   vec4  light;
@@ -8,31 +8,18 @@ layout(push_constant) uniform upc {
   float far;
 } pc;
 
-layout(location = 0, component = 0) in vec3 i_pos;
 layout(location = 1) in vec4 i_rot;
-layout(location = 2) in vec3 i_size;
-layout(location = 2, component = 3) in float i_txtid;
 
 const float near =   0.01;
 
 vec3 qrot(vec3 p, vec4 q);
+vec3 i_qrot(vec3 p);
 
 float backface(vec3 n, vec4 rot) {
   return step(0, dot(qrot(n, rot), pc.light.xyz));
 }
 float i_backface(vec3 n) {
   return backface(n, i_rot);
-}
-vec3 i_qrot(vec3 p) {
-  return qrot(p, i_rot);
-}
-
-vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
-  // TODO: apply rotation to normals
-  return vec4(qrot(pos.xyz, i_rot), pos.w) + vec4(i_pos, 0);
-}
-vec4 i_modl(vec4 pos) {
-  return modl(pos * vec4(i_size, 1), i_pos, i_rot);
 }
 
 vec3 proj(vec4 pos) {
