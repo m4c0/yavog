@@ -126,9 +126,7 @@ namespace skybox::rev {
     voo::bound_image m_image = voo::bound_image::create(
         ext, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-    voo::bound_image m_depth = voo::bound_image::create(
-        ext, VK_FORMAT_D32_SFLOAT,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    voo::bound_image m_depth = voo::bound_image::create_depth(ext, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
     vee::render_pass m_rp = vee::create_render_pass({
       .attachments {{
@@ -149,6 +147,15 @@ namespace skybox::rev {
       }},
     });
 
+    vee::framebuffer m_fb = vee::create_framebuffer({
+      .render_pass = *m_rp,
+      .attachments {{
+        *m_image.iv,
+        *m_depth.iv,
+      }},
+      .extent = ext,
+    });
+
     vee::pipeline_layout m_pl = vee::create_pipeline_layout();
     vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *m_pl,
@@ -163,5 +170,16 @@ namespace skybox::rev {
       .bindings = buffers::vk::ibindings(),
       .attributes = buffers::vk::iattrs(),
     });
+
+  public:
+    void render(vee::command_buffer cb) {
+      voo::cmd_render_pass rp { vee::render_pass_begin { 
+        .command_buffer = cb,
+        .render_pass = *m_rp,
+        .framebuffer = *m_fb,
+        .extent = ext,
+        .clear_colours { vee::clear_colour(0.4, 0.6, 0.8, 1.0) },
+      }, true };
+    }
   };
 }

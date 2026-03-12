@@ -38,7 +38,7 @@ extern "C" void casein_init() {
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      //vv::as()->sky.render(cb, vv::ss()->swc);
+      vv::as()->sky.render(cb);
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();
