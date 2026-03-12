@@ -72,6 +72,8 @@ namespace post {
     }
     void update_descriptor_sets(VkImageView iv) {
       vee::update_descriptor_set(m_dset, 0, iv, *m_smp);
+      vee::update_descriptor_set(m_dset, 1, iv, *m_smp);
+      vee::update_descriptor_set(m_dset, 2, iv, *m_smp);
     }
 
     void render(vee::command_buffer cb, voo::swapchain & swc, upc pc) {

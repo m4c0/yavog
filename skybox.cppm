@@ -131,7 +131,7 @@ namespace skybox::rev {
 
     vee::render_pass m_rp = vee::create_render_pass({
       .attachments {{
-        vee::colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+        vee::colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
         vee::depth_attachment(),
       }},
       .subpasses {{
@@ -183,7 +183,7 @@ namespace skybox::rev {
         .framebuffer = *m_fb,
         .extent = ext,
         .clear_colours {
-          vee::clear_colour(0.4, 0.6, 0.8, 1.0),
+          vee::clear_colour(0, 0, 0, 0),
           vee::clear_depth(1),
         },
       }, true };
