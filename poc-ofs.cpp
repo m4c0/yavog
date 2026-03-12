@@ -68,7 +68,7 @@ struct ext_stuff {
   }
 };
 
-struct scene_drawer : public ofs::drawer {
+struct scene_drawer : public buffers::vk::drawer {
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     if (pl) vee::cmd_bind_descriptor_set(cb, pl, 0, vv::as()->tmap.dset());
     vv::as()->bufs.cmd_draw_vtx(cb);

@@ -25,11 +25,6 @@ namespace ofs {
     float far;
   };
 
-  export struct drawer {
-    virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
-    virtual void edges(VkCommandBuffer cb) = 0;
-  };
-
   struct colour : no::no {
     vee::pipeline_layout pl = vee::create_pipeline_layout(
       *texmap::descriptor_set_layout(),
@@ -143,7 +138,7 @@ namespace ofs {
       m_fb.reset(new framebuffer { swc.extent() });
     }
 
-    void render(vee::command_buffer cb, drawer * d, upc pc) {
+    void render(vee::command_buffer cb, buffers::vk::drawer * d, upc pc) {
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_fb->rp,

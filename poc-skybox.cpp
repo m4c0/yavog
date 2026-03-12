@@ -1,6 +1,7 @@
 #pragma leco app
 #pragma leco add_resource_dir assets
 
+import buffers;
 import casein;
 import dotz;
 import ofs;
@@ -13,7 +14,7 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-class scene_drawer : public ofs::drawer {
+class scene_drawer : public buffers::vk::drawer {
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {}
   void edges(vee::command_buffer cb) override {}
 };

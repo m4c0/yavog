@@ -281,5 +281,10 @@ export namespace buffers::vk {
       &buffers::vtx::uv,
     } {}
   };
+
+  struct drawer {
+    virtual void faces(VkCommandBuffer cb, VkPipelineLayout pl) = 0;
+    virtual void edges(VkCommandBuffer cb) = 0;
+  };
 }
 

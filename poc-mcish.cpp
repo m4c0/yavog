@@ -27,7 +27,7 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-class scene_drawer : public ofs::drawer {
+class scene_drawer : public buffers::vk::drawer {
   static constexpr const dotz::ivec3 len { 256, 32, 256 };
   static_assert(chunk::len <= len.x);
   static_assert(chunk::len <= len.y);
