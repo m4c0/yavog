@@ -81,7 +81,8 @@ namespace post {
         .extent = swc.extent(),
         .clear_colours { vee::clear_colour({}) },
       }, true};
-
+      vee::cmd_set_scissor(cb, swc.extent());
+      vee::cmd_set_viewport(cb, swc.extent());
       vee::cmd_push_fragment_constants(cb, *m_pl, &pc);
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
