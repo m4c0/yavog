@@ -1,6 +1,7 @@
 #pragma leco app
 #pragma leco add_resource_dir assets
 
+import buffers;
 import casein;
 import dotz;
 import hai;
@@ -35,6 +36,12 @@ struct ext_stuff {
   }
 };
 
+class scene_drawer : public buffers::vk::drawer {
+  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {}
+  void edges(vee::command_buffer cb) override {}
+public:
+};
+
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
@@ -43,7 +50,9 @@ extern "C" void casein_init() {
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      vv::as()->sky.render(cb);
+      scene_drawer scene {};
+
+      vv::as()->sky.render(cb, &scene);
       vv::as()->post.render(cb, vv::ss()->swc, {});
     }
     vv::ss()->swc.queue_submit(cb);

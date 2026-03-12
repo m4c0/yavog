@@ -176,7 +176,7 @@ namespace skybox::rev {
   public:
     constexpr auto image_view() const { return *m_image.iv; }
 
-    void render(vee::command_buffer cb) {
+    void render(vee::command_buffer cb, buffers::vk::drawer * drawer) {
       voo::cmd_render_pass rp { vee::render_pass_begin { 
         .command_buffer = cb,
         .render_pass = *m_rp,
