@@ -3,6 +3,7 @@
 
 import casein;
 import dotz;
+import hai;
 import ofs;
 import post;
 import skybox;
@@ -22,12 +23,16 @@ struct app_stuff {
   }};
 
   skybox::rev::pipeline sky {};
+  post::pipeline post { dq, false };
 };
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
 
-  ext_stuff() {}
+  ext_stuff() {
+    vv::as()->post.update_descriptor_sets(vv::as()->sky.image_view());
+    vv::as()->post.setup(swc);
+  }
 };
 
 extern "C" void casein_init() {
@@ -39,6 +44,7 @@ extern "C" void casein_init() {
       voo::cmd_buf_one_time_submit ots { cb };
 
       vv::as()->sky.render(cb);
+      vv::as()->post.render(cb, vv::ss()->swc, {});
     }
     vv::ss()->swc.queue_submit(cb);
     vv::ss()->swc.queue_present();

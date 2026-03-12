@@ -5,6 +5,7 @@
 export module skybox;
 import buffers;
 import ofs;
+import texmap;
 import voo;
 
 namespace skybox::fwd {
@@ -156,7 +157,8 @@ namespace skybox::rev {
       .extent = ext,
     });
 
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout();
+    vee::descriptor_set_layout m_dsl = texmap::descriptor_set_layout();
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
     vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
@@ -172,13 +174,18 @@ namespace skybox::rev {
     });
 
   public:
+    constexpr auto image_view() const { return *m_image.iv; }
+
     void render(vee::command_buffer cb) {
       voo::cmd_render_pass rp { vee::render_pass_begin { 
         .command_buffer = cb,
         .render_pass = *m_rp,
         .framebuffer = *m_fb,
         .extent = ext,
-        .clear_colours { vee::clear_colour(0.4, 0.6, 0.8, 1.0) },
+        .clear_colours {
+          vee::clear_colour(0.4, 0.6, 0.8, 1.0),
+          vee::clear_depth(1),
+        },
       }, true };
     }
   };

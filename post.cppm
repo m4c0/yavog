@@ -70,6 +70,9 @@ namespace post {
       vee::update_descriptor_set(m_dset, 1, *ofs.fb().position.iv, *m_smp);
       vee::update_descriptor_set(m_dset, 2, *ofs.fb().normal.iv,   *m_smp);
     }
+    void update_descriptor_sets(VkImageView iv) {
+      vee::update_descriptor_set(m_dset, 0, iv, *m_smp);
+    }
 
     void render(vee::command_buffer cb, voo::swapchain & swc, upc pc) {
       pc.ext = swc.extent();
