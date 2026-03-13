@@ -187,6 +187,8 @@ namespace skybox::rev {
           vee::clear_depth(1),
         },
       }, true };
+      vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+      drawer->faces(cb, *m_pl);
     }
   };
 }
