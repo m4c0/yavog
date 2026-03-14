@@ -41,9 +41,27 @@ struct app_stuff : buffers::vk::drawer {
       .size { 1 },
       .txtid = txt,
     };
+    i += {
+      .pos { 1, 1, -4 },
+      .mdl = 1,
+      .size { 1 },
+      .txtid = txt,
+    };
+    i += {
+      .pos { -1, -1, 4 },
+      .mdl = 1,
+      .size { 1 },
+      .txtid = txt,
+    };
+    i += {
+      .pos { -1, -1, -4 },
+      .mdl = 1,
+      .size { 1 },
+      .txtid = txt,
+    };
 
     auto v = bufs.vcmd.map(nullptr);
-    v[1].instanceCount = 1;
+    v[1].instanceCount = bufs.inst.count();
   }
 
   virtual ~app_stuff() = default;
