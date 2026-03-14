@@ -32,32 +32,33 @@ struct app_stuff : buffers::vk::drawer {
   post::pipeline post { dq, false };
 
   app_stuff() {
-    float txt = txts.load("Tiles040_1K-JPG_Color.jpg");
+    float txt0 = txts.load("Tiles040_1K-JPG_Color.jpg");
+    float txt1 = txts.load("Tiles101_1K-JPG_Color.jpg");
 
     auto i = bufs.inst.map();
     i += {
       .pos { 1, 1, 4 },
       .mdl = 1,
       .size { 1 },
-      .txtid = txt,
+      .txtid = txt1,
     };
     i += {
       .pos { 1, 1, -4 },
       .mdl = 1,
       .size { 1 },
-      .txtid = txt,
+      .txtid = txt0,
     };
     i += {
       .pos { -1, -1, 4 },
       .mdl = 1,
       .size { 1 },
-      .txtid = txt,
+      .txtid = txt0,
     };
     i += {
       .pos { -1, -1, -4 },
       .mdl = 1,
       .size { 1 },
-      .txtid = txt,
+      .txtid = txt0,
     };
 
     auto v = bufs.vcmd.map(nullptr);
