@@ -42,7 +42,7 @@ struct app_stuff : buffers::vk::drawer {
       .txtid = txt,
     };
 
-    auto v = bufs.vcmd.map();
+    auto v = bufs.vcmd.map(nullptr);
     v[1].instanceCount = 1;
   }
 
