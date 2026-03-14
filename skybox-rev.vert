@@ -13,11 +13,12 @@ layout(location = 3) out vec3 f_normal;
 
 vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
-vec3  proj(vec4 pos);
 
 void main() {
-  f_pos = (gl_Position = i_modl(pos)).xyz;
+  vec4 p = i_modl(pos);
+  f_pos = p.xyz;
   f_uv = uv;
   f_txtid = int(i_txtid);
   f_normal = i_qrot(normal);
+  gl_Position = vec4(normalize(p.xyz), 1);
 }

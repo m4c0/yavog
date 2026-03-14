@@ -24,5 +24,5 @@ vec4 tri_plane_txt() {
 }
 
 void main() {
-  colour = tri_plane_txt() * vec4(amb, 1);
+  colour = tri_plane_txt();// * vec4(amb, 1);
 }
