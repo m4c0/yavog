@@ -183,7 +183,7 @@ namespace skybox::rev {
         .framebuffer = *m_fb,
         .extent = ext,
         .clear_colours {
-          vee::clear_colour(0, 0, 0, 0),
+          vee::clear_colour(0, 0, 0, 1),
           vee::clear_depth(1),
         },
       }, true };
