@@ -69,15 +69,11 @@ namespace skybox::fwd {
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(
         *m_dsl,
         vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline m_ppl = voo::create_graphics_pipeline("skybox-fwd", {
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
       .back_face_cull = false,
       .blends { vee::colour_blend_none() },
-      .shaders {
-        *voo::vert_shader("skybox-fwd.vert.spv"),
-        *voo::frag_shader("skybox-fwd.frag.spv"),
-      },
     });
 
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
@@ -113,6 +109,8 @@ namespace skybox::fwd {
         .framebuffer = *m_fb,
         .extent = swc.extent(),
       }, true};
+      vee::cmd_set_viewport(cb, swc.extent());
+      vee::cmd_set_scissor(cb, swc.extent());
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
       vee::cmd_push_vertex_constants(cb, *m_pl, &pc);
@@ -159,16 +157,12 @@ namespace skybox::rev {
 
     vee::descriptor_set_layout m_dsl = texmap::descriptor_set_layout();
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
-    vee::gr_pipeline m_ppl = vee::create_graphics_pipeline({
+    vee::gr_pipeline m_ppl = voo::create_graphics_pipeline("skybox-rev", {
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
       .extent = ext,
       .back_face_cull = false,
       .depth = vee::depth::op_less(),
-      .shaders {
-        *voo::vert_shader("skybox-rev.vert.spv"),
-        *voo::frag_shader("skybox-rev.frag.spv"),
-      },
       .bindings = buffers::vk::ibindings(),
       .attributes = buffers::vk::iattrs(),
     });
