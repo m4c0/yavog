@@ -91,7 +91,7 @@ namespace skybox::fwd {
       VkImageView depth;
       VkImageView output;
     };
-    void setup(const voo::swapchain & swc, const setup_params & p) {
+    void setup(const setup_params & p) {
       m_fb = vee::create_framebuffer({
         .render_pass = *m_rp,
         .attachments {{

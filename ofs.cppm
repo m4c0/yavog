@@ -155,6 +155,8 @@ namespace ofs {
           vee::clear_depth(1.0),
         },
       }, true };
+      if (!d) return;
+
       vee::cmd_set_viewport(cb, m_ext);
       vee::cmd_set_scissor(cb, m_ext);
 

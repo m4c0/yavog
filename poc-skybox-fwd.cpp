@@ -4,11 +4,9 @@
 import buffers;
 import casein;
 import dotz;
-import models;
 import ofs;
 import post;
 import skybox;
-import texmap;
 import vinyl;
 import voo;
 
@@ -17,48 +15,8 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public buffers::vk::drawer {
-  texmap::cache txts {};
-  buffers::all bufs { 4, models::cube::t {} };
-
-  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
-    vee::cmd_bind_descriptor_set(cb, pl, 0, txts.dset());
-    bufs.cmd_draw_vtx(cb);
-  }
+  void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {}
   void edges(vee::command_buffer cb) override {}
-
-public:
-  scene_drawer() {
-    float txt = txts.load("Tiles040_1K-JPG_Color.jpg");
-
-    auto i = bufs.inst.map();
-    i += {
-      .pos { 1, 1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-    i += {
-      .pos { 1, 1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-    i += {
-      .pos { -1, -1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-    i += {
-      .pos { -1, -1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-
-    auto v = bufs.vcmd.map(nullptr);
-    v[1].instanceCount = bufs.inst.count();
-  }
 };
 
 struct app_stuff {
@@ -70,14 +28,14 @@ struct app_stuff {
   }};
   scene_drawer scene {};
 
-  post::pipeline post { dq, false };
-  skybox::fwd::pipeline fwd {};
-  skybox::rev::pipeline rev {};
+  post::pipeline post { dq, true };
+  skybox::fwd::pipeline sky {};
   ofs::pipeline ofs {};
 };
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
+  voo::bound_image earth {};
 
   ext_stuff() {
     vv::as()->ofs.setup(swc);
@@ -85,11 +43,13 @@ struct ext_stuff {
     vv::as()->post.update_descriptor_sets(vv::as()->ofs);
     vv::as()->post.setup(swc);
 
-    vv::as()->fwd.setup({
-      .ext = swc.extent(),
-      .colour = *vv::as()->ofs.fb().colour.iv,
-      .depth = *vv::as()->ofs.fb().depth.iv,
-      .output = vv::as()->rev.image_view(),
+    voo::load_image("3840px-Blue_Marble_2002.png", &earth, [this](auto sz) {
+      vv::as()->sky.setup({
+        .ext = swc.extent(),
+        .colour = *vv::as()->ofs.fb().colour.iv,
+        .depth = *vv::as()->ofs.fb().depth.iv,
+        .output = *earth.iv,
+      });
     });
   }
 };
@@ -101,9 +61,8 @@ extern "C" void casein_init() {
 
     {
       voo::cmd_buf_one_time_submit ots { cb };
-      vv::as()->rev.render(cb, &vv::as()->scene);
 
-      vv::as()->ofs.render(cb, nullptr, {
+      vv::as()->ofs.render(cb, &vv::as()->scene, {
         .light { dotz::normalise(dotz::vec3 { -1 }), 0 },
         .aspect = vv::ss()->swc.aspect(),
         .far = 32,
@@ -120,7 +79,7 @@ extern "C" void casein_init() {
           VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
           imb);
 
-      vv::as()->fwd.render(cb, vv::ss()->swc);
+      vv::as()->sky.render(cb, vv::ss()->swc);
 
       vv::as()->post.render(cb, vv::ss()->swc, {
         .fog { 0.4, 0.6, 0.8, 0 },
