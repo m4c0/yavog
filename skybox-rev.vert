@@ -15,10 +15,16 @@ vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
 
 void main() {
-  vec4 p = i_modl(pos);
-  f_pos = p.xyz;
+  vec3 p = i_modl(pos).xyz;
+  f_pos = p;
   f_uv = uv;
   f_txtid = int(i_txtid);
   f_normal = i_qrot(normal);
-  gl_Position = vec4(normalize(p.xyz), 1);
+
+  p = normalize(p);
+  p.x = p.x * 0.5 + 0.5;
+  if (p.z < 0) {
+    p.xz *= -1;
+  }
+  gl_Position = vec4(p, 1);
 }
