@@ -85,10 +85,9 @@ vec3 fog(vec3 c, float depth) {
 }
 
 void main() {
-  float depth = DEPTH_READ(f_pos);
-
   vec4 colour = texture(u_colour, f_pos);
   if (enabled != 0) {
+    float depth = DEPTH_READ(f_pos);
     colour.rgb = unsharp_mask_depth_buffer(colour.rgb, depth);
     colour.rgb = sobel(colour.rgb);
     colour.rgb = fog(colour.rgb, depth);
