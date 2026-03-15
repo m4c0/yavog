@@ -18,7 +18,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public buffers::vk::drawer {
   texmap::cache txts {};
-  buffers::all bufs { 4, models::cube::t {} };
+  buffers::all bufs { 16, models::cube::t {} };
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     vee::cmd_bind_descriptor_set(cb, pl, 0, txts.dset());
@@ -28,33 +28,26 @@ class scene_drawer : public buffers::vk::drawer {
 
 public:
   scene_drawer() {
-    float txt = txts.load("Tiles040_1K-JPG_Color.jpg");
+    float txt0 = txts.load("Tiles040_1K-JPG_Color.jpg");
+    float txt1 = txts.load("Tiles101_1K-JPG_Color.jpg");
+    float txt2 = txts.load("Tiles131_1K-JPG_Color.jpg");
+    float txt3 = txts.load("Ground037_1K-JPG_Color.jpg");
 
     auto i = bufs.inst.map();
-    i += {
-      .pos { 1, 1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
+    auto cube = [&](dotz::vec3 p, float txt) {
+      i += {
+        .pos = p,
+        .mdl = 1,
+        .size { 1 },
+        .txtid = txt,
+      };
     };
-    i += {
-      .pos { 1, 1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-    i += {
-      .pos { -1, -1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
-    i += {
-      .pos { -1, -1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt,
-    };
+    cube({ 0, 0, 4 }, txt0);
+    cube({ 0, 4, 0 }, txt1);
+    cube({ 4, 0, 0 }, txt2);
+    cube({ 0, 0, -4 }, txt3);
+    cube({ 0, -4, 0 }, txt3);
+    cube({ -4, 0, 0 }, txt3);
 
     auto v = bufs.vcmd.map(nullptr);
     v[1].instanceCount = bufs.inst.count();

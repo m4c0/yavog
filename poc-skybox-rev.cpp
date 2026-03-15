@@ -26,7 +26,7 @@ struct app_stuff : buffers::vk::drawer {
   }};
 
   texmap::cache txts {};
-  buffers::all bufs { 4, models::cube::t {} };
+  buffers::all bufs { 16, models::cube::t {} };
 
   skybox::rev::pipeline sky {};
   post::pipeline post { dq, false };
@@ -34,32 +34,24 @@ struct app_stuff : buffers::vk::drawer {
   app_stuff() {
     float txt0 = txts.load("Tiles040_1K-JPG_Color.jpg");
     float txt1 = txts.load("Tiles101_1K-JPG_Color.jpg");
+    float txt2 = txts.load("Tiles131_1K-JPG_Color.jpg");
+    float txt3 = txts.load("Ground037_1K-JPG_Color.jpg");
 
     auto i = bufs.inst.map();
-    i += {
-      .pos { 1, 1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt1,
+    auto cube = [&](dotz::vec3 p, float txt) {
+      i += {
+        .pos = p,
+        .mdl = 1,
+        .size { 1 },
+        .txtid = txt,
+      };
     };
-    i += {
-      .pos { 1, 1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt0,
-    };
-    i += {
-      .pos { -1, -1, 4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt0,
-    };
-    i += {
-      .pos { -1, -1, -4 },
-      .mdl = 1,
-      .size { 1 },
-      .txtid = txt0,
-    };
+    cube({ 0, 0, 4 }, txt0);
+    cube({ 0, 4, 0 }, txt1);
+    cube({ 4, 0, 0 }, txt2);
+    cube({ 0, 0, -4 }, txt3);
+    cube({ 0, -4, 0 }, txt3);
+    cube({ -4, 0, 0 }, txt3);
 
     auto v = bufs.vcmd.map(nullptr);
     v[1].instanceCount = bufs.inst.count();
