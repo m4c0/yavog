@@ -15,16 +15,18 @@ vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
 
 void main() {
-  vec3 p = i_modl(pos).xyz;
-  f_pos = p;
+  vec4 p = i_modl(pos);
+  f_pos = p.xyz;
   f_uv = uv;
   f_txtid = int(i_txtid);
   f_normal = i_qrot(normal);
 
-  p = normalize(p);
-  p.x = p.x * 0.5 + 0.5;
-  if (p.z < 0) {
-    p.xz *= -1;
-  }
-  gl_Position = vec4(p, 1);
+  const float far = 5;
+  vec3 q = normalize(p.xyz);
+
+  const float pi = 3.14159265358979323;
+  float lng = atan(p.z, p.x);
+  float lat = asin(q.y);
+  vec2 uv = vec2(lng / pi, lat / (pi / 2));
+  gl_Position = vec4(uv, length(p) / far, p.w);
 }
