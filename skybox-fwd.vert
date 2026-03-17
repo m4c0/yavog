@@ -13,6 +13,10 @@ void main() {
 
   gl_Position = vec4(p3, 1);
 
+  // TODO: add this "fov" to PC
+  p3.xy *= 1.5;
+
   p3.x *= pc.aspect;
+  p3.y *= -1;
   f_pos = p3;
 }
