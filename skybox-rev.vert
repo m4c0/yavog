@@ -55,7 +55,7 @@ vec4 view(vec4 p) {
 
 void main() {
   proj_params par;
-  par.fov_deg = 90;
+  par.fov_deg = fov;
   par.aspect = 1;
   par.far = far;
   par.near = near;
