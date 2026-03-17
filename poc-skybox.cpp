@@ -32,6 +32,7 @@ public:
     float txt1 = txts.load("Tiles101_1K-JPG_Color.jpg");
     float txt2 = txts.load("Tiles131_1K-JPG_Color.jpg");
     float txt3 = txts.load("Ground037_1K-JPG_Color.jpg");
+    float txt4 = txts.load("Ground105_1K-JPG_Color.jpg");
 
     auto i = bufs.inst.map();
     auto cube = [&](dotz::vec3 p, float txt) {
@@ -46,6 +47,11 @@ public:
     cube({ -4,  4, 4 }, txt1);
     cube({  4, -4, 4 }, txt2);
     cube({ -4, -4, 4 }, txt3);
+
+    cube({  4,  4, -4 }, txt4);
+    cube({ -4,  4, -4 }, txt4);
+    cube({  4, -4, -4 }, txt4);
+    cube({ -4, -4, -4 }, txt4);
 
     auto v = bufs.vcmd.map(nullptr);
     v[1].instanceCount = bufs.inst.count();

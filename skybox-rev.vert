@@ -1,4 +1,4 @@
-#version 450
+#extension GL_EXT_multiview : require
 #pragma leco include "buffers.glsl"
 
 layout(location = 3) in vec4 pos;
@@ -11,6 +11,7 @@ layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
+vec3  qrot(vec3 p, vec4 q);
 vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
 
@@ -26,14 +27,40 @@ struct proj_params {
 };
 vec3 proj(vec4 p, proj_params par);
 
+vec3 axis_rot(vec3 p, vec3 axis, float deg) {
+  float ang = radians(deg / 2);
+  return qrot(p, vec4(axis * sin(ang), cos(ang)));
+}
+
+vec3 view(vec3 p) {
+  // Projection is inverted compared to player's camera
+  switch (gl_ViewIndex) {
+    // neg x
+    case 0: return axis_rot(p, vec3(0, 1, 0), 90);
+    // pos x
+    case 1: return axis_rot(p, vec3(0, 1, 0), -90);
+    // pos y
+    case 2: return axis_rot(p, vec3(1, 0, 0), 90);
+    // neg y
+    case 3: return axis_rot(p, vec3(1, 0, 0), -90);
+    // neg z
+    case 4: return p;
+    // pos z
+    case 5: return axis_rot(p, vec3(0, 1, 0), 180);
+  }
+}
+vec4 view(vec4 p) {
+  return vec4(view(p.xyz), p.w);
+}
+
 void main() {
   proj_params par;
   par.fov_deg = 90;
   par.aspect = 1;
   par.far = far;
   par.near = near;
-  f_pos = proj(i_modl(pos), par);
+  f_pos = proj(view(i_modl(pos)), par);
   f_uv = uv;
   f_txtid = int(i_txtid);
-  f_normal = i_qrot(normal);
+  f_normal = view(i_qrot(normal));
 }
