@@ -42,12 +42,10 @@ public:
         .txtid = txt,
       };
     };
-    cube({ 0, 0, 4 }, txt0);
-    cube({ 0, 4, 0 }, txt1);
-    cube({ 4, 0, 0 }, txt2);
-    cube({ 0, 0, -4 }, txt3);
-    cube({ 0, -4, 0 }, txt3);
-    cube({ -4, 0, 0 }, txt3);
+    cube({  4,  4, 4 }, txt0);
+    cube({ -4,  4, 4 }, txt1);
+    cube({  4, -4, 4 }, txt2);
+    cube({ -4, -4, 4 }, txt3);
 
     auto v = bufs.vcmd.map(nullptr);
     v[1].instanceCount = bufs.inst.count();
