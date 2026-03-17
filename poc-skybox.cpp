@@ -75,8 +75,7 @@ struct app_stuff {
   scene_drawer scene {};
 
   post::pipeline post { dq, false };
-  skybox::fwd::pipeline fwd {};
-  skybox::rev::pipeline rev {};
+  skybox::pipeline sky {};
   ofs::pipeline ofs {};
 };
 struct ext_stuff {
@@ -89,11 +88,11 @@ struct ext_stuff {
     vv::as()->post.update_descriptor_sets(vv::as()->ofs);
     vv::as()->post.setup(swc);
 
-    vv::as()->fwd.setup({
-      .ext = swc.extent(),
-      .colour = *vv::as()->ofs.fb().colour.iv,
-      .depth = *vv::as()->ofs.fb().depth.iv,
-      .output = vv::as()->rev.image_view(),
+    vv::as()->sky.setup(swc, vv::as()->ofs);
+
+    vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
+      .far = 100.0,
+      .near = 0.01,
     });
   }
 };
@@ -105,10 +104,6 @@ extern "C" void casein_init() {
 
     {
       voo::cmd_buf_one_time_submit ots { cb };
-      vv::as()->rev.render(cb, &vv::as()->scene, {
-        .far = 100.0,
-        .near = 0.01,
-      });
 
       vv::as()->ofs.render(cb, nullptr, {
         .light { dotz::normalise(dotz::vec3 { -1 }), 0 },
@@ -127,7 +122,7 @@ extern "C" void casein_init() {
           VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
           imb);
 
-      vv::as()->fwd.render(cb, vv::ss()->swc);
+      vv::as()->sky.render(cb, vv::ss()->swc);
 
       vv::as()->post.render(cb, vv::ss()->swc, {
         .fog { 0.4, 0.6, 0.8, 0 },

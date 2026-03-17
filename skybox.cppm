@@ -215,3 +215,36 @@ namespace skybox::rev {
     }
   };
 }
+
+namespace skybox {
+  export class pipeline {
+    skybox::fwd::pipeline m_fwd {};
+    skybox::rev::pipeline m_rev {};
+    voo::single_cb m_cb {};
+
+  public:
+    void setup(voo::swapchain & swc, const ofs::pipeline & ofs) {
+      m_fwd.setup({
+        .ext = swc.extent(),
+        .colour = *ofs.fb().colour.iv,
+        .depth  = *ofs.fb().depth.iv,
+        .output = m_rev.image_view(),
+      });
+    }
+
+    void render_to_cubemap(buffers::vk::drawer * drawer, rev::upc pc) {
+      auto cb = m_cb.cb();
+
+      voo::run(voo::cmd_buf_one_time_submit { cb }, [&] {
+        m_rev.render(cb, drawer, pc);
+      });;
+      voo::queue::universal()->queue_submit({
+        .command_buffer = cb,
+      });
+    }
+
+    void render(vee::command_buffer cb, voo::swapchain & swc) {
+      m_fwd.render(cb, swc);
+    }
+  };
+}
