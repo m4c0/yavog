@@ -19,3 +19,27 @@ vec4 modl(vec4 pos, vec3 i_pos, vec4 i_rot) {
 vec4 i_modl(vec4 pos) {
   return modl(pos * vec4(i_size, 1), i_pos, i_rot);
 }
+
+struct proj_params {
+  float fov_deg;
+  float aspect;
+  float far;
+  float near;
+};
+vec3 proj(vec4 p, proj_params par) {
+  float f = 1.0 / tan(radians(par.fov_deg) / 2.0);
+
+  // TODO: adjust to camera
+  p.xy *= -1; // Left-hand to right-hand
+
+  vec3 ret = p.xyz;
+
+  gl_Position = mat4(
+    f / par.aspect, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, par.far / (par.far - par.near), 1,
+    0, 0, -(par.far * par.near) / (par.far - par.near), 0
+  ) * p;
+
+  return ret;
+}
