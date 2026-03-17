@@ -1,6 +1,7 @@
 export module chunk:cpipeline;
 import dotz;
 import hai;
+import jute;
 import sv;
 import voo;
 
@@ -28,7 +29,8 @@ namespace chunk {
       m_ppl { vee::create_compute_pipeline(*m_pl, *voo::comp_shader(shader), "main") }
     {
       for (auto i = 0; i < M; i++) {
-        m_dsets[i] = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+        auto name = (*jute::fmt<"%s-%d">(shader, i)).cstr();
+        m_dsets[i] = voo::allocate_descriptor_set(name.begin(), *m_dpool, *m_dsl);
         vee::update_descriptor_set(m_dsets[i], 0, bufs[i]);
       }
     }

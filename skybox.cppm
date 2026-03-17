@@ -72,7 +72,7 @@ namespace skybox::fwd {
     vee::descriptor_pool m_dpool = vee::create_descriptor_pool(1, {
       vee::combined_image_sampler(1)
     });
-    vee::descriptor_set m_dset = vee::allocate_descriptor_set(*m_dpool, *m_dsl);
+    vee::descriptor_set m_dset = voo::allocate_descriptor_set("skybox-fwd", *m_dpool, *m_dsl);
 
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(
         *m_dsl,
