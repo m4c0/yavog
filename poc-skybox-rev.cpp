@@ -17,13 +17,21 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
-struct app_stuff : buffers::vk::drawer {
-  voo::device_and_queue dq { "poc-skybox-rev", casein::native_ptr, {
+static inline auto device_and_queue() {
+  auto dn = vee::physical_device_vulkan11_features({
+    .multiview = true,
+  });
+  return voo::device_and_queue { "poc-skybox-rev", casein::native_ptr, {
     .feats {
       .independentBlend = true,
       .samplerAnisotropy = true,
     },
+    .next = &dn,
   }};
+}
+
+struct app_stuff : buffers::vk::drawer {
+  voo::device_and_queue dq = device_and_queue();
 
   texmap::cache txts {};
   buffers::all bufs { 16, models::cube::t {} };

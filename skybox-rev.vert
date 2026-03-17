@@ -14,19 +14,31 @@ layout(location = 3) out vec3 f_normal;
 vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
 
+const float far = 100.0;
+const float near = 0.01;
+const float fov = radians(90);
+
+vec3 proj(vec4 p) {
+  float f = 1.0 / tan(fov / 2.0);
+
+  // TODO: adjust to camera
+  p.xy *= -1; // Left-hand to right-hand
+
+  vec3 ret = p.xyz;
+
+  gl_Position = mat4(
+    f, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, far / (far - near), 1,
+    0, 0, -(far * near) / (far - near), 0
+  ) * p;
+
+  return ret;
+}
+
 void main() {
-  vec4 p = i_modl(pos);
-  f_pos = p.xyz;
+  f_pos = proj(i_modl(pos));
   f_uv = uv;
   f_txtid = int(i_txtid);
   f_normal = i_qrot(normal);
-
-  const float far = 5;
-  vec3 q = normalize(p.xyz);
-
-  const float pi = 3.14159265358979323;
-  float lng = atan(p.z, p.x);
-  float lat = asin(q.y);
-  vec2 uv = vec2(lng / pi, lat / (pi / 2));
-  gl_Position = vec4(uv, length(p) / far, p.w);
 }

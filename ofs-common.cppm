@@ -79,12 +79,12 @@ inline voo::bound_image msaa_image(vee::extent ext, VkFormat fmt, VkSampleCountF
   auto aspect = fmt == VK_FORMAT_D32_SFLOAT_S8_UINT
     ? VK_IMAGE_ASPECT_DEPTH_BIT
     : VK_IMAGE_ASPECT_COLOR_BIT;
-  auto iv = vee::image_view_create_info({
+  res.iv = vee::create_image_view({
     .image = *res.img,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
     .format = fmt,
     .subresourceRange = vee::image_subresource_range(aspect),
   });
-  res.iv = vee::image_view { &iv };
 
   return res;
 }

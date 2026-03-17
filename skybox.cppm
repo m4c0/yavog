@@ -120,14 +120,13 @@ namespace skybox::fwd {
 }
 
 namespace skybox::rev {
-  export class pipeline {
-    static constexpr const VkExtent2D ext { 2048, 1024 };
-    voo::bound_image m_image = voo::bound_image::create(
-        ext, VK_FORMAT_R8G8B8A8_UNORM,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-    voo::bound_image m_depth = voo::bound_image::create_depth(ext, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-
-    vee::render_pass m_rp = vee::create_render_pass({
+  inline auto create_render_pass() {
+    unsigned view_mask = 0b111111;
+    auto mv = vee::render_pass_multiview_create_info({
+      .subpassCount = 1,
+      .pViewMasks = &view_mask,
+    });
+    return vee::create_render_pass({
       .attachments {{
         vee::colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
         vee::depth_attachment(),
@@ -144,7 +143,30 @@ namespace skybox::rev {
         vee::colour_dependency(),
         vee::depth_dependency(),
       }},
+      .next = &mv,
     });
+  }
+  inline auto image_view_create_info(VkImageAspectFlagBits aspect) {
+    return VkImageViewCreateInfo {
+      .viewType = VK_IMAGE_VIEW_TYPE_CUBE,
+      .subresourceRange = vee::image_subresource_range(aspect, 6),
+    };
+  } 
+  export class pipeline {
+    static constexpr const unsigned size = 1024;
+    static constexpr const VkExtent2D ext { size, size};
+    voo::bound_image m_image = voo::bound_image::create(
+        vee::cube_image_create_info(
+          ext, VK_FORMAT_R8G8B8A8_UNORM,
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
+        image_view_create_info(VK_IMAGE_ASPECT_COLOR_BIT));
+    voo::bound_image m_depth = voo::bound_image::create(
+        vee::cube_image_create_info(
+          ext, VK_FORMAT_D32_SFLOAT,
+          VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT),
+        image_view_create_info(VK_IMAGE_ASPECT_DEPTH_BIT));
+
+    vee::render_pass m_rp = create_render_pass();
 
     vee::framebuffer m_fb = vee::create_framebuffer({
       .render_pass = *m_rp,
