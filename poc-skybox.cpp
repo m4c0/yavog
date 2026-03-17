@@ -105,7 +105,10 @@ extern "C" void casein_init() {
 
     {
       voo::cmd_buf_one_time_submit ots { cb };
-      vv::as()->rev.render(cb, &vv::as()->scene);
+      vv::as()->rev.render(cb, &vv::as()->scene, {
+        .far = 100.0,
+        .near = 0.01,
+      });
 
       vv::as()->ofs.render(cb, nullptr, {
         .light { dotz::normalise(dotz::vec3 { -1 }), 0 },

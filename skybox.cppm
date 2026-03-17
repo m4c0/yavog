@@ -152,6 +152,10 @@ namespace skybox::rev {
       .subresourceRange = vee::image_subresource_range(aspect, 6),
     };
   } 
+  struct upc {
+    float far;
+    float near;
+  };
   export class pipeline {
     static constexpr const unsigned size = 1024;
     static constexpr const VkExtent2D ext { size, size};
@@ -178,7 +182,9 @@ namespace skybox::rev {
     });
 
     vee::descriptor_set_layout m_dsl = texmap::descriptor_set_layout();
-    vee::pipeline_layout m_pl = vee::create_pipeline_layout(*m_dsl);
+    vee::pipeline_layout m_pl = vee::create_pipeline_layout(
+        *m_dsl,
+        vee::vertex_push_constant_range<upc>());
     vee::gr_pipeline m_ppl = voo::create_graphics_pipeline("skybox-rev", {
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
@@ -192,7 +198,7 @@ namespace skybox::rev {
   public:
     constexpr auto image_view() const { return *m_image.iv; }
 
-    void render(vee::command_buffer cb, buffers::vk::drawer * drawer) {
+    void render(vee::command_buffer cb, buffers::vk::drawer * drawer, upc pc) {
       voo::cmd_render_pass rp { vee::render_pass_begin { 
         .command_buffer = cb,
         .render_pass = *m_rp,
@@ -204,6 +210,7 @@ namespace skybox::rev {
         },
       }, true };
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
+      vee::cmd_push_vertex_constants(cb, *m_pl, &pc);
       drawer->faces(cb, *m_pl);
     }
   };

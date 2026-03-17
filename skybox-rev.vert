@@ -1,6 +1,11 @@
 #extension GL_EXT_multiview : require
 #pragma leco include "buffers.glsl"
 
+layout(push_constant) uniform upc {
+  float far;
+  float near;
+} pc;
+
 layout(location = 3) in vec4 pos;
 layout(location = 4) in vec3 normal;
 layout(location = 5) in vec2 uv;
@@ -15,8 +20,6 @@ vec3  qrot(vec3 p, vec4 q);
 vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
 
-const float far = 100.0;
-const float near = 0.01;
 const float fov = 90;
 
 struct proj_params {
@@ -57,8 +60,8 @@ void main() {
   proj_params par;
   par.fov_deg = fov;
   par.aspect = 1;
-  par.far = far;
-  par.near = near;
+  par.far = pc.far;
+  par.near = pc.near;
   f_pos = proj(view(i_modl(pos)), par);
   f_uv = uv;
   f_txtid = int(i_txtid);
