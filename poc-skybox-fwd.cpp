@@ -5,6 +5,7 @@ import buffers;
 import casein;
 import dotz;
 import ofs;
+import poc;
 import post;
 import skybox;
 import vinyl;
@@ -20,12 +21,7 @@ class scene_drawer : public buffers::vk::drawer {
 };
 
 struct app_stuff {
-  voo::device_and_queue dq { "poc-model", casein::native_ptr, {
-    .feats {
-      .independentBlend = true,
-      .samplerAnisotropy = true,
-    },
-  }};
+  voo::device_and_queue dq = poc::device_and_queue("poc-skybox-fwd");
   scene_drawer scene {};
 
   post::pipeline post { dq, true };
