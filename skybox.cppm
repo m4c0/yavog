@@ -34,6 +34,14 @@ namespace skybox::fwd {
     };
   }
 
+  inline constexpr auto depth() {
+    return vee::depth::of({
+      .depthTestEnable = true,
+      .depthWriteEnable = false,
+      .depthCompareOp = VK_COMPARE_OP_EQUAL,
+    });
+  }
+
   export class pipeline {
     struct upc {
       float aspect;
@@ -73,6 +81,7 @@ namespace skybox::fwd {
       .pipeline_layout = *m_pl,
       .render_pass = *m_rp,
       .back_face_cull = false,
+      .depth { depth() },
       .blends { vee::colour_blend_none() },
     });
 
