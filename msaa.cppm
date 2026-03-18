@@ -128,20 +128,21 @@ namespace msaa {
     return vee::create_graphics_pipeline(traits::move(p));
   }
 
-  export struct framebuffer : no::no {
-    voo::bound_image msaa_colour;
-    voo::bound_image msaa_position;
-    voo::bound_image msaa_normal;
+  export class framebuffer : no::no {
+    voo::bound_image m_msaa_colour;
+    voo::bound_image m_msaa_position;
+    voo::bound_image m_msaa_normal;
 
-    voo::bound_image colour;
-    voo::bound_image position;
-    voo::bound_image normal;
+    voo::bound_image m_colour;
+    voo::bound_image m_position;
+    voo::bound_image m_normal;
 
-    voo::bound_image msaa_depth;
-    voo::bound_image depth;
+    voo::bound_image m_msaa_depth;
+    voo::bound_image m_depth;
 
-    vee::render_pass rp;
-    vee::framebuffer fb;
+    vee::render_pass m_rp;
+    vee::framebuffer m_fb;
+    vee::extent m_ext;
 
     auto img(vee::extent ext, VkFormat fmt, VkSampleCountFlagBits max_samples) {
       auto flg = max_samples == VK_SAMPLE_COUNT_1_BIT
@@ -160,35 +161,66 @@ namespace msaa {
       return voo::bound_image::create(ci, VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
+  public:
     explicit framebuffer(vee::extent ext, VkSampleCountFlagBits max_samples = max_sampling()) :
-      msaa_colour   { msaa_image(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
-    , msaa_position { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
-    , msaa_normal   { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+      m_msaa_colour   { msaa_image(ext, VK_FORMAT_R8G8B8A8_UNORM,      max_samples) }
+    , m_msaa_position { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
+    , m_msaa_normal   { msaa_image(ext, VK_FORMAT_R32G32B32A32_SFLOAT, max_samples) }
 
-    , colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      VK_SAMPLE_COUNT_1_BIT) }
-    , position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
-    , normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
+    , m_colour   { img(ext, VK_FORMAT_R8G8B8A8_UNORM,      VK_SAMPLE_COUNT_1_BIT) }
+    , m_position { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
+    , m_normal   { img(ext, VK_FORMAT_R32G32B32A32_SFLOAT, VK_SAMPLE_COUNT_1_BIT) }
 
-    , msaa_depth { msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
-    , depth { dpth(ext) }
+    , m_msaa_depth { msaa_image(ext, VK_FORMAT_D32_SFLOAT_S8_UINT, max_samples) }
+    , m_depth { dpth(ext) }
 
-    , rp { create_render_pass(max_samples) }
-    , fb { vee::create_framebuffer({
-      .render_pass = *rp,
+    , m_rp { create_render_pass(max_samples) }
+    , m_fb { vee::create_framebuffer({
+      .render_pass = *m_rp,
       .attachments {{
-        *msaa_colour.iv,
-        *msaa_position.iv,
-        *msaa_normal.iv,
-        *msaa_depth.iv,
-        *colour.iv,
-        *position.iv,
-        *normal.iv,
-        *depth.iv,
+        *m_msaa_colour.iv,
+        *m_msaa_position.iv,
+        *m_msaa_normal.iv,
+        *m_msaa_depth.iv,
+        *m_colour.iv,
+        *m_position.iv,
+        *m_normal.iv,
+        *m_depth.iv,
       }},
       .extent = ext,
     }) }
+    , m_ext { ext }
     {
       silog::infof("Using MSAA %dx", max_samples);
+    }
+
+    [[nodiscard]] auto colour_img() const { return *m_colour.img; }
+
+    [[nodiscard]] auto colour()   const { return *m_colour.iv;   }
+    [[nodiscard]] auto depth()    const { return *m_depth.iv;    }
+    [[nodiscard]] auto normal()   const { return *m_normal.iv;   }
+    [[nodiscard]] auto position() const { return *m_position.iv; }
+
+    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, float far) {
+      voo::cmd_render_pass rp { vee::render_pass_begin {
+        .command_buffer = cb,
+        .render_pass = *m_rp,
+        .framebuffer = *m_fb,
+        .extent = m_ext,
+        .clear_colours { 
+          vee::clear_colour({ 0, 0, 0, 1 }), 
+          vee::clear_colour({ 0, 0, far, 0 }), 
+          vee::clear_colour({ 0, 0, 0, 0 }), 
+          vee::clear_depth(1.0),
+          vee::clear_colour({ 0, 0, 0, 1 }), 
+          vee::clear_colour({ 0, 0, far, 0 }), 
+          vee::clear_colour({ 0, 0, 0, 0 }), 
+          vee::clear_depth(1.0),
+        },
+      }, true };
+      vee::cmd_set_viewport(cb, m_ext);
+      vee::cmd_set_scissor(cb, m_ext);
+      return rp;
     }
   };
 }

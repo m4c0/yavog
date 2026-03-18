@@ -66,9 +66,9 @@ namespace post {
       m_fbs = swc.create_framebuffers(*m_rp);
     }
     void update_descriptor_sets(const ofs::pipeline & ofs) {
-      vee::update_descriptor_set(m_dset, 0, *ofs.fb().colour.iv,   *m_smp);
-      vee::update_descriptor_set(m_dset, 1, *ofs.fb().position.iv, *m_smp);
-      vee::update_descriptor_set(m_dset, 2, *ofs.fb().normal.iv,   *m_smp);
+      vee::update_descriptor_set(m_dset, 0, ofs.fb().colour(),   *m_smp);
+      vee::update_descriptor_set(m_dset, 1, ofs.fb().position(), *m_smp);
+      vee::update_descriptor_set(m_dset, 2, ofs.fb().normal(),   *m_smp);
     }
     void update_descriptor_sets(VkImageView iv) {
       vee::update_descriptor_set(m_dset, 0, iv, *m_smp);

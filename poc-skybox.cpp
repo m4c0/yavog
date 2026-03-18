@@ -101,7 +101,7 @@ extern "C" void casein_init() {
       });
 
       // This until it "ofs -> sky -> post" is the norm
-      auto imb = vee::image_memory_barrier(*vv::as()->ofs.fb().colour.img);
+      auto imb = vee::image_memory_barrier(vv::as()->ofs.fb().colour_img());
       imb.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
       imb.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
       imb.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;

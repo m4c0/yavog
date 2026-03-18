@@ -142,26 +142,8 @@ namespace ofs {
     }
 
     void render(vee::command_buffer cb, buffers::vk::drawer * d, upc pc) {
-      voo::cmd_render_pass rp { vee::render_pass_begin {
-        .command_buffer = cb,
-        .render_pass = *m_fb->rp,
-        .framebuffer = *m_fb->fb,
-        .extent = m_ext,
-        .clear_colours { 
-          vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, pc.far, 0 }), 
-          vee::clear_colour({ 0, 0, 0, 0 }), 
-          vee::clear_depth(1.0),
-          vee::clear_colour({ 0, 0, 0, 1 }), 
-          vee::clear_colour({ 0, 0, pc.far, 0 }), 
-          vee::clear_colour({ 0, 0, 0, 0 }), 
-          vee::clear_depth(1.0),
-        },
-      }, true };
+      auto rp = m_fb->cmd_render_pass(cb, pc.far);
       if (!d) return;
-
-      vee::cmd_set_viewport(cb, m_ext);
-      vee::cmd_set_scissor(cb, m_ext);
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &pc);
 

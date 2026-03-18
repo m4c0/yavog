@@ -239,8 +239,8 @@ namespace skybox {
     void setup(voo::swapchain & swc, const ofs::pipeline & ofs) {
       m_fwd.setup({
         .ext = swc.extent(),
-        .colour = *ofs.fb().colour.iv,
-        .depth  = *ofs.fb().depth.iv,
+        .colour = ofs.fb().colour(),
+        .depth  = ofs.fb().depth(),
         .output = m_rev.image_view(),
       });
     }
