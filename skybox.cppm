@@ -33,21 +33,8 @@ namespace skybox::fwd {
       .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
     };
   }
-
-  inline constexpr auto depth() {
-    return vee::depth::of({
-      .depthTestEnable = true,
-      .depthWriteEnable = false,
-      .depthCompareOp = VK_COMPARE_OP_EQUAL,
-    });
-  }
-
-  export class pipeline {
-    struct upc {
-      float aspect;
-    };
-
-    vee::render_pass m_rp = vee::create_render_pass({
+  inline auto create_render_pass() {
+    return vee::create_render_pass({
       .attachments {{
         create_colour_attachment(),
         create_depth_attachment(),
@@ -65,6 +52,22 @@ namespace skybox::fwd {
         vee::depth_dependency(),
       }},
     });
+  }
+
+  inline constexpr auto depth() {
+    return vee::depth::of({
+      .depthTestEnable = true,
+      .depthWriteEnable = false,
+      .depthCompareOp = VK_COMPARE_OP_EQUAL,
+    });
+  }
+
+  export class pipeline {
+    struct upc {
+      float aspect;
+    };
+
+    vee::render_pass m_rp = create_render_pass();
 
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
       vee::dsl_fragment_sampler(),
@@ -117,6 +120,7 @@ namespace skybox::fwd {
         .render_pass = *m_rp,
         .framebuffer = *m_fb,
         .extent = swc.extent(),
+        .clear_colours {},
       }, true};
       vee::cmd_set_viewport(cb, swc.extent());
       vee::cmd_set_scissor(cb, swc.extent());
