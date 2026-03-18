@@ -37,7 +37,11 @@ namespace skybox::fwd {
       .pipeline_layout = *m_pl,
       .back_face_cull = false,
       .depth { depth() },
-      .blends { vee::colour_blend_none() },
+      .blends {
+        vee::colour_blend_none(),
+        VkPipelineColorBlendAttachmentState {},
+        VkPipelineColorBlendAttachmentState {},
+      },
       .shaders {
         *voo::vert_shader("skybox-fwd.vert.spv"),
         *voo::frag_shader("skybox-fwd.frag.spv"),
