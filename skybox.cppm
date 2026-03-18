@@ -51,12 +51,6 @@ namespace skybox::fwd {
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
 
   public:
-    struct setup_params {
-      VkExtent2D ext;
-      VkImageView colour;
-      VkImageView depth;
-      VkImageView output;
-    };
     void setup(VkImageView output) {
       vee::update_descriptor_set(m_dset, 0, 0, output, *m_smp);
     }
