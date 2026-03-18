@@ -6,6 +6,7 @@ import casein;
 import dotz;
 import models;
 import ofs;
+import poc;
 import post;
 import skybox;
 import texmap;
@@ -58,20 +59,8 @@ public:
   }
 };
 
-static inline auto device_and_queue() {
-  auto dn = vee::physical_device_vulkan11_features({
-    .multiview = true,
-  });
-  return voo::device_and_queue { "poc-skybox", casein::native_ptr, {
-    .feats {
-      .independentBlend = true,
-      .samplerAnisotropy = true,
-    },
-    .next = &dn,
-  }};
-}
 struct app_stuff {
-  voo::device_and_queue dq = device_and_queue();
+  voo::device_and_queue dq = poc::device_and_queue("poc-skybox");
   scene_drawer scene {};
 
   post::pipeline post { dq, false };
