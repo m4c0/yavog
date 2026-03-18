@@ -72,19 +72,6 @@ namespace msaa {
       .finalLayout    = fl,
     };
   }
-  inline constexpr auto depth_attachment() {
-    return VkAttachmentDescription {
-      .format         = VK_FORMAT_D32_SFLOAT,
-      .samples        = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
-      .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
-      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
-      .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
-  }
-
   inline auto create_render_pass(VkSampleCountFlagBits samples = max_sampling()) {
     return vee::create_render_pass({
       .attachments {{
@@ -96,7 +83,6 @@ namespace msaa {
         colour_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
         colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
         colour_attachment(VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-        depth_attachment(),
       }},
       .subpasses {{
         vee::subpass({
@@ -110,7 +96,6 @@ namespace msaa {
             vee::attachment_ref(4, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
             vee::attachment_ref(5, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
             vee::attachment_ref(6, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
-            vee::attachment_ref(7, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
           }},
         }),
       }},
@@ -185,7 +170,6 @@ namespace msaa {
         *m_colour.iv,
         *m_position.iv,
         *m_normal.iv,
-        *m_depth.iv,
       }},
       .extent = ext,
     }) }
@@ -194,10 +178,7 @@ namespace msaa {
       silog::infof("Using MSAA %dx", max_samples);
     }
 
-    [[nodiscard]] auto colour_img() const { return *m_colour.img; }
-
     [[nodiscard]] auto colour()   const { return *m_colour.iv;   }
-    [[nodiscard]] auto depth()    const { return *m_depth.iv;    }
     [[nodiscard]] auto normal()   const { return *m_normal.iv;   }
     [[nodiscard]] auto position() const { return *m_position.iv; }
 
@@ -215,7 +196,6 @@ namespace msaa {
           vee::clear_colour({ 0, 0, 0, 1 }), 
           vee::clear_colour({ 0, 0, far, 0 }), 
           vee::clear_colour({ 0, 0, 0, 0 }), 
-          vee::clear_depth(1.0),
         },
       }, true };
       vee::cmd_set_viewport(cb, m_ext);
