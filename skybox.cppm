@@ -9,51 +9,6 @@ import texmap;
 import voo;
 
 namespace skybox::fwd {
-  inline constexpr auto create_colour_attachment() {
-    return VkAttachmentDescription {
-      .format         = VK_FORMAT_R8G8B8A8_UNORM,
-      .samples        = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp         = VK_ATTACHMENT_LOAD_OP_LOAD,
-      .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
-      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-      .finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-    };
-  }
-  inline constexpr auto create_depth_attachment() {
-    return VkAttachmentDescription {
-      .format         = VK_FORMAT_D32_SFLOAT,
-      .samples        = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp         = VK_ATTACHMENT_LOAD_OP_LOAD,
-      .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-      .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
-  }
-  inline auto create_render_pass() {
-    return vee::create_render_pass({
-      .attachments {{
-        create_colour_attachment(),
-        create_depth_attachment(),
-      }},
-      .subpasses {{
-        vee::subpass({
-          .colours {{
-            vee::attachment_ref(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
-          }},
-          .depth_stencil = vee::attachment_ref(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
-        }),
-      }},
-      .dependencies {{
-        vee::colour_dependency(),
-        vee::depth_dependency(),
-      }},
-    });
-  }
-
   inline constexpr auto depth() {
     return vee::depth::of({
       .depthTestEnable = true,
@@ -67,8 +22,6 @@ namespace skybox::fwd {
       float aspect;
     };
 
-    vee::render_pass m_rp = create_render_pass();
-
     vee::descriptor_set_layout m_dsl = vee::create_descriptor_set_layout({
       vee::dsl_fragment_sampler(),
     });
@@ -80,17 +33,18 @@ namespace skybox::fwd {
     vee::pipeline_layout m_pl = vee::create_pipeline_layout(
         *m_dsl,
         vee::vertex_push_constant_range<upc>());
-    vee::gr_pipeline m_ppl = voo::create_graphics_pipeline("skybox-fwd", {
+    vee::gr_pipeline m_ppl = msaa::create_graphics_pipeline({
       .pipeline_layout = *m_pl,
-      .render_pass = *m_rp,
       .back_face_cull = false,
       .depth { depth() },
       .blends { vee::colour_blend_none() },
+      .shaders {
+        *voo::vert_shader("skybox-fwd.vert.spv"),
+        *voo::frag_shader("skybox-fwd.frag.spv"),
+      },
     });
 
     vee::sampler m_smp = vee::create_sampler(vee::linear_sampler);
-
-    vee::framebuffer m_fb {};
 
   public:
     struct setup_params {
@@ -99,31 +53,12 @@ namespace skybox::fwd {
       VkImageView depth;
       VkImageView output;
     };
-    void setup(const setup_params & p) {
-      m_fb = vee::create_framebuffer({
-        .render_pass = *m_rp,
-        .attachments {{
-          p.colour,
-          p.depth,
-        }},
-        .extent = p.ext,
-      });
-
-      vee::update_descriptor_set(m_dset, 0, 0, p.output, *m_smp);
+    void setup(VkImageView output) {
+      vee::update_descriptor_set(m_dset, 0, 0, output, *m_smp);
     }
 
-    void render(vee::command_buffer cb, const voo::swapchain & swc) {
-      upc pc { .aspect = swc.aspect() };
-
-      voo::cmd_render_pass rpg {vee::render_pass_begin{
-        .command_buffer = cb,
-        .render_pass = *m_rp,
-        .framebuffer = *m_fb,
-        .extent = swc.extent(),
-        .clear_colours {},
-      }, true};
-      vee::cmd_set_viewport(cb, swc.extent());
-      vee::cmd_set_scissor(cb, swc.extent());
+    void cmd_draw(vee::command_buffer cb, float aspect) {
+      upc pc { .aspect = aspect };
       vee::cmd_bind_gr_pipeline(cb, *m_ppl);
       vee::cmd_bind_descriptor_set(cb, *m_pl, 0, m_dset);
       vee::cmd_push_vertex_constants(cb, *m_pl, &pc);
@@ -236,13 +171,8 @@ namespace skybox {
     voo::single_cb m_cb {};
 
   public:
-    void setup(voo::swapchain & swc, const msaa::framebuffer & fb) {
-      m_fwd.setup({
-        .ext = swc.extent(),
-        .colour = fb.colour(),
-        .depth  = fb.depth(),
-        .output = m_rev.image_view(),
-      });
+    pipeline() {
+      m_fwd.setup(m_rev.image_view());
     }
 
     void render_to_cubemap(buffers::vk::drawer * drawer, rev::upc pc) {
@@ -256,8 +186,8 @@ namespace skybox {
       });
     }
 
-    void render(vee::command_buffer cb, voo::swapchain & swc) {
-      m_fwd.render(cb, swc);
+    void cmd_draw(vee::command_buffer cb, float aspect) {
+      m_fwd.cmd_draw(cb, aspect);
     }
   };
 }

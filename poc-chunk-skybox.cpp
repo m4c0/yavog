@@ -79,8 +79,6 @@ struct ext_stuff {
     vv::as()->post.update_descriptor_sets(msaa);
     vv::as()->post.setup(swc);
 
-    vv::as()->sky.setup(swc, msaa);
-
     vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
       .far = 100.0,
       .near = 32.0,
@@ -102,20 +100,8 @@ extern "C" void casein_init() {
           .aspect = vv::ss()->swc.aspect(),
           .far = 32,
         });
+        vv::as()->sky.cmd_draw(cb, vv::ss()->swc.aspect());
       });
-
-      // This until it "ofs -> sky -> post" is the norm
-      auto imb = vee::image_memory_barrier(vv::ss()->msaa.colour_img());
-      imb.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-      imb.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-      imb.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-      imb.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-      vee::cmd_pipeline_barrier(cb,
-          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-          imb);
-
-      vv::as()->sky.render(cb, vv::ss()->swc);
 
       vv::as()->post.render(cb, vv::ss()->swc, {
         .fog { 0.4, 0.6, 0.8, 0 },
