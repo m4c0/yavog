@@ -11,8 +11,11 @@
 export module ofs;
 import :common;
 import buffers;
+import dotz;
 import hai;
 import models;
+import msaa;
+import no;
 import texmap;
 import traits;
 import voo;
@@ -128,14 +131,14 @@ namespace ofs {
     lights m_lig {};
 
     vee::extent m_ext {};
-    hai::uptr<framebuffer> m_fb {};
+    hai::uptr<msaa::framebuffer> m_fb {};
 
   public:
     [[nodiscard]] constexpr const auto & fb() const { return *m_fb; }
 
     void setup(const voo::swapchain & swc) {
       m_ext = swc.extent();
-      m_fb.reset(new framebuffer { swc.extent() });
+      m_fb.reset(new msaa::framebuffer { swc.extent() });
     }
 
     void render(vee::command_buffer cb, buffers::vk::drawer * d, upc pc) {
