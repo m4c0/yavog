@@ -201,7 +201,7 @@ namespace msaa {
     [[nodiscard]] auto normal()   const { return *m_normal.iv;   }
     [[nodiscard]] auto position() const { return *m_position.iv; }
 
-    [[nodiscard]] auto cmd_render_pass(vee::command_buffer cb, float far) {
+    void cmd_render_pass(vee::command_buffer cb, float far, auto && fn) {
       voo::cmd_render_pass rp { vee::render_pass_begin {
         .command_buffer = cb,
         .render_pass = *m_rp,
@@ -220,7 +220,7 @@ namespace msaa {
       }, true };
       vee::cmd_set_viewport(cb, m_ext);
       vee::cmd_set_scissor(cb, m_ext);
-      return rp;
+      fn();
     }
   };
 }

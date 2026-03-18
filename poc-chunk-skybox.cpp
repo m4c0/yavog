@@ -6,6 +6,7 @@ import casein;
 import chunk;
 import dotz;
 import models;
+import msaa;
 import ofs;
 import poc;
 import post;
@@ -72,14 +73,13 @@ struct app_stuff {
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
+  msaa::framebuffer msaa { swc.extent() };
 
   ext_stuff() {
-    vv::as()->ofs.setup(swc);
-
-    vv::as()->post.update_descriptor_sets(vv::as()->ofs);
+    vv::as()->post.update_descriptor_sets(msaa);
     vv::as()->post.setup(swc);
 
-    vv::as()->sky.setup(swc, vv::as()->ofs);
+    vv::as()->sky.setup(swc, msaa);
 
     vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
       .far = 100.0,
@@ -96,14 +96,16 @@ extern "C" void casein_init() {
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      vv::as()->ofs.render(cb, &vv::as()->scene, {
-        .light { dotz::normalise(dotz::vec3 { -1 }), 0 },
-        .aspect = vv::ss()->swc.aspect(),
-        .far = 32,
+      vv::ss()->msaa.cmd_render_pass(cb, 32, [&] {
+        vv::as()->ofs.render(cb, &vv::as()->scene, {
+          .light { dotz::normalise(dotz::vec3 { -1 }), 0 },
+          .aspect = vv::ss()->swc.aspect(),
+          .far = 32,
+        });
       });
 
       // This until it "ofs -> sky -> post" is the norm
-      auto imb = vee::image_memory_barrier(vv::as()->ofs.fb().colour_img());
+      auto imb = vee::image_memory_barrier(vv::ss()->msaa.colour_img());
       imb.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
       imb.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
       imb.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;

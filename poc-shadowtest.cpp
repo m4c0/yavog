@@ -7,6 +7,7 @@ import chunk;
 import dotz;
 import hai;
 import models;
+import msaa;
 import ofs;
 import post;
 import silog;
@@ -107,13 +108,12 @@ struct app_stuff {
 struct ext_stuff {
   voo::single_cb cb {};
   voo::swapchain swc { vv::as()->dq, false };
+  msaa::framebuffer msaa { swc.extent() };
 
   hai::array<timing::query> tq { swc.count() };
 
   ext_stuff() {
-    vv::as()->ofs.setup(swc);
-
-    vv::as()->post.update_descriptor_sets(vv::as()->ofs);
+    vv::as()->post.update_descriptor_sets(msaa);
     vv::as()->post.setup(swc);
   }
 };
@@ -133,7 +133,6 @@ extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
     auto cb = vv::ss()->cb.cb();
-    auto & qp = vv::ss()->tq[vv::ss()->swc.index()];
 
     auto frame_secs = g_tt.secs();
     g_tt = {};
@@ -142,22 +141,20 @@ extern "C" void casein_init() {
 
     {
       voo::cmd_buf_one_time_submit ots { cb };
-
-      qp.write(cb, [&] {
+      
+      vv::ss()->msaa.cmd_render_pass(cb, 32, [&] {
         dotz::vec3 l = sun_vec();
 
-        qp.write(timing::ppl_render, cb);
         vv::as()->ofs.render(cb, &vv::as()->scene, {
           .light { l, 0 },
           .aspect = vv::ss()->swc.aspect(),
           .far = 32,
         });
+      });
 
-        qp.write(timing::ppl_post, cb);
-        vv::as()->post.render(cb, vv::ss()->swc, {
-          .fog { 0.4, 0.6, 0.8, 2 },
-          .far = 32,
-        });
+      vv::as()->post.render(cb, vv::ss()->swc, {
+        .fog { 0.4, 0.6, 0.8, 2 },
+        .far = 32,
       });
     }
     vv::ss()->swc.queue_submit(cb);

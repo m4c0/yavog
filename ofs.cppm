@@ -130,19 +130,8 @@ namespace ofs {
     shcaps m_scp {};
     lights m_lig {};
 
-    vee::extent m_ext {};
-    hai::uptr<msaa::framebuffer> m_fb {};
-
   public:
-    [[nodiscard]] constexpr const auto & fb() const { return *m_fb; }
-
-    void setup(const voo::swapchain & swc) {
-      m_ext = swc.extent();
-      m_fb.reset(new msaa::framebuffer { swc.extent() });
-    }
-
     void render(vee::command_buffer cb, buffers::vk::drawer * d, upc pc) {
-      auto rp = m_fb->cmd_render_pass(cb, pc.far);
       if (!d) return;
 
       vee::cmd_push_vert_frag_constants(cb, *m_lig.pl, &pc);
