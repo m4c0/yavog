@@ -66,7 +66,7 @@ struct app_stuff {
   voo::device_and_queue dq = poc::device_and_queue("poc-chunk-skybox");
   scene_drawer scene {};
 
-  post::pipeline post { dq, false };
+  post::pipeline post { dq, true };
   skybox::pipeline sky {};
   ofs::pipeline ofs {};
 };
@@ -81,7 +81,7 @@ struct ext_stuff {
 
     vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
       .far = 100.0,
-      .near = 32.0,
+      .near = 26.0,
     });
   }
 };
@@ -94,18 +94,18 @@ extern "C" void casein_init() {
     {
       voo::cmd_buf_one_time_submit ots { cb };
 
-      vv::ss()->msaa.cmd_render_pass(cb, 32, [&] {
+      vv::ss()->msaa.cmd_render_pass(cb, 36, [&] {
         vv::as()->ofs.render(cb, &vv::as()->scene, {
           .light { dotz::normalise(dotz::vec3 { -1 }), 0 },
           .aspect = vv::ss()->swc.aspect(),
-          .far = 32,
+          .far = 36,
         });
         vv::as()->sky.cmd_draw(cb, vv::ss()->swc.aspect());
       });
 
       vv::as()->post.render(cb, vv::ss()->swc, {
-        .fog { 0.4, 0.6, 0.8, 0 },
-        .far = 32,
+        .fog { 0.4, 0.6, 0.8, 2 },
+        .far = 36,
       });
     }
     vv::ss()->swc.queue_submit(cb);
