@@ -9,6 +9,7 @@ import hai;
 import models;
 import msaa;
 import ofs;
+import poc;
 import post;
 import silog;
 import sitime;
@@ -121,11 +122,6 @@ struct ext_stuff {
   ext_stuff() {
     vv::as()->post.update_descriptor_sets(msaa);
     vv::as()->post.setup(swc);
-
-    vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
-      .far = 128.0,
-      .near = 32.0,
-    });
   }
 };
 
@@ -145,10 +141,22 @@ static dotz::vec3 sun_vec() {
 
 static float g_far_plane = 15.f;
 static constexpr const float far_plane_delta = 10.0f;
+
+static float g_sky_far_plane = 0.f;
+static void update_skybox() {
+  vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
+    .far = 128.0,
+    .near = g_far_plane,
+  });
+  g_sky_far_plane = g_far_plane;
+}
+
 extern "C" void casein_init() {
   vv::setup([] {
     vv::ss()->swc.acquire_next_image();
     auto cb = vv::ss()->cb.cb();
+
+    if (dotz::abs(g_far_plane - g_sky_far_plane) > 6) update_skybox();
 
     auto frame_secs = g_tt.secs();
     g_tt = {};
