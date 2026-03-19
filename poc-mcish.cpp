@@ -12,6 +12,7 @@ import ofs;
 import post;
 import silog;
 import sitime;
+import skybox;
 import sv;
 import texmap;
 import timing;
@@ -103,16 +104,12 @@ scene_drawer::scene_drawer() {
 }
 
 struct app_stuff {
-  voo::device_and_queue dq { "poc-model", casein::native_ptr, {
-    .feats {
-      .independentBlend = true,
-      .samplerAnisotropy = true,
-    },
-  }};
+  voo::device_and_queue dq = poc::device_and_queue("poc-mcish");
   scene_drawer scene {};
 
   post::pipeline post { dq };
   ofs::pipeline ofs {};
+  skybox::pipeline sky {};
 };
 struct ext_stuff {
   voo::single_cb cb {};
@@ -124,6 +121,11 @@ struct ext_stuff {
   ext_stuff() {
     vv::as()->post.update_descriptor_sets(msaa);
     vv::as()->post.setup(swc);
+
+    vv::as()->sky.render_to_cubemap(&vv::as()->scene, {
+      .far = 128.0,
+      .near = 32.0,
+    });
   }
 };
 
@@ -165,6 +167,7 @@ extern "C" void casein_init() {
           .aspect = vv::ss()->swc.aspect(),
           .far = g_far_plane,
         });
+        vv::as()->sky.cmd_draw(cb, vv::ss()->swc.aspect());
       });
       vv::as()->post.render(cb, vv::ss()->swc, {
         .fog { 0.4, 0.6, 0.8, 2 },
