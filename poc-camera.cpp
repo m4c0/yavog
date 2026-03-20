@@ -2,6 +2,7 @@
 #pragma leco add_shader "poc-model.frag"
 #pragma leco add_shader "poc-camera.vert"
 import buffers;
+import camera;
 import casein;
 import chunk;
 import dotz;
@@ -18,7 +19,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct upc {
   dotz::vec2 cam;
-} g_pc;
+};
 
 struct app_stuff {
   voo::device_and_queue dq { "poc-indirect", casein::native_ptr };
@@ -71,10 +72,13 @@ struct ext_stuff {
   hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
 };
 
+static camera::t g_cam {};
 extern "C" void casein_init() {
   vv::setup([] {
     auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
+
+    upc pc { .cam = *g_cam };
 
     auto cb = vv::ss()->cb.cb();
     {
@@ -91,7 +95,7 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
-      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
+      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &pc);
       vv::as()->bufs.cmd_draw_vtx(cb);
     }
 
@@ -102,17 +106,4 @@ extern "C" void casein_init() {
   using namespace casein;
   window_title = "poc-indirect";
   window_size = { 600, 600 };
-
-  handle(MOUSE_MOVE, [] {
-    mouse_pos = window_size / 2.0;
-    interrupt(IRQ_MOUSE_POS);
-  });
-  handle(MOUSE_MOVE_REL, [] {
-    auto [yaw, pitch] = mouse_rel;
-    g_pc.cam.x = dotz::clamp(g_pc.cam.x - pitch, -90.f, 90.f);
-    g_pc.cam.y += yaw;
-  });
-
-  cursor_visible = false;
-  interrupt(IRQ_CURSOR);
 }
