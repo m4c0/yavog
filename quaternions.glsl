@@ -16,3 +16,8 @@ vec3 qrot(vec3 p, vec4 q) {
   // H(R', H(R, P))
   return ham(ham(q, vec4(p, 0)), vec4(-q.xyz, q.w)).xyz;
 }
+vec4 qmult(vec4 a, vec4 b) {
+  float v0 = a.w; vec3 v = a.xyz;
+  float w0 = b.w; vec3 w = b.xyz;
+  return vec4(v0 * w + w0 * v + cross(v, w), v0 * w0 - dot(v, w));
+}
