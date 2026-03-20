@@ -1,9 +1,10 @@
 #pragma leco app
 #pragma leco add_shader "poc-model.frag"
-#pragma leco add_shader "poc-indirect.vert"
+#pragma leco add_shader "poc-camera.vert"
 import buffers;
 import casein;
 import chunk;
+import dotz;
 import hai;
 import models;
 import vinyl;
@@ -15,16 +16,20 @@ struct app_stuff;
 struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
+struct upc {
+  dotz::vec2 cam;
+} g_pc;
+
 struct app_stuff {
   voo::device_and_queue dq { "poc-indirect", casein::native_ptr };
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout();
+  vee::pipeline_layout pl = vee::create_pipeline_layout(vee::vertex_push_constant_range<upc>());
   vee::gr_pipeline ppl = vee::create_graphics_pipeline({
     .pipeline_layout = *pl,
     .render_pass = *rp,
     .shaders {
-      voo::vert_shader("poc-indirect.vert.spv").pipeline_stage(),
+      voo::vert_shader("poc-camera.vert.spv").pipeline_stage(),
       voo::frag_shader("poc-model.frag.spv").pipeline_stage(),
     },
     .bindings = buffers::vk::ibindings(),
@@ -67,8 +72,6 @@ struct ext_stuff {
 };
 
 extern "C" void casein_init() {
-  casein::window_size = { 600, 600 };
-
   vv::setup([] {
     auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
@@ -88,6 +91,7 @@ extern "C" void casein_init() {
       vee::cmd_set_viewport(cb, ext);
       vee::cmd_set_scissor(cb, ext);
       vee::cmd_bind_gr_pipeline(cb, *vv::as()->ppl);
+      vee::cmd_push_vertex_constants(cb, *vv::as()->pl, &g_pc);
       vv::as()->bufs.cmd_draw_vtx(cb);
     }
 
@@ -95,5 +99,15 @@ extern "C" void casein_init() {
     vv::ss()->swc.queue_present();
   });
 
-  casein::window_title = "poc-indirect";
+  using namespace casein;
+  window_title = "poc-indirect";
+  window_size = { 600, 600 };
+
+  handle(MOUSE_MOVE_REL, [] {
+    auto [yaw, pitch] = mouse_rel;
+    g_pc.cam.x = dotz::clamp(
+        g_pc.cam.x - pitch,
+        -90.f, 90.f);
+    g_pc.cam.y += yaw;
+  });
 }

@@ -16,9 +16,9 @@ layout(location = 1) out uint f_txtid;
 layout(location = 2) out vec3 f_pos;
 layout(location = 3) out vec3 f_normal;
 
-vec3  qrot(vec3 p, vec4 q);
 vec3  i_qrot(vec3);
 vec4  i_modl(vec4);
+vec3  axis_rot(vec3 p, vec3 axis, float deg);
 
 const float fov = 90;
 
@@ -29,11 +29,6 @@ struct proj_params {
   float near;
 };
 vec3 proj(vec4 p, proj_params par);
-
-vec3 axis_rot(vec3 p, vec3 axis, float deg) {
-  float ang = radians(deg / 2);
-  return qrot(p, vec4(axis * sin(ang), cos(ang)));
-}
 
 vec3 view(vec3 p) {
   // Projection is inverted compared to player's camera

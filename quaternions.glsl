@@ -21,3 +21,8 @@ vec4 qmult(vec4 a, vec4 b) {
   float w0 = b.w; vec3 w = b.xyz;
   return vec4(v0 * w + w0 * v + cross(v, w), v0 * w0 - dot(v, w));
 }
+
+vec3 axis_rot(vec3 p, vec3 axis, float deg) {
+  float ang = radians(deg / 2);
+  return qrot(p, vec4(axis * sin(ang), cos(ang)));
+}
