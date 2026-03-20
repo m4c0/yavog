@@ -14,7 +14,7 @@ const float far = 10;
 const float near = 0.1;
 
 void main() {
-  vec4 p = pos + i_pos;
+  vec4 p = (pos * i_size) + i_pos;
 
   p.xy *= -1;
   gl_Position = mat4(
