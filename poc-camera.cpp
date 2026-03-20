@@ -67,7 +67,7 @@ struct app_stuff {
 };
 struct ext_stuff {
   voo::single_cb cb {};
-  voo::swapchain swc { vv::as()->dq, false };
+  voo::swapchain swc { vv::as()->dq };
   hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
 };
 
