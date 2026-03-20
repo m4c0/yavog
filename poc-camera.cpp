@@ -103,11 +103,16 @@ extern "C" void casein_init() {
   window_title = "poc-indirect";
   window_size = { 600, 600 };
 
+  handle(MOUSE_MOVE, [] {
+    mouse_pos = window_size / 2.0;
+    interrupt(IRQ_MOUSE_POS);
+  });
   handle(MOUSE_MOVE_REL, [] {
     auto [yaw, pitch] = mouse_rel;
-    g_pc.cam.x = dotz::clamp(
-        g_pc.cam.x - pitch,
-        -90.f, 90.f);
+    g_pc.cam.x = dotz::clamp(g_pc.cam.x - pitch, -90.f, 90.f);
     g_pc.cam.y += yaw;
   });
+
+  cursor_visible = false;
+  interrupt(IRQ_CURSOR);
 }
