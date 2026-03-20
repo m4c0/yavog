@@ -8,6 +8,7 @@ import chunk;
 import dotz;
 import hai;
 import models;
+import sitime;
 import vinyl;
 import voo;
 
@@ -18,7 +19,8 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct upc {
-  dotz::vec2 cam;
+  dotz::vec3 pos;
+  alignas(16) dotz::vec2 cam;
 };
 
 struct app_stuff {
@@ -78,7 +80,14 @@ extern "C" void casein_init() {
     auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
 
-    upc pc { .cam = g_cam.rotation() };
+    upc pc {
+      .pos = g_cam.position(),
+      .cam = g_cam.rotation(),
+    };
+
+    static sitime::stopwatch t {};
+    g_cam.position(g_cam.lerp(t.secs()));
+    t = {};
 
     auto cb = vv::ss()->cb.cb();
     {

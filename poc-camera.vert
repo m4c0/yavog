@@ -1,7 +1,8 @@
 #pragma leco include "quaternions.glsl"
 
 layout(push_constant) uniform upc {
-  vec2 cam;
+  vec3 cam_pos;
+  vec2 cam_rot;
 } pc;
 
 layout(location = 0) in vec4 i_pos;
@@ -20,9 +21,9 @@ const float near = 0.1;
 vec3 axis_rot(vec3 p, vec3 axis, float deg);
 
 void main() {
-  vec4 p = (pos * i_size) + i_pos;
-  p.xyz = axis_rot(p.xyz, vec3(0, 1, 0), pc.cam.y);
-  p.xyz = axis_rot(p.xyz, vec3(1, 0, 0), pc.cam.x);
+  vec4 p = (pos * i_size) + i_pos - vec4(pc.cam_pos, 0);
+  p.xyz = axis_rot(p.xyz, vec3(0, 1, 0), pc.cam_rot.y);
+  p.xyz = axis_rot(p.xyz, vec3(1, 0, 0), pc.cam_rot.x);
 
   p.xy *= -1;
   gl_Position = mat4(
