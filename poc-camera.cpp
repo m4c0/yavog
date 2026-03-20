@@ -78,7 +78,7 @@ extern "C" void casein_init() {
     auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
 
-    upc pc { .cam = *g_cam };
+    upc pc { .cam = g_cam.rotation() };
 
     auto cb = vv::ss()->cb.cb();
     {
