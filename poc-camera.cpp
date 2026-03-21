@@ -8,7 +8,6 @@ import chunk;
 import dotz;
 import hai;
 import models;
-import sitime;
 import vinyl;
 import voo;
 
@@ -74,20 +73,22 @@ struct ext_stuff {
   hai::array<vee::framebuffer> fbs = swc.create_framebuffers(*vv::as()->rp);
 };
 
-static camera::t g_cam {};
+static hai::uptr<camera::t> g_cam {};
 extern "C" void casein_init() {
   vv::setup([] {
     auto ext = vv::ss()->swc.extent();
     vv::ss()->swc.acquire_next_image();
 
-    upc pc {
-      .pos = g_cam.position(),
-      .cam { g_cam.pitch(), g_cam.yaw() },
-    };
+    upc pc {};
 
-    static sitime::stopwatch t {};
-    g_cam.position(g_cam.lerp(t.secs()));
-    t = {};
+    if (!g_cam) g_cam.reset(new camera::t {});
+    else {
+      g_cam->position(g_cam->lerp(1));
+      pc = {
+        .pos = g_cam->position(),
+        .cam { g_cam->pitch(), g_cam->yaw() },
+      };
+    }
 
     auto cb = vv::ss()->cb.cb();
     {

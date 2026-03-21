@@ -1,6 +1,7 @@
 export module camera;
 import casein;
 import dotz;
+import sitime;
 
 using namespace casein;
 
@@ -13,6 +14,7 @@ namespace camera {
       ek_bwd,
     };
 
+    sitime::stopwatch m_time {};
     dotz::vec3 m_pos {};
     float m_yaw {};
     float m_pitch {};
@@ -86,7 +88,12 @@ namespace camera {
       };
     }
 
-    [[nodiscard]] constexpr auto lerp(float f) { return m_pos + direction() * f; }
-    constexpr void position(dotz::vec3 p) { m_pos = p; }
+    [[nodiscard]] constexpr auto lerp(float f) {
+      return m_pos + direction() * f * m_time.secs();
+    }
+    void position(dotz::vec3 p) {
+      m_pos = p;
+      m_time = {};
+    }
   };
 }
