@@ -82,7 +82,7 @@ extern "C" void casein_init() {
 
     upc pc {
       .pos = g_cam.position(),
-      .cam = g_cam.rotation(),
+      .cam { g_cam.pitch(), g_cam.yaw() },
     };
 
     static sitime::stopwatch t {};
@@ -113,6 +113,6 @@ extern "C" void casein_init() {
   });
 
   using namespace casein;
-  window_title = "poc-indirect";
+  window_title = "poc-camera";
   window_size = { 600, 600 };
 }
