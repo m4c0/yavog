@@ -1,9 +1,11 @@
 #pragma leco test
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
 import jojo;
 import jute;
 import hay;
+import pprent;
 import stubby;
 import sv;
 import wagen;
@@ -39,5 +41,9 @@ static void conv(sv name) {
 }
 
 int main() {
-  conv("assets/Tiles101_1K-JPG_Color.jpg");
+  for (auto f : pprent::list("assets")) {
+    sv fs = sv::unsafe(f);
+    if (!fs.ends_with(".jpg") && !fs.ends_with(".png")) continue;
+    conv(("assets/"_s + fs).cstr());
+  }
 }
