@@ -41,7 +41,7 @@ struct app_stuff {
   };
 
   app_stuff() {
-    float txt_id = tmap.load("Tiles101_1K-JPG_Color.jpg");
+    float txt_id = tmap.load("Tiles101_1K-JPG_Color.pci");
 
     auto m = bufs.inst.map();
     m += { .pos { -1,  0, 4 }, .txtid = txt_id };

@@ -1,12 +1,54 @@
+module;
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+
 export module texmap;
 import hai;
+import hay;
 import hashley;
 import no;
+import silog;
+import sires;
 import sv;
 import voo;
 
 namespace texmap {
   static constexpr const auto max_sets = 128;
+
+  static auto open(sv file) {
+    auto f = fopen(sires::real_path_name(file).begin(), "rb");
+    if (!f) silog::die("missing resource file");
+    return f;
+  }
+  static auto read_u32(FILE * f) {
+    unsigned r {};
+    if (1 != fread(&r, 4, 1, f)) silog::die("error reading file");
+    return r;
+  }
+  static void load_image(sv file, voo::bound_image * bi, hai::fn<void> callback) {
+    hay<FILE *, open, fclose> f { file };
+    if ('PCIm' != read_u32(f)) silog::die("invalid file format");
+    unsigned w = read_u32(f);
+    unsigned h = read_u32(f);
+    unsigned sz = w * h * 2;
+
+    auto host = voo::bound_buffer::create_from_host(sz, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    {
+      voo::mapmem c { *host.memory };
+      if (1 != fread(*c, sz, 1, f)) silog::die("error reading image data");
+    }
+  
+    constexpr const auto fmt = VK_FORMAT_A1R5G5B5_UNORM_PACK16;
+    constexpr const auto usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    VkExtent2D ext { w, h };
+    bi->img = vee::create_image({w, h}, fmt, usage); 
+    bi->mem = vee::create_local_image_memory(physical_device(), *bi->img);
+    vee::bind_image_memory(*bi->img, *bi->mem);
+    bi->iv = vee::create_image_view(*bi->img, fmt);
+  
+    voo::copy_buffer_to_image_sync(ext, *host.buffer, *bi->img);
+    callback();
+  }
 
   export auto descriptor_set_layout() {
     return vee::create_descriptor_set_layout({
@@ -33,9 +75,15 @@ namespace texmap {
 
       auto id = m_count++;
       m_ids[name] = id;
-      voo::load_image(name, &m_imgs[id], [this,id](auto sz) {
-        vee::update_descriptor_set(m_dset, 0, id, *m_imgs[id].iv, *m_smp);
-      });
+      if (name.ends_with(".pci")) {
+        load_image(name, &m_imgs[id], [this,id] {
+          vee::update_descriptor_set(m_dset, 0, id, *m_imgs[id].iv, *m_smp);
+        });
+      } else {
+        voo::load_image(name, &m_imgs[id], [this,id](auto sz) {
+          vee::update_descriptor_set(m_dset, 0, id, *m_imgs[id].iv, *m_smp);
+        });
+      }
       return id;
     }
 
