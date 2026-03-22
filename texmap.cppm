@@ -49,7 +49,23 @@ namespace texmap {
     vee::bind_image_memory(*bi->img, *bi->mem);
     bi->iv = vee::create_image_view(*bi->img, fmt);
   
-    voo::copy_buffer_to_image_sync(ext, *host.buffer, *bi->img);
+    voo::fence fc { false };
+    voo::command_pool cpool {};
+    auto cb = cpool.allocate_primary_command_buffer();
+
+    {
+      voo::cmd_buf_one_time_submit ots { cb };
+      vee::cmd_pipeline_barrier(cb, *bi->img, vee::from_host_to_transfer);
+      vee::cmd_copy_buffer_to_image(cb, ext, *host.buffer, *bi->img);
+      vee::cmd_pipeline_barrier(cb, *bi->img, vee::from_transfer_to_fragment);
+    }
+    voo::queue::universal()->queue_submit({
+      .fence = fc,
+      .command_buffer = cb,
+    });
+
+    fc.wait();
+
     callback();
   }
 
