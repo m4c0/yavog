@@ -35,6 +35,9 @@ namespace texmap {
     hashley::niamh m_ids { 127 };
     unsigned m_count = 0;
 
+    voo::bound_buffer m_stg = voo::bound_buffer::create_from_host(1024 * 1024 * 2, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    voo::fence m_fc { true };
+    voo::single_cb m_cb {};
     void load_packed_image(sv name, unsigned id);
 
   public:
@@ -76,11 +79,13 @@ void texmap::cache::load_packed_image(sv file, unsigned id) {
   if ('PCIm' != read_u32(f)) silog::die("invalid file format");
   unsigned w = read_u32(f);
   unsigned h = read_u32(f);
+  if (w > 1024 || h > 1024) silog::die("image must be smaller or equal 1024x1024");
   unsigned sz = w * h * 2;
 
-  auto host = voo::bound_buffer::create_from_host(sz, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+  m_fc.wait_and_reset();
+
   {
-    voo::mapmem c { *host.memory };
+    voo::mapmem c { *m_stg.memory };
     if (1 != fread(*c, sz, 1, f)) silog::die("error reading image data");
   }
 
@@ -92,24 +97,18 @@ void texmap::cache::load_packed_image(sv file, unsigned id) {
   bi.mem = vee::create_local_image_memory(physical_device(), *bi.img);
   vee::bind_image_memory(*bi.img, *bi.mem);
   bi.iv = vee::create_image_view(*bi.img, fmt);
+  vee::update_descriptor_set(m_dset, 0, id, *m_imgs[id].iv, *m_smp);
 
-  voo::fence fc { false };
-  voo::command_pool cpool {};
-  auto cb = cpool.allocate_primary_command_buffer();
-
+  auto cb = m_cb.cb();
   {
     voo::cmd_buf_one_time_submit ots { cb };
     vee::cmd_pipeline_barrier(cb, *bi.img, vee::from_host_to_transfer);
-    vee::cmd_copy_buffer_to_image(cb, ext, *host.buffer, *bi.img);
+    vee::cmd_copy_buffer_to_image(cb, ext, *m_stg.buffer, *bi.img);
     vee::cmd_pipeline_barrier(cb, *bi.img, vee::from_transfer_to_fragment);
   }
   voo::queue::universal()->queue_submit({
-    .fence = fc,
+    .fence = m_fc,
     .command_buffer = cb,
   });
-
-  fc.wait();
-
-  vee::update_descriptor_set(m_dset, 0, id, *m_imgs[id].iv, *m_smp);
 }
 
