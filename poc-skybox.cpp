@@ -30,11 +30,11 @@ class scene_drawer : public buffers::vk::drawer {
 
 public:
   scene_drawer() {
-    float txt0 = txts.load("Tiles040_1K-JPG_Color.jpg");
-    float txt1 = txts.load("Tiles101_1K-JPG_Color.jpg");
-    float txt2 = txts.load("Tiles131_1K-JPG_Color.jpg");
-    float txt3 = txts.load("Ground037_1K-JPG_Color.jpg");
-    float txt4 = txts.load("Ground105_1K-JPG_Color.jpg");
+    float txt0 = txts.load("Tiles040_1K-JPG_Color.pci");
+    float txt1 = txts.load("Tiles101_1K-JPG_Color.pci");
+    float txt2 = txts.load("Tiles131_1K-JPG_Color.pci");
+    float txt3 = txts.load("Ground037_1K-JPG_Color.pci");
+    float txt4 = txts.load("Ground105_1K-JPG_Color.pci");
 
     auto i = bufs.inst.map();
     auto cube = [&](dotz::vec3 p, float txt) {

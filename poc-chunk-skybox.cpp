@@ -40,8 +40,8 @@ class scene_drawer : public buffers::vk::drawer {
 public:
   scene_drawer() {
     using enum chunk::model;
-    auto dirt  = m_tmap.load("Ground105_1K-JPG_Color.jpg");
-    auto grass = m_tmap.load("Ground037_1K-JPG_Color.jpg");
+    auto dirt  = m_tmap.load("Ground105_1K-JPG_Color.pci");
+    auto grass = m_tmap.load("Ground037_1K-JPG_Color.pci");
 
     constexpr const auto mm = chunk::minmax;
     for (auto x = -mm; x <= mm; x++) {

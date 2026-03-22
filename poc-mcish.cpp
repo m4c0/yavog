@@ -65,8 +65,8 @@ scene_drawer::scene_drawer() {
   auto & ch = m_ch;
 
   using enum chunk::model;
-  auto dirt  = m_tmap.load("Ground105_1K-JPG_Color.jpg");
-  auto grass = m_tmap.load("Ground037_1K-JPG_Color.jpg");
+  auto dirt  = m_tmap.load("Ground105_1K-JPG_Color.pci");
+  auto grass = m_tmap.load("Ground037_1K-JPG_Color.pci");
 
   constexpr const auto mm = chunk::minmax;
 

@@ -45,8 +45,8 @@ struct app_stuff {
 
   app_stuff() {
     using enum chunk::model;
-    auto dirt  = tmap.load("Ground105_1K-JPG_Color.jpg");
-    auto grass = tmap.load("Ground037_1K-JPG_Color.jpg");
+    auto dirt  = tmap.load("Ground105_1K-JPG_Color.pci");
+    auto grass = tmap.load("Ground037_1K-JPG_Color.pci");
 
     constexpr const auto mm = chunk::minmax;
     for (auto x = -mm; x <= mm; x++) {

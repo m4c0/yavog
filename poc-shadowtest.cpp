@@ -59,9 +59,9 @@ public:
 };
 
 scene_drawer::scene_drawer() {
-  static constexpr const sv t040 = "Tiles040_1K-JPG_Color.jpg";
-  static constexpr const sv t101 = "Tiles101_1K-JPG_Color.jpg";
-  static constexpr const sv t131 = "Tiles131_1K-JPG_Color.jpg";
+  static constexpr const sv t040 = "Tiles040_1K-JPG_Color.pci";
+  static constexpr const sv t101 = "Tiles101_1K-JPG_Color.pci";
+  static constexpr const sv t131 = "Tiles131_1K-JPG_Color.pci";
 
   unsigned txt_ids[] {
     m_tmap.load(t040),
