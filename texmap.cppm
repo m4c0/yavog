@@ -6,6 +6,7 @@ export module texmap;
 import hai;
 import hay;
 import hashley;
+import jute;
 import no;
 import silog;
 import sires;
@@ -26,6 +27,8 @@ namespace texmap {
     return r;
   }
   static void load_image(sv file, voo::bound_image * bi, hai::fn<void> callback) {
+    silog::info(jute::fmt<"Loading packed image %s">(file));
+
     hay<FILE *, open, fclose> f { file };
     if ('PCIm' != read_u32(f)) silog::die("invalid file format");
     unsigned w = read_u32(f);
