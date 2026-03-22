@@ -30,15 +30,11 @@ static void conv(sv name) {
 
   unsigned char * c = *img.data;
   for (auto i = 0; i < img.width * img.height; i++) {
-    unsigned short a = *c++ ? 1 : 0;
-    unsigned short b = *c++ >> 3;
-    unsigned short g = *c++ >> 3;
     unsigned short r = *c++ >> 3;
-    write_u16(f,
-        a << 15 |
-        b << 10 |
-        g << 5 |
-        r);
+    unsigned short g = *c++ >> 3;
+    unsigned short b = *c++ >> 3;
+    unsigned short a = *c++ ? 1 : 0;
+    write_u16(f, a << 15 | r << 10 | g << 5 | b);
   }
 }
 
