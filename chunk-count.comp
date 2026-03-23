@@ -19,6 +19,9 @@ struct VkDrawIndirectCommand {
   uint first_vertex;
   uint first_instance;
 };
+struct VkDispatchIndirectCommand {
+  uvec3 n;
+};
 
 layout(constant_id = 67) const uint mdl_count = 4;
 
@@ -29,6 +32,7 @@ layout(push_constant) uniform upc {
 layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
 layout(binding = 0, set = 1) buffer buf_1 { VkDrawIndexedIndirectCommand vcmd[]; };
 layout(binding = 0, set = 2) buffer buf_2 { VkDrawIndirectCommand ecmd[]; };
+layout(binding = 0, set = 3) buffer buf_3 { VkDispatchIndirectCommand dcmd; };
 
 void main() {
   uint id = gl_GlobalInvocationID.x;
@@ -36,6 +40,7 @@ void main() {
   if (subgroupElect()) {
     atomicAdd(vcmd[pc.filt].instance_count, val);
     atomicAdd(ecmd[pc.filt].instance_count, val);
+    atomicAdd(dcmd.n.x, val);
 
     for (uint i = pc.filt + 1; i < mdl_count; i++) {
       atomicAdd(vcmd[i].first_instance, val);

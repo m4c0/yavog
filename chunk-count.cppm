@@ -1,6 +1,7 @@
 #pragma leco add_shader "chunk-count.comp"
 export module chunk:count;
 import :cpipeline;
+import buffers;
 import traits;
 import voo;
 
@@ -12,15 +13,15 @@ namespace chunk {
       unsigned mdl;
     };
 
-    cpipeline<upc, 3> m_cp;
+    cpipeline<upc, 4> m_cp;
 
   public:
-    explicit count(VkBuffer in, VkBuffer vcmd, VkBuffer ecmd) :
-      m_cp { "chunk-count.comp.spv", { in, vcmd, ecmd } }
+    explicit count(buffers::all & b) :
+      m_cp { "chunk-count.comp.spv", { *b.inst, *b.vcmd, *b.ecmd, *b.dcmd } }
     {}
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {
       upc pc { .mdl = static_cast<unsigned>(mdl) };
-      m_cp.cmd_dispatch(cb, &pc, { 0, 1, 2 }, { elems, 1U, 1U });
+      m_cp.cmd_dispatch(cb, &pc, { 0, 1, 2, 3 }, { elems, 1U, 1U });
     }
   };
 }

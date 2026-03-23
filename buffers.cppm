@@ -46,6 +46,9 @@ namespace buffers {
   template<> VkBufferUsageFlags usage<VkDrawIndirectCommand>() {
     return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
+  template<> VkBufferUsageFlags usage<VkDispatchIndirectCommand>() {
+    return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+  }
 
   export template<typename T> class buffer : no::no {
     voo::bound_buffer m_buf;
@@ -213,12 +216,22 @@ namespace buffers {
     }
   };
 
+  export class dc_buffer : public buffer<VkDispatchIndirectCommand> {
+  public:
+    dc_buffer() : buffer<VkDispatchIndirectCommand> { 1 } {}
+
+    void cmd_draw(vee::command_buffer cb) {
+      vee::cmd_dispatch_indirect(cb, **this);
+    }
+  };
+
   export struct all {
     v_buffer  vtx;
     ix_buffer idx;
     e_buffer  edg;
     vc_buffer vcmd;
     ec_buffer ecmd;
+    dc_buffer dcmd {};
     i_buffer  inst;
 
     template<typename... T> all(unsigned insts, T...) :

@@ -43,7 +43,7 @@ struct app_stuff {
     models::cube::t {},
   };
 
-  chunk::count cc { *bufs.inst, *bufs.vcmd, *bufs.ecmd };
+  chunk::count cc { bufs };
 
   app_stuff() {
     auto i = bufs.inst.map();
