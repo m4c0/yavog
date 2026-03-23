@@ -7,6 +7,7 @@ import dotz;
 import models;
 import msaa;
 import ofs;
+import poc;
 import post;
 import texmap;
 import vinyl;
@@ -17,12 +18,7 @@ struct ext_stuff;
 using vv = vinyl::v<app_stuff, ext_stuff>;
 
 struct app_stuff {
-  voo::device_and_queue dq { "poc-chunk", casein::native_ptr, {
-    .feats {
-      .independentBlend = true,
-      .samplerAnisotropy = true,
-    },
-  }};
+  voo::device_and_queue dq = poc::device_and_queue("poc-chunk");
   vee::render_pass rp = voo::single_att_render_pass(dq);
 
   post::pipeline post { dq };
