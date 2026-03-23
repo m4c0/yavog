@@ -1,0 +1,16 @@
+#version 450
+
+struct inst {
+  vec4 rot;
+  vec4 pos;  // pos.xyz + mdl
+  vec4 size; // size.xyz + txt
+};
+struct obj {
+  vec4 pos; // pos.xyz + hit
+};
+
+layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
+layout(binding = 1, set = 0) buffer buf_1 { obj obp[]; };
+
+void main() {
+}

@@ -1,5 +1,6 @@
 export module chunk:gpunator;
 import :bitonic;
+import :collision;
 import :compact;
 import :count;
 import :stamp;
@@ -33,6 +34,7 @@ namespace chunk {
     compact m_comp;
     bitonic m_bit;
     count m_cc;
+    collision m_col;
 
   public:
     template<typename... T> gpunator(dotz::ivec3 len, T...) :
@@ -42,6 +44,7 @@ namespace chunk {
     , m_comp { *m_in.inst, *m_out.inst, len }
     , m_bit { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     , m_cc { *m_out.inst, *m_out.vcmd, *m_out.ecmd }
+    , m_col { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     {
       auto cb = m_cb.cb();
 
