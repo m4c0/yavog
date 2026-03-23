@@ -218,7 +218,10 @@ namespace buffers {
 
   export class dc_buffer : public buffer<VkDispatchIndirectCommand> {
   public:
-    dc_buffer() : buffer<VkDispatchIndirectCommand> { 1 } {}
+    dc_buffer() : buffer<VkDispatchIndirectCommand> { 1 } {
+      auto m = map();
+      m += { 1, 1, 1 };
+    }
 
     void cmd_draw(vee::command_buffer cb) {
       vee::cmd_dispatch_indirect(cb, **this);
