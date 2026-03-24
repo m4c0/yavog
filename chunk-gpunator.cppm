@@ -44,7 +44,7 @@ namespace chunk {
     , m_comp { *m_in.inst, *m_out.inst, len }
     , m_bit { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     , m_cc { m_out }
-    , m_col { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
+    , m_col { m_out, static_cast<unsigned>(len.x * len.y * len.z) }
     {
       auto cb = m_cb.cb();
 

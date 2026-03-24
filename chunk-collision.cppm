@@ -1,6 +1,7 @@
 #pragma leco add_shader "chunk-collision.comp"
 export module chunk:collision;
 import :cpipeline;
+import buffers;
 
 namespace chunk {
   static inline constexpr const auto max_ents = 8;
@@ -18,19 +19,23 @@ namespace chunk {
         max_ents * sizeof(centity),
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     unsigned m_ecnt = 0;
-    
+
     cpipeline<upc, 2> m_cp;
     unsigned m_elems;
 
+    VkBuffer m_dcmd;
+
   public:
-    collision(VkBuffer buf, unsigned elems) :
-      m_cp { "chunk-collision.comp.spv", { buf, *m_buf.buffer } }
+    collision(buffers::all & b, unsigned elems) :
+      m_cp { "chunk-collision.comp.spv", { *b.inst, *m_buf.buffer } }
     , m_elems { elems }
+    , m_dcmd { *b.dcmd }
     {}
 
     void cmd(vee::command_buffer cb) {
       upc pc {};
-      m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { m_elems, m_ecnt, 1U });
+      m_cp.cmd_bind(cb, &pc, { 0, 1 });
+      vee::cmd_dispatch_indirect(cb, m_dcmd);
     }
   };
 }
