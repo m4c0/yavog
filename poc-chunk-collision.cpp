@@ -1,7 +1,9 @@
 #pragma leco app
+import buffers;
 import chunk;
 import dotz;
 import models;
+import silog;
 import voo;
 
 int main() {
@@ -52,5 +54,15 @@ int main() {
   // read from host
   // take a list of candidates (might be useful for wall-hugging and enemies)
 
+  buffers::all bb { 100, models::cube::t {} };
+  chunk::collision col { bb, 100 };
+
+  voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
+    col.cmd(cb.cb());
+  });
+
   vee::device_wait_idle();
+
+  auto m = bb.dcmd.map();
+  silog::infof("%d %d %d", m[0].x, m[0].y, m[0].z);
 }
