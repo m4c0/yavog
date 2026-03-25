@@ -9,14 +9,18 @@ import voo;
 int main() {
   voo::device_and_queue dq { "poc-chunk-collision" };
 
-  static constexpr const unsigned len = 32; // PoT padding
-  chunk::gpunator cgpu {
-    len,
-    models::corner::t {},
-    models::cube::t {},
-    models::prism::t {},
-  };
-  chunk::stamp ch = cgpu.stamp();
+  buffers::all bb { 100, models::cube::t {} };
+  chunk::collision col { bb, 100 };
+  chunk::stamp ch { *bb.inst, { chunk::len } };
+
+  //static constexpr const unsigned len = 32; // PoT padding
+  //chunk::gpunator cgpu {
+  //  len,
+  //  models::corner::t {},
+  //  models::cube::t {},
+  //  models::prism::t {},
+  //};
+  //chunk::stamp ch = cgpu.stamp();
 
   using enum chunk::model;
   constexpr const auto mm = chunk::minmax;
@@ -45,7 +49,7 @@ int main() {
   ch.set({ 1, -1, 3 }, { .rot = r180, .mdl = corner });
 
   ch.copy({});
-  cgpu.submit();
+  //cgpu.submit();
 
   voo::single_cb cb {};
   // create compute pipeline
@@ -53,9 +57,6 @@ int main() {
   // dispatch
   // read from host
   // take a list of candidates (might be useful for wall-hugging and enemies)
-
-  buffers::all bb { 100, models::cube::t {} };
-  chunk::collision col { bb, 100 };
 
   voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
     col.cmd(cb.cb());
