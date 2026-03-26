@@ -66,6 +66,12 @@ namespace chunk {
     [[nodiscard]] auto stamp() {
       return chunk::stamp { *m_in.inst, m_len };
     }
+    [[nodiscard]] auto collision() {
+      return chunk::collision {
+        m_out,
+        static_cast<unsigned>(m_len.x * m_len.y * m_len.z),
+      };
+    }
 
     void cmd_draw_vtx(vee::command_buffer cb) {
       m_out.cmd_draw_vtx(cb);
@@ -73,6 +79,8 @@ namespace chunk {
     void cmd_draw_edg(vee::command_buffer cb) {
       m_out.cmd_draw_edg(cb);
     }
+
+    auto & dcmd() { return m_out.dcmd; }
 
     void submit() const {
       voo::queue::universal()->submit({ .command_buffer = m_cb.cb() });
