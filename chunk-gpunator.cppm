@@ -44,7 +44,7 @@ namespace chunk {
     , m_comp { *m_in.inst, *m_out.inst, len }
     , m_bit { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     , m_cc { m_out }
-    , m_col { m_out, static_cast<unsigned>(len.x * len.y * len.z) }
+    , m_col { m_out }
     {
       auto cb = m_cb.cb();
 
@@ -67,10 +67,7 @@ namespace chunk {
       return chunk::stamp { *m_in.inst, m_len };
     }
     [[nodiscard]] auto collision() {
-      return chunk::collision {
-        m_out,
-        static_cast<unsigned>(m_len.x * m_len.y * m_len.z),
-      };
+      return chunk::collision { m_out };
     }
 
     void cmd_draw_vtx(vee::command_buffer cb) {
@@ -79,8 +76,6 @@ namespace chunk {
     void cmd_draw_edg(vee::command_buffer cb) {
       m_out.cmd_draw_edg(cb);
     }
-
-    auto & dcmd() { return m_out.dcmd; }
 
     void submit() const {
       voo::queue::universal()->submit({ .command_buffer = m_cb.cb() });

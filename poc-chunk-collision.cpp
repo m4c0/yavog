@@ -6,6 +6,7 @@ import models;
 import silog;
 import voo;
 
+// TODO: take a list of candidates (might be useful for wall-hugging and enemies)
 int main() {
   voo::device_and_queue dq { "poc-chunk-collision" };
 
@@ -48,19 +49,22 @@ int main() {
   cgpu.submit();
 
   voo::single_cb cb {};
-  // create compute pipeline
-  // extract number of instances after compact
-  // dispatch
-  // read from host
-  // take a list of candidates (might be useful for wall-hugging and enemies)
 
   auto col = cgpu.collision();
+  {
+    auto m = col.map();
+    m += { { 1, 2, 1 } };
+  }
+  vee::device_wait_idle();
+
   voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
     col.cmd(cb.cb());
   });
 
   vee::device_wait_idle();
 
-  auto m = cgpu.dcmd().map();
-  silog::infof("%d %d %d", m[0].x, m[0].y, m[0].z);
+  auto m = col.map();
+  for (auto i = 0; i < 1; i++) {
+    silog::infof("%f %f %f - %f", m[i].pos.x, m[i].pos.y, m[i].pos.z, m[i].hit);
+  }
 }

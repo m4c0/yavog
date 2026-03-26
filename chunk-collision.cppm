@@ -21,14 +21,12 @@ namespace chunk {
     unsigned m_ecnt = 0;
 
     cpipeline<upc, 2> m_cp;
-    unsigned m_elems;
 
     VkBuffer m_dcmd;
 
   public:
-    collision(buffers::all & b, unsigned elems) :
+    collision(buffers::all & b) :
       m_cp { "chunk-collision.comp.spv", { *b.inst, *m_buf.buffer } }
-    , m_elems { elems }
     , m_dcmd { *b.dcmd }
     {}
 
@@ -37,5 +35,7 @@ namespace chunk {
       m_cp.cmd_bind(cb, &pc, { 0, 1 });
       vee::cmd_dispatch_indirect(cb, m_dcmd);
     }
+
+    auto map() { return voo::memiter<centity>(*m_buf.memory, &m_ecnt); }
   };
 }
