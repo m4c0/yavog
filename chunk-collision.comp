@@ -13,5 +13,13 @@ layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
 layout(binding = 0, set = 1) buffer buf_1 { obj obp[]; };
 
 void main() {
-  obp[0].pos.w = 69;
+  uint ii = gl_GlobalInvocationID.x;
+  uint oi = gl_GlobalInvocationID.y;
+
+  uint in_mdl = uint(inp[ii].pos.w);
+  switch (in_mdl) {
+    case 2:
+      obp[0].pos.w = 99;
+      break;
+  }
 }
