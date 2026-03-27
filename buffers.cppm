@@ -166,55 +166,32 @@ namespace buffers {
   };
  
   export class vc_buffer : public buffer<VkDrawIndexedIndirectCommand> {
-    template<typename T> void push(auto & map, unsigned & i, int & vofs, T) {
-      map += {
-        .indexCount   = size(T::tri) * 3,
-        .firstIndex   = i,
-        .vertexOffset = vofs,
-      };
-      i += size(T::tri) * 3;
-      vofs += size(T::vtx);
-    }
+    unsigned m_count;
 
   public:
-    template<typename... T> vc_buffer(T...) :
-      buffer<VkDrawIndexedIndirectCommand> { sizeof...(T) + 1 }
-    {
-      unsigned i = 0;
-      int vofs = 0;
-      auto m = buffer::map();
-      m += {};
-      (push(m, i, vofs, T {}), ...);
-    }
+    explicit vc_buffer(unsigned sz) :
+      buffer<VkDrawIndexedIndirectCommand> { sz }
+    , m_count { sz }
+    {}
 
     void cmd_draw(vee::command_buffer cb) {
-      for (auto i = 0; i < count(); i++) {
+      for (auto i = 0; i < m_count; i++) {
         vee::cmd_draw_indexed_indirect(cb, **this, i, 1);
       }
     }
   };
 
   export class ec_buffer : public buffer<VkDrawIndirectCommand> {
-    template<typename T> void push(auto & map, unsigned & i, T) {
-      map += {
-        .vertexCount  = size(T::edg) * 3,
-        .firstVertex  = i,
-      };
-      i += size(T::edg) * 3;
-    }
+    unsigned m_count;
 
   public:
-    template<typename... T> ec_buffer(T...) :
-      buffer<VkDrawIndirectCommand> { sizeof...(T) + 1 }
-    {
-      unsigned tmp = 0;
-      auto m = map();
-      m += {};
-      (push(m, tmp, T {}), ...);
-    }
+    explicit ec_buffer(unsigned sz) :
+      buffer<VkDrawIndirectCommand> { sz }
+    , m_count { sz }
+    {}
 
     void cmd_draw(vee::command_buffer cb) {
-      for (auto i = 0; i < count(); i++) {
+      for (auto i = 0; i < m_count; i++) {
         vee::cmd_draw_indirect(cb, **this, i, 1);
       }
     }
@@ -222,10 +199,9 @@ namespace buffers {
 
   export class dc_buffer : public buffer<VkDispatchIndirectCommand> {
   public:
-    dc_buffer() : buffer<VkDispatchIndirectCommand> { 1 } {
-      auto m = map();
-      m += { 1, 1, 1 };
-    }
+    explicit dc_buffer(unsigned sz) :
+      buffer<VkDispatchIndirectCommand> { sz }
+    {}
 
     void cmd_draw(vee::command_buffer cb) {
       vee::cmd_dispatch_indirect(cb, **this);
@@ -238,15 +214,15 @@ namespace buffers {
     e_buffer  edg;
     vc_buffer vcmd;
     ec_buffer ecmd;
-    dc_buffer dcmd {};
+    dc_buffer dcmd { 16 }; // TODO: move this
     i_buffer  inst;
 
     template<typename... T> all(unsigned insts, T...) :
       vtx  { T {}... }
     , idx  { T {}... }
     , edg  { T {}... }
-    , vcmd { T {}... }
-    , ecmd { T {}... }
+    , vcmd { sizeof...(T) + 1 }
+    , ecmd { sizeof...(T) + 1 }
     , inst { insts }
     {}
 
