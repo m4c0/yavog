@@ -10,17 +10,6 @@ import voo;
 using namespace wagen;
 
 namespace chunk {
-  export struct input {
-    buffers::i_buffer inst;
-    buffers::vc_buffer vcmd;
-    buffers::ec_buffer ecmd;
-
-    template<typename... T> input(unsigned count, T...) :
-      inst { count }
-    , vcmd { T {}... }
-    , ecmd { T {}... }
-    {}
-  };
   export class gpunator {
     static constexpr const auto vcmd_size = sizeof(VkDrawIndexedIndirectCommand) * model_count;
     static constexpr const auto ecmd_size = sizeof(VkDrawIndirectCommand) * model_count;
@@ -28,7 +17,7 @@ namespace chunk {
 
     dotz::ivec3 m_len;
 
-    input m_in;
+    buffers::i_buffer m_in;
     buffers::all m_out;
 
     compact m_comp;
@@ -36,12 +25,39 @@ namespace chunk {
     count m_cc;
     collision m_col;
 
+    template<typename T> void update_buffers(VkCommandBuffer cb, unsigned & i, unsigned & fi, int & vofs, unsigned & fv) {
+      m_out.vcmd.update_buffer(cb, {
+        .indexCount   = buffers::size(T::tri) * 3,
+        .firstIndex   = fi,
+        .vertexOffset = vofs,
+      }, i);
+      m_out.ecmd.update_buffer(cb, {
+        .vertexCount  = buffers::size(T::edg) * 3,
+        .firstVertex  = fv,
+      }, i);
+      i++;
+      fi   += buffers::size(T::tri) * 3;
+      vofs += buffers::size(T::vtx);
+      fv   += buffers::size(T::edg) * 3;
+    }
+
+    template<typename... T> void update_buffers(VkCommandBuffer cb) {
+      m_out.vcmd.update_buffer(cb, {}, 0);
+      m_out.ecmd.update_buffer(cb, {}, 0);
+
+      unsigned i    = 1;
+      unsigned fi   = 0;
+      int      vofs = 0;
+      unsigned fv   = 0;
+      (update_buffers<T>(cb, i, fi, vofs, fv), ...);
+    }
+
   public:
     template<typename... T> gpunator(dotz::ivec3 len, T...) :
       m_len { len }
-    , m_in { static_cast<unsigned>(len.x * len.y * len.z), T {}... }
+    , m_in { static_cast<unsigned>(len.x * len.y * len.z) }
     , m_out { static_cast<unsigned>(len.x * len.y * len.z), T {}... }
-    , m_comp { *m_in.inst, *m_out.inst, len }
+    , m_comp { *m_in, *m_out.inst, len }
     , m_bit { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     , m_cc { m_out }
     , m_col { m_out }
@@ -52,9 +68,7 @@ namespace chunk {
       m_comp.cmd(cb);
       m_bit.cmd(cb);
       m_col.cmd_reset(cb);
-
-      vee::cmd_copy_buffer(cb, *m_in.vcmd, *m_out.vcmd, vcmd_size);
-      vee::cmd_copy_buffer(cb, *m_in.ecmd, *m_out.ecmd, ecmd_size);
+      update_buffers<T...>(cb);
       for (auto i = 1; i < model_count; i++) {
         m_cc.cmd(cb, i, m_len.x * m_len.y * m_len.z);
       }
@@ -65,7 +79,7 @@ namespace chunk {
     }
 
     [[nodiscard]] auto stamp() {
-      return chunk::stamp { *m_in.inst, m_len };
+      return chunk::stamp { *m_in, m_len };
     }
     [[nodiscard]] auto collision() {
       return chunk::collision { m_out };

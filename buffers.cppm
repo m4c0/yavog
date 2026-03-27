@@ -69,6 +69,10 @@ namespace buffers {
       return voo::memiter<T> { *m_buf.memory, &m_count };
     }
     [[nodiscard]] constexpr auto memory() const { return *m_buf.memory; }
+
+    void update_buffer(VkCommandBuffer cb, const T & val, unsigned idx) {
+      vee::cmd_update_buffer(cb, *m_buf.buffer, &val, idx * sizeof(T));
+    }
   };
 
   export class i_buffer : public buffer<inst> {
