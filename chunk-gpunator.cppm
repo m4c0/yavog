@@ -41,6 +41,7 @@ namespace chunk {
       fv   += ::buffers::size(T::edg) * 3;
     }
 
+    // TODO: move this back to "chunk::buffers"
     template<typename... T> void update_buffers(VkCommandBuffer cb) {
       m_out.vcmd.update_buffer(cb, {}, 0);
       m_out.ecmd.update_buffer(cb, {}, 0);
