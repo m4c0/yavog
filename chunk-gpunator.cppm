@@ -52,6 +52,7 @@ namespace chunk {
       m_comp.cmd(cb);
       m_bit.cmd(cb);
 
+      vee::cmd_update_buffer(cb, *m_out.dcmd, VkDispatchIndirectCommand { 1, max_collisions, 1 });
       vee::cmd_copy_buffer(cb, *m_in.vcmd, *m_out.vcmd, vcmd_size);
       vee::cmd_copy_buffer(cb, *m_in.ecmd, *m_out.ecmd, ecmd_size);
       for (auto i = 1; i < model_count; i++) {

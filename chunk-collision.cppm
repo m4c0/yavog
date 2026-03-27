@@ -4,7 +4,7 @@ import :cpipeline;
 import buffers;
 
 namespace chunk {
-  static inline constexpr const auto max_ents = 8;
+  inline constexpr const auto max_collisions = 8;
 
   export struct centity {
     dotz::vec3 pos;
@@ -18,7 +18,7 @@ namespace chunk {
     };
 
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
-        max_ents * sizeof(centity),
+        max_collisions * sizeof(centity),
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     unsigned m_ecnt = 0;
 
