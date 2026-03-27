@@ -1,10 +1,13 @@
 #pragma leco test
 #define _CRT_SECURE_NO_WARNINGS
+#define MCT_STAT_IMPLEMENTATION
 #include <stdio.h>
+#include "../mct/mct-stat.h"
 
 import jojo;
 import jute;
 import hay;
+import print;
 import pprent;
 import stubby;
 import sv;
@@ -21,9 +24,12 @@ static void write_u32(auto & f, unsigned id) {
 }
 
 static void conv(sv name) {
-  auto img = stbi::load(jojo::slurp(name));
   auto [fn,ext] = name.rsplit('.');
   auto out = (fn + ".pci"_s).cstr();
+  if (mct_stat_mtime(out.begin()) > mct_stat_mtime(name.begin())) return;
+  errln("Converting ", name);
+
+  auto img = stbi::load(jojo::slurp(name));
   
   hay<FILE *, fopen, fclose> f { out.begin(), "wb" };
   write_u32(f, 'PCIm');
