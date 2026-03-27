@@ -17,8 +17,8 @@ namespace chunk {
 
     dotz::ivec3 m_len;
 
-    buffers::i_buffer m_in;
-    buffers::all m_out;
+    ::buffers::i_buffer m_in;
+    buffers m_out;
 
     compact m_comp;
     bitonic m_bit;
@@ -27,18 +27,18 @@ namespace chunk {
 
     template<typename T> void update_buffers(VkCommandBuffer cb, unsigned & i, unsigned & fi, int & vofs, unsigned & fv) {
       m_out.vcmd.update_buffer(cb, {
-        .indexCount   = buffers::size(T::tri) * 3,
+        .indexCount   = ::buffers::size(T::tri) * 3,
         .firstIndex   = fi,
         .vertexOffset = vofs,
       }, i);
       m_out.ecmd.update_buffer(cb, {
-        .vertexCount  = buffers::size(T::edg) * 3,
+        .vertexCount  = ::buffers::size(T::edg) * 3,
         .firstVertex  = fv,
       }, i);
       i++;
-      fi   += buffers::size(T::tri) * 3;
-      vofs += buffers::size(T::vtx);
-      fv   += buffers::size(T::edg) * 3;
+      fi   += ::buffers::size(T::tri) * 3;
+      vofs += ::buffers::size(T::vtx);
+      fv   += ::buffers::size(T::edg) * 3;
     }
 
     template<typename... T> void update_buffers(VkCommandBuffer cb) {

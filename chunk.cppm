@@ -1,5 +1,6 @@
 export module chunk;
 export import :bitonic;
+export import :buffers;
 export import :collision;
 export import :compact;
 export import :count;

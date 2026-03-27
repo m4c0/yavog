@@ -1,7 +1,7 @@
 #pragma leco add_shader "chunk-count.comp"
 export module chunk:count;
+import :buffers;
 import :cpipeline;
-import buffers;
 import traits;
 import voo;
 
@@ -16,7 +16,7 @@ namespace chunk {
     cpipeline<upc, 4> m_cp;
 
   public:
-    explicit count(buffers::all & b) :
+    explicit count(buffers & b) :
       m_cp { "chunk-count.comp.spv", { *b.inst, *b.vcmd, *b.ecmd, *b.dcmd } }
     {}
     void cmd(vee::command_buffer cb, unsigned mdl, unsigned elems) {

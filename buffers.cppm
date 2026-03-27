@@ -207,37 +207,6 @@ namespace buffers {
       vee::cmd_dispatch_indirect(cb, **this);
     }
   };
-
-  export struct all {
-    v_buffer  vtx;
-    ix_buffer idx;
-    e_buffer  edg;
-    vc_buffer vcmd;
-    ec_buffer ecmd;
-    dc_buffer dcmd { 16 }; // TODO: move this
-    i_buffer  inst;
-
-    template<typename... T> all(unsigned insts, T...) :
-      vtx  { T {}... }
-    , idx  { T {}... }
-    , edg  { T {}... }
-    , vcmd { sizeof...(T) + 1 }
-    , ecmd { sizeof...(T) + 1 }
-    , inst { insts }
-    {}
-
-    void cmd_draw_vtx(vee::command_buffer cb) {
-      vtx.cmd_bind(cb);
-      idx.cmd_bind(cb);
-      inst.cmd_bind(cb);
-      vcmd.cmd_draw(cb);
-    }
-    void cmd_draw_edg(vee::command_buffer cb) {
-      edg.cmd_bind(cb);
-      inst.cmd_bind(cb);
-      ecmd.cmd_draw(cb);
-    }
-  };
 }
 
 // Should be in this module due to a bug in clang on windows

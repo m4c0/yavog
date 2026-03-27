@@ -1,11 +1,9 @@
 #pragma leco add_shader "chunk-collision.comp"
 export module chunk:collision;
+import :buffers;
 import :cpipeline;
-import buffers;
 
 namespace chunk {
-  static inline constexpr const auto max_collisions = 8;
-
   export struct centity {
     dotz::vec3 pos;
     float hit;
@@ -26,7 +24,7 @@ namespace chunk {
     VkBuffer m_dcmd;
 
   public:
-    collision(buffers::all & b) :
+    collision(buffers & b) :
       m_cp { "chunk-collision.comp.spv", { *b.inst, *m_buf.buffer } }
     , m_dcmd { *b.dcmd }
     {}

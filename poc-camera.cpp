@@ -38,7 +38,7 @@ struct app_stuff {
     .attributes = buffers::vk::iattrs(),
   });
 
-  buffers::all bufs {
+  chunk::buffers bufs {
     4,
     models::cube::t {},
   };

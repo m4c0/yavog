@@ -2,6 +2,7 @@
 #pragma leco add_resource_dir assets
 
 import buffers;
+import chunk;
 import casein;
 import dotz;
 import models;
@@ -20,7 +21,7 @@ using vv = vinyl::v<app_stuff, ext_stuff>;
 
 class scene_drawer : public buffers::vk::drawer {
   texmap::cache txts {};
-  buffers::all bufs { 16, models::cube::t {} };
+  chunk::buffers bufs { 16, models::cube::t {} };
 
   void faces(vee::command_buffer cb, vee::pipeline_layout::type pl) override {
     vee::cmd_bind_descriptor_set(cb, pl, 0, txts.dset());

@@ -1,6 +1,7 @@
 #pragma leco app
 #pragma leco add_resource_dir assets
 import buffers;
+import chunk;
 import casein;
 import dotz;
 import models;
@@ -33,7 +34,7 @@ struct app_stuff {
 
   texmap::cache tmap {};
 
-  buffers::all bufs {
+  chunk::buffers bufs {
     5,
     models::corner::t {},
     models::cube::t {},
