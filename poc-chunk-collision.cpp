@@ -59,6 +59,7 @@ int main() {
   voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
     col.cmd(cb.cb());
   });
+  voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
 
   vee::device_wait_idle();
 
