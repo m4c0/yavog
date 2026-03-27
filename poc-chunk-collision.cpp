@@ -60,7 +60,7 @@ int main() {
 
   voo::single_cb cb {};
   voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
-    col.cmd(cb.cb());
+    col.cmd_dispatch(cb.cb());
   });
   voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });
 

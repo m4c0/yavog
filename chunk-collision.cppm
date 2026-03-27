@@ -4,7 +4,7 @@ import :cpipeline;
 import buffers;
 
 namespace chunk {
-  inline constexpr const auto max_collisions = 8;
+  static inline constexpr const auto max_collisions = 8;
 
   export struct centity {
     dotz::vec3 pos;
@@ -20,7 +20,6 @@ namespace chunk {
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
         max_collisions * sizeof(centity),
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-    unsigned m_ecnt = 0;
 
     cpipeline<upc, 2> m_cp;
 
@@ -32,11 +31,15 @@ namespace chunk {
     , m_dcmd { *b.dcmd }
     {}
 
-    void cmd(vee::command_buffer cb) {
+    void cmd_dispatch(vee::command_buffer cb) {
       upc pc {};
       m_cp.cmd_dispatch_indirect(cb, &pc, { 0, 1 }, m_dcmd);
     }
 
-    auto map() { return voo::memiter<centity>(*m_buf.memory, &m_ecnt); }
+    void cmd_reset(vee::command_buffer cb) {
+      vee::cmd_update_buffer(cb, m_dcmd, VkDispatchIndirectCommand { 1, max_collisions, 1 });
+    }
+
+    auto map() { return voo::memiter<centity>(*m_buf.memory); }
   };
 }
