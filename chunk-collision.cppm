@@ -10,6 +10,8 @@ namespace chunk {
     dotz::vec3 pos;
     float hit;
   };
+  static_assert(sizeof(centity) == 16);
+
   export class collision {
     struct upc {
       unsigned x;
