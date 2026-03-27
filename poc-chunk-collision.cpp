@@ -49,9 +49,12 @@ int main() {
   cgpu.submit();
 
   auto col = cgpu.collision();
+  unsigned n;
   {
     auto m = col.map();
-    m += { { 1, 2, 1 } };
+    m += { { 1, +2, 1 } };
+    m += { { 1, -2, 1 } };
+    n = m.count();
   }
   vee::device_wait_idle();
 
@@ -64,7 +67,7 @@ int main() {
   vee::device_wait_idle();
 
   auto m = col.map();
-  for (auto i = 0; i < 1; i++) {
+  for (auto i = 0; i < n; i++) {
     silog::infof("%f %f %f - %f", m[i].pos.x, m[i].pos.y, m[i].pos.z, m[i].hit);
   }
 }
