@@ -53,5 +53,9 @@ namespace chunk {
       cmd_bind(cb, pc, bufs);
       vee::cmd_dispatch(cb, n.x, n.y, n.z);
     }
+    void cmd_dispatch_indirect(vee::command_buffer cb, const U * pc, const unsigned (&bufs)[N], VkBuffer dcmd) {
+      cmd_bind(cb, pc, bufs);
+      vee::cmd_dispatch_indirect(cb, dcmd);
+    }
   };
 }

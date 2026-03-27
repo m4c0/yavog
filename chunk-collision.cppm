@@ -32,8 +32,8 @@ namespace chunk {
 
     void cmd(vee::command_buffer cb) {
       upc pc {};
-      m_cp.cmd_bind(cb, &pc, { 0, 1 });
-      vee::cmd_dispatch_indirect(cb, m_dcmd);
+      //m_cp.cmd_dispatch_indirect(cb, &pc, { 0, 1 }, m_dcmd);
+      m_cp.cmd_dispatch(cb, &pc, { 0, 1 }, { 1, 1, 1 });
     }
 
     auto map() { return voo::memiter<centity>(*m_buf.memory, &m_ecnt); }

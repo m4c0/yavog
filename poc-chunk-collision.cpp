@@ -48,8 +48,6 @@ int main() {
   ch.copy({});
   cgpu.submit();
 
-  voo::single_cb cb {};
-
   auto col = cgpu.collision();
   {
     auto m = col.map();
@@ -57,6 +55,7 @@ int main() {
   }
   vee::device_wait_idle();
 
+  voo::single_cb cb {};
   voo::run(voo::cmd_buf_one_time_submit { cb.cb() }, [&] {
     col.cmd(cb.cb());
   });

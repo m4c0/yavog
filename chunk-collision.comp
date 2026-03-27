@@ -10,7 +10,8 @@ struct obj {
 };
 
 layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
-layout(binding = 1, set = 0) buffer buf_1 { obj obp[]; };
+layout(binding = 0, set = 1) buffer buf_1 { obj obp[]; };
 
 void main() {
+  obp[0].pos.w = 69;
 }
