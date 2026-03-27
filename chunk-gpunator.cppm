@@ -23,7 +23,6 @@ namespace chunk {
     compact m_comp;
     bitonic m_bit;
     count m_cc;
-    collision m_col;
 
     template<typename T> void update_buffers(VkCommandBuffer cb, unsigned & i, unsigned & fi, int & vofs, unsigned & fv) {
       m_out.vcmd.update_buffer(cb, {
@@ -61,15 +60,14 @@ namespace chunk {
     , m_comp { *m_in, *m_out.inst, len }
     , m_bit { *m_out.inst, static_cast<unsigned>(len.x * len.y * len.z) }
     , m_cc { m_out }
-    , m_col { m_out }
     {
       auto cb = m_cb.cb();
 
       voo::cmd_buf_sim_use_inherit g { cb };
       m_comp.cmd(cb);
       m_bit.cmd(cb);
-      m_col.cmd_reset(cb);
       update_buffers<T...>(cb);
+      vee::cmd_update_buffer(cb, *m_out.dcmd, VkDispatchIndirectCommand { 1, max_collisions, 1 });
       for (auto i = 1; i < model_count; i++) {
         m_cc.cmd(cb, i, m_len.x * m_len.y * m_len.z);
       }

@@ -19,7 +19,7 @@ void main() {
   uint in_mdl = uint(inp[ii].pos.w);
   switch (in_mdl) {
     case 2:
-      obp[0].pos.w = 99;
+      obp[oi].pos.w = 99;
       break;
   }
 }

@@ -18,6 +18,7 @@ namespace chunk {
     voo::bound_buffer m_buf = voo::bound_buffer::create_from_host(
         max_collisions * sizeof(centity),
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    unsigned m_bcount;
 
     cpipeline<upc, 2> m_cp;
 
@@ -34,10 +35,6 @@ namespace chunk {
       m_cp.cmd_dispatch_indirect(cb, &pc, { 0, 1 }, m_dcmd);
     }
 
-    void cmd_reset(vee::command_buffer cb) {
-      vee::cmd_update_buffer(cb, m_dcmd, VkDispatchIndirectCommand { 1, max_collisions, 1 });
-    }
-
-    auto map() { return voo::memiter<centity>(*m_buf.memory); }
+    auto map() { return voo::memiter<centity>(*m_buf.memory, &m_bcount); }
   };
 }
