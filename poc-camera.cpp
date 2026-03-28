@@ -61,6 +61,14 @@ struct app_stuff {
     voo::single_cb cb {};
     { 
       voo::cmd_buf_one_time_submit ots { cb.cb() };
+
+      bufs.vcmd.update_buffer(cb.cb(), {
+        .indexCount   = ::buffers::size(models::cube::t::tri) * 3,
+      }, 1);
+      bufs.ecmd.update_buffer(cb.cb(), {
+        .vertexCount  = ::buffers::size(models::cube::t::edg) * 3,
+      }, 1);
+
       cc.cmd(cb.cb(), 1, 4);
     }
     voo::queue::universal()->queue_submit({ .command_buffer = cb.cb() });

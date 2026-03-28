@@ -18,7 +18,7 @@ void main() {
 
   uint in_mdl = uint(inp[ii].pos.w);
   switch (in_mdl) {
-    case 2:
+    case 2: // cube
       obp[oi].pos.w = 99;
       break;
   }
