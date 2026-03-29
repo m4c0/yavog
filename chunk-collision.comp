@@ -1,4 +1,5 @@
 #version 450
+#pragma leco include "quaternions.glsl"
 
 struct inst {
   vec4 rot;
@@ -11,6 +12,8 @@ struct obj {
 
 layout(binding = 0, set = 0) readonly buffer buf_0 { inst inp[]; };
 layout(binding = 0, set = 1) buffer buf_1 { obj obp[]; };
+
+vec3 qrot(vec3 p, vec4 q);
 
 // Assuming capsule with height=1, radius=1
 const float cap_h = 1;
@@ -27,9 +30,9 @@ vec3 closest(vec3 p, obj o) {
 bool cube_hit(inst ii, obj oo) {
   vec3 sphc = closest(ii.pos.xyz, oo);
 
-  // TODO: rotate
-  vec3 aa = ii.pos.xyz - ii.size.xyz / 2;
-  vec3 bb = ii.pos.xyz + ii.size.xyz / 2;
+  vec3 rr = qrot(ii.size.xyz / 2, ii.rot);
+  vec3 aa = ii.pos.xyz - rr;
+  vec3 bb = ii.pos.xyz + rr;
   vec3 p = max(aa, min(bb, sphc));
   float d = length(p - sphc);
   return d >= 0 && d <= cap_r;
