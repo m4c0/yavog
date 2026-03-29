@@ -45,7 +45,7 @@ void main() {
   uint in_mdl = uint(inp[ii].pos.w);
   switch (in_mdl) {
     case 2: // cube
-      if (cube_hit(inp[ii], obp[oi])) obp[oi].pos.w = 1;
+      if (cube_hit(inp[ii], obp[oi])) obp[oi].pos.w = ii;
       break;
   }
 }
